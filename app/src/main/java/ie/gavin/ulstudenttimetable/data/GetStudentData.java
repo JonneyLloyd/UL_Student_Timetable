@@ -1,4 +1,6 @@
-package ie.gavin.ulstudenttimetable;
+package ie.gavin.ulstudenttimetable.data;
+
+import ie.gavin.ulstudenttimetable.StudentTimetableException;
 
 /**
  * Created by Oliver on 05/03/2016.

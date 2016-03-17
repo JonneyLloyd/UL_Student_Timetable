@@ -1,4 +1,4 @@
-package ie.gavin.ulstudenttimetable;
+package ie.gavin.ulstudenttimetable.data;
 
 import android.util.Log;
 

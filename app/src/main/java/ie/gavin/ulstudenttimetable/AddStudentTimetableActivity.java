@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import ie.gavin.ulstudenttimetable.data.GetStudentData;
+
 public class AddStudentTimetableActivity extends AppCompatActivity {
 
     @Override

@@ -1,4 +1,4 @@
-package ie.gavin.ulstudenttimetable;
+package ie.gavin.ulstudenttimetable.data;
 
 import android.os.AsyncTask;
 import android.util.Log;
