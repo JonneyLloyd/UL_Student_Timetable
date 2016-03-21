@@ -1,7 +1,6 @@
 package ie.gavin.ulstudenttimetable;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -34,7 +33,8 @@ public class CalendarView extends LinearLayout {
     private int CALENDAR_MAX_HEIGHT;
     private int CALENDAR_PREF_HEIGHT;
     private int CALENDAR_HEIGHT;
-    private int CALENDAR_WIDTH = 50;
+    private int CALENDAR_TIME_WIDTH;
+    private float CALENDAR_DAY_WIDTH;
 
     private LinearLayout calendarViewContainer;
 
@@ -63,6 +63,10 @@ public class CalendarView extends LinearLayout {
         loadLayout(context, attrs);
     }
 
+    public void setVisibleDays(int number) {
+        CALENDAR_DAY_WIDTH = 1f/number;
+    }
+
     private void loadLayout(Context context, AttributeSet attrs) {
         inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.calendar_view, this);
@@ -73,9 +77,7 @@ public class CalendarView extends LinearLayout {
         assignClickHandlers();
 
         updateCalendar();
-        drawUiElements(context);
-
-        calendarHorizontalScrollView.scrollTo(0, timeToScreenPosition(Calendar.getInstance()));
+        drawUiElements();
     }
 
 
@@ -96,7 +98,6 @@ public class CalendarView extends LinearLayout {
 
     // converts the current time to a position relative to the top of the calendar based on the current height
     public int timeToScreenPosition(Calendar cal) {
-        Log.d("timetest", ""+cal.get(Calendar.HOUR_OF_DAY));
         int minutes = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
         float relativeTimePosition = minutes / (24 * 60f);
         int positionOffset = (int) (CALENDAR_HEIGHT * relativeTimePosition);
@@ -113,7 +114,7 @@ public class CalendarView extends LinearLayout {
         display.getMetrics(outMetrics);
 
         CALENDAR_MIN_HEIGHT = (int) (outMetrics.heightPixels / SCREEN_DENSITY);
-        CALENDAR_MAX_HEIGHT = (int) (CALENDAR_MIN_HEIGHT * 3);
+        CALENDAR_MAX_HEIGHT = (int) (CALENDAR_MIN_HEIGHT * 3f);
 
         CALENDAR_PREF_HEIGHT = 1000;    // TODO sahredpref
 
@@ -122,15 +123,16 @@ public class CalendarView extends LinearLayout {
                 Math.max(CALENDAR_MIN_HEIGHT, CALENDAR_PREF_HEIGHT) // Don't allow below minimum
         );                                                          // Don't allow above maximum
 
-        CALENDAR_WIDTH = 50;
+        CALENDAR_TIME_WIDTH = 50;
+        CALENDAR_DAY_WIDTH = 1/3f;      // TODO sahredpref
 
     }
 
-    private void drawUiElements(Context context) {
-        timeColumnLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(CALENDAR_WIDTH), dpToPx(CALENDAR_HEIGHT)));
+    private void drawUiElements() {
+        timeColumnLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(CALENDAR_TIME_WIDTH), dpToPx(CALENDAR_HEIGHT)));
 
         for (int i = 0; i <= 24; i++) {
-            TextView timeView = (TextView) inflater.inflate(R.layout.calendar_time_view, null);
+            TextView timeView = (TextView) inflater.inflate(R.layout.calendar_time_view, timeColumnLinearLayout, false);
 
             if (i == 0 || i == 24) {
                 timeView.setText("");
@@ -217,28 +219,19 @@ public class CalendarView extends LinearLayout {
 //        grid.setAdapter(new CalendarAdapter(getContext(), cells, events));
 
         contentColumnViewPager.setAdapter(new CalendarPagerAdapter(getContext()));
-//        contentColumnViewPager.setCurrentItem(3);
-        contentColumnViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-            @Override
-            public void onPageSelected(int position) {
+        // Scrolls to the current day
+        final Calendar cal = Calendar.getInstance();
+        contentColumnViewPager.setCurrentItem(cal.DAY_OF_WEEK - 1);
 
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
+        // Scrolls to the current time (with padding above)
+        calendarHorizontalScrollView.post(new Runnable() {
+            public void run() {
+                int position = (int) (timeToScreenPosition(cal) - CALENDAR_MIN_HEIGHT * (1 / 3f));
+                calendarHorizontalScrollView.scrollTo(0, position);
             }
         });
 
-        // update title
-//        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-//        txtDate.setText(sdf.format(currentDate.getTime()));
     }
 
 
@@ -248,19 +241,14 @@ public class CalendarView extends LinearLayout {
         // days with events
         private HashSet<Date> eventDays;
 
-        // for view inflation
-        private LayoutInflater inflater;
-
-        public CalendarPagerAdapter(Context context)
-        {
+        public CalendarPagerAdapter(Context context) {
 //            super(context, R.layout.control_calendar_day, days);
 //            this.eventDays = eventDays;
-            inflater = LayoutInflater.from(context);
         }
 
-        @Override public float getPageWidth(int position) {
-            // TODO determine 1/3/5 day view
-            return(1/3f);
+        @Override
+        public float getPageWidth(int position) {
+            return CALENDAR_DAY_WIDTH;
         }
 
         @Override
@@ -278,11 +266,10 @@ public class CalendarView extends LinearLayout {
             View page = null;
             Log.d(LOG_TAG, "instantiateItem: pre");
             if (dayViews.get(position) == null) {
-//            if (dayViews.size() > position && dayViews.get(position) == null) {
-                RelativeLayout dayView = (RelativeLayout) inflater.inflate(R.layout.calendar_day_view, null);
+                RelativeLayout dayView = (RelativeLayout) inflater.inflate(R.layout.calendar_day_view, container, false);
                 // TODO use cursor adapter
 
-                    LinearLayout eventView = (LinearLayout) inflater.inflate(R.layout.calendar_event_view, null);
+                    LinearLayout eventView = (LinearLayout) inflater.inflate(R.layout.calendar_event_view, container, false);
 
                     String text = "";
                     int eventPosition = 0;
@@ -331,8 +318,9 @@ public class CalendarView extends LinearLayout {
                     });
 
                 Log.d(LOG_TAG, "instantiateItem: views created " + position);
-                if (position == 1) {
-                    addTimeIndicator(position, dayView);
+
+                if (position == Calendar.getInstance().DAY_OF_WEEK - 1) {
+                    addTimeIndicator(dayView, position);
                 }
 
                 dayViews.put(position, dayView);
@@ -351,15 +339,12 @@ public class CalendarView extends LinearLayout {
             dayViews.remove(position);
         }
 
-        public void addTimeIndicator(int position, RelativeLayout dayView) {
-            View timeSlider = (View) inflater.inflate(R.layout.calendar_event_view, null);
-            timeSlider.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, dpToPx(4)));
-            dayView.addView(timeSlider);
+        public void addTimeIndicator(ViewGroup container, int position) {
+            View timeSlider = inflater.inflate(R.layout.calendar_time_indicator_view, container, false);
+            ((RelativeLayout) container).addView(timeSlider);
 
             MarginLayoutParams params = (MarginLayoutParams) timeSlider.getLayoutParams();
-            params.topMargin = timeToScreenPosition(Calendar.getInstance()) - dpToPx(2);
-
-            timeSlider.setBackgroundColor(Color.parseColor("#FF1166"));
+            params.topMargin = timeToScreenPosition(Calendar.getInstance()) - dpToPx(1);
         }
 
     }
