@@ -2,7 +2,7 @@ package ie.gavin.ulstudenttimetable.data;
 
 import java.util.Date;
 
-public class Modules {
+public class Module {
 
     private String _ModuleID;
     private String _startTime;
@@ -13,12 +13,14 @@ public class Modules {
     private String _lecturer;
     private Date _day;
     private Date _last_update;
+    private String _groupName;
+    private String _attrib;
 
-    public Modules() {
+    public Module() {
 
     }
 
-    public Modules(String _ModuleID, String _startTime, String _endTime, String _weekStart, String _weekEnd, String _room, String _lecturer, Date _day, Date _last_update) {
+    public Module(String _ModuleID, String _startTime, String _endTime, String _weekStart, String _weekEnd, String _room, String _lecturer, Date _day, Date _last_update, String _groupName, String _attrib) {
         this._ModuleID = _ModuleID;
         this._startTime = _startTime;
         this._endTime = _endTime;
@@ -28,6 +30,8 @@ public class Modules {
         this._lecturer = _lecturer;
         this._day = _day;
         this._last_update = _last_update;
+        this._groupName = _groupName;
+        this._attrib = _attrib;
     }
 
     public String get_ModuleID() {
@@ -66,6 +70,14 @@ public class Modules {
         return _last_update;
     }
 
+    public String get_groupName() {
+        return _groupName;
+    }
+
+    public String get_attrib() {
+        return _attrib;
+    }
+
     public void set_ModuleID(String _ModuleID) {
         this._ModuleID = _ModuleID;
     }
@@ -100,5 +112,13 @@ public class Modules {
 
     public void set_last_update(Date _last_update) {
         this._last_update = _last_update;
+    }
+
+    public void set_groupName(String _groupName) {
+        this._groupName = _groupName;
+    }
+
+    public void set_attrib(String _attrib) {
+        this._attrib = _attrib;
     }
 }

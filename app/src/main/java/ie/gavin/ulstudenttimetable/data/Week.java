@@ -4,22 +4,22 @@ import java.util.Date;
 
 
 
-public class Dates {
-    private int _weeks;
+public class Week{
+    private int _week;
     private String _weekLabel;
     private Date _weekStart;
 
-    public Dates() {
+    public Week() {
     }
 
-    public Dates(int _weeks, String _weekLabel, Date _weekStart) {
-        this._weeks = _weeks;
+    public Week(int _week, String _weekLabel, Date _weekStart) {
+        this._week = _week;
         this._weekLabel = _weekLabel;
         this._weekStart = _weekStart;
     }
 
-    public int get_weeks() {
-        return _weeks;
+    public int get_week() {
+        return _week;
     }
 
     public String get_weekLabel() {
@@ -30,8 +30,8 @@ public class Dates {
         return _weekStart;
     }
 
-    public void set_weeks(int _weeks) {
-        this._weeks = _weeks;
+    public void set_week(int _week) {
+        this._week = _week;
     }
 
     public void set_weekLabel(String _weekLabel) {
