@@ -1,57 +1,50 @@
 package ie.gavin.ulstudenttimetable.data;
 
+import java.sql.Time;
 import java.util.Date;
 
 public class Module {
 
-    private String _ModuleID;
-    private String _startTime;
-    private String _endTime;
-    private String _weekStart;
-    private String _weekEnd;
+    private int _idTablePointer;
+    private String _ModuleCode;
+    private Time _startTime;
+    private Time _endTime;
     private String _room;
     private String _lecturer;
-    private Date _day;
-    private Date _last_update;
+    private int _day;//int 0-6
     private String _groupName;
-    private String _attrib;
+    private String _type;
 
     public Module() {
 
     }
 
-    public Module(String _ModuleID, String _startTime, String _endTime, String _weekStart, String _weekEnd, String _room, String _lecturer, Date _day, Date _last_update, String _groupName, String _attrib) {
-        this._ModuleID = _ModuleID;
+    public Module(int _idTablePointer, String _ModuleCode, Time _startTime, Time _endTime, String _room, String _lecturer, int _day, String _groupName, String _type) {
+        this._idTablePointer = _idTablePointer;
+        this._ModuleCode = _ModuleCode;
         this._startTime = _startTime;
         this._endTime = _endTime;
-        this._weekStart = _weekStart;
-        this._weekEnd = _weekEnd;
         this._room = _room;
         this._lecturer = _lecturer;
         this._day = _day;
-        this._last_update = _last_update;
         this._groupName = _groupName;
-        this._attrib = _attrib;
+        this._type = _type;
     }
 
-    public String get_ModuleID() {
-        return _ModuleID;
+    public int get_idTablePointer() {
+        return _idTablePointer;
     }
 
-    public String get_startTime() {
+    public String get_ModuleCode() {
+        return _ModuleCode;
+    }
+
+    public Time get_startTime() {
         return _startTime;
     }
 
-    public String get_endTime() {
+    public Time get_endTime() {
         return _endTime;
-    }
-
-    public String get_weekStart() {
-        return _weekStart;
-    }
-
-    public String get_weekEnd() {
-        return _weekEnd;
     }
 
     public String get_room() {
@@ -62,40 +55,32 @@ public class Module {
         return _lecturer;
     }
 
-    public Date get_day() {
+    public int get_day() {
         return _day;
-    }
-
-    public Date get_last_update() {
-        return _last_update;
     }
 
     public String get_groupName() {
         return _groupName;
     }
 
-    public String get_attrib() {
-        return _attrib;
+    public String get_type() {
+        return _type;
     }
 
-    public void set_ModuleID(String _ModuleID) {
-        this._ModuleID = _ModuleID;
+    public void set_idTablePointer(int _idTablePointer) {
+        this._idTablePointer = _idTablePointer;
     }
 
-    public void set_startTime(String _startTime) {
+    public void set_ModuleCode(String _ModuleCode) {
+        this._ModuleCode = _ModuleCode;
+    }
+
+    public void set_startTime(Time _startTime) {
         this._startTime = _startTime;
     }
 
-    public void set_endTime(String _endTime) {
+    public void set_endTime(Time _endTime) {
         this._endTime = _endTime;
-    }
-
-    public void set_weekStart(String _weekStart) {
-        this._weekStart = _weekStart;
-    }
-
-    public void set_weekEnd(String _weekEnd) {
-        this._weekEnd = _weekEnd;
     }
 
     public void set_room(String _room) {
@@ -106,19 +91,15 @@ public class Module {
         this._lecturer = _lecturer;
     }
 
-    public void set_day(Date _day) {
+    public void set_day(int _day) {
         this._day = _day;
-    }
-
-    public void set_last_update(Date _last_update) {
-        this._last_update = _last_update;
     }
 
     public void set_groupName(String _groupName) {
         this._groupName = _groupName;
     }
 
-    public void set_attrib(String _attrib) {
-        this._attrib = _attrib;
+    public void set_type(String _type) {
+        this._type = _type;
     }
 }

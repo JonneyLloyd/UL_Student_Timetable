@@ -15,10 +15,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.sql.Time;
+
+
+import ie.gavin.ulstudenttimetable.data.Module;
+import ie.gavin.ulstudenttimetable.data.MyDBHandler;
+
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final int REQUEST_CODE_ADD_TIMETABLE = 100;
+    MyDBHandler dbHandler;
+    Module tempModule;
+    Time tempTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +130,15 @@ public class TimetableActivity extends AppCompatActivity
         if(resultCode == REQUEST_CODE_ADD_TIMETABLE){
             String studentId = data.getExtras().get("studentId").toString();
             Toast.makeText(TimetableActivity.this, studentId, Toast.LENGTH_SHORT).show();
+
+            //adding a module to DB for testing purposes
+            /*
+            tempTime = java.sql.Time.valueOf("10:30:00");
+            tempModule = new Module(2, "CS4014", tempTime , tempTime, "AB100", "Conor Ryan", 1, "2A", "Lab");
+            dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
+            dbHandler.addModule(tempModule);
+            Toast.makeText(TimetableActivity.this, "CS4014 added", Toast.LENGTH_SHORT).show();
+            */
         }
 
     }
