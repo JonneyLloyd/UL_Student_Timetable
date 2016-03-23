@@ -125,10 +125,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //Add a new row to the database
     public void addModule(Module module){
         SQLiteDatabase db = getWritableDatabase();
-        db.insert(TABLE_UID, COLUMN_ID, null); //need to get return value and pass to idTablePointer
+        long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_ID_TABLE_POINTER, module.get_idTablePointer());
+        values.put(COLUMN_ID_TABLE_POINTER, id);//id taken from UID table
         values.put(COLUMN_MODULE_CODE, module.get_ModuleCode());
         values.put(COLUMN_START_TIME, String.valueOf(module.get_startTime()));
         values.put(COLUMN_END_TIME, String.valueOf(module.get_endTime()));
