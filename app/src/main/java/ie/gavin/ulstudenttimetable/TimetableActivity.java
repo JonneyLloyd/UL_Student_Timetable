@@ -20,9 +20,6 @@ import java.util.Calendar;
 
 import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
 import ie.gavin.ulstudenttimetable.calendar.CalendarView;
-
-import java.sql.Time;
-
 import ie.gavin.ulstudenttimetable.data.Module;
 import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 
