@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-android:shape="rectangle" >
+<!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--android:shape="rectangle" >-->
 
-<stroke
-    android:width="1px"
-    android:color="#dddddd"/>
+<!--<stroke-->
+    <!--android:width="1px"-->
+    <!--android:color="#dddddd"/>-->
 
-</shape>
+<!--</shape>-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetRight="-1px">
+
+    <shape xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/rectangle">
+        <stroke android:width="1px" android:color="#dddddd" />
+    </shape>
+
+</inset>
+
+<!--<layer-list xmlns:android="http://schemas.android.com/apk/res/android">-->
+<!--<item android:width="1px" android:left="4dp">-->
+    <!--<shape xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/rectangle">-->
+        <!--<solid android:color="#dddddd" />-->
+    <!--</shape>-->
+<!--</item>-->
+<!--</layer-list>-->

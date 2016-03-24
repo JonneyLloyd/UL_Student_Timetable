@@ -1,6 +1,8 @@
 package ie.gavin.ulstudenttimetable;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -18,9 +21,9 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
 
 public class CalendarView extends LinearLayout {
 
@@ -38,6 +41,8 @@ public class CalendarView extends LinearLayout {
 
     private LinearLayout calendarViewContainer;
 
+    private ViewPager headerColumnViewPager;
+
     private ScrollView calendarHorizontalScrollView;
 
     private LinearLayout timeColumnLinearLayout;
@@ -45,8 +50,14 @@ public class CalendarView extends LinearLayout {
 
     private static final int NUM_DAYS = 7;
 
+    private Calendar weekStartDate;
+
     // SparseArray allows empty indexes
-    private SparseArray<RelativeLayout> dayViews = new SparseArray<>();
+    private SparseArray<View> dayViews = new SparseArray<>();
+    private SparseArray<View> dayHeaderViews = new SparseArray<>();
+
+    // events
+    private ArrayList<CalendarEvent> events;
 
     public CalendarView(Context context) {
         super(context);
@@ -67,6 +78,10 @@ public class CalendarView extends LinearLayout {
         CALENDAR_DAY_WIDTH = 1f/number;
     }
 
+    public void setweekStartDate(Calendar cal) {
+        weekStartDate = cal;
+    }
+
     private void loadLayout(Context context, AttributeSet attrs) {
         inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.calendar_view, this);
@@ -76,8 +91,8 @@ public class CalendarView extends LinearLayout {
         assignUiElements(context);
         assignClickHandlers();
 
-        updateCalendar();
         drawUiElements();
+        updateCalendar();
     }
 
 
@@ -85,23 +100,13 @@ public class CalendarView extends LinearLayout {
         // layout is inflated, assign local variables to components
         calendarViewContainer = (LinearLayout) findViewById(R.id.calendar_view_container);
 
+        headerColumnViewPager = (ViewPager) findViewById(R.id.headerColumnViewPager);
+
         calendarHorizontalScrollView = (ScrollView) findViewById(R.id.calendarHorizontalScrollView);
 
         contentColumnViewPager = (ViewPager) findViewById(R.id.contentColumnViewPager);
         timeColumnLinearLayout = (LinearLayout) findViewById(R.id.timeColumnLinearLayout);
 
-    }
-
-    private int dpToPx(int dp) {
-        return (int) (dp * SCREEN_DENSITY + 0.5f);
-    }
-
-    // converts the current time to a position relative to the top of the calendar based on the current height
-    public int timeToScreenPosition(Calendar cal) {
-        int minutes = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
-        float relativeTimePosition = minutes / (24 * 60f);
-        int positionOffset = (int) (CALENDAR_HEIGHT * relativeTimePosition);
-        return dpToPx(positionOffset);
     }
 
     private void calculateDisplaySettings(Context context) {
@@ -186,43 +191,41 @@ public class CalendarView extends LinearLayout {
     }
 
     /**
-     * Display dates correctly in grid
+     * Redraw calendar with same data set
      */
-    public void updateCalendar()
-    {
-        updateCalendar(null);
+    public void updateCalendar() {
+        updateCalendar(events);
     }
 
     /**
-     * Display dates correctly in grid
+     * Redraw calendar with different data set
      */
-    public void updateCalendar(HashSet<Date> events)
-    {
-//        ArrayList<Date> cells = new ArrayList<>();
-//        Calendar calendar = (Calendar)currentDate.clone();
-//
-//        // determine the cell for current month's beginning
-//        calendar.set(Calendar.DAY_OF_MONTH, 1);
-//        int monthBeginningCell = calendar.get(Calendar.DAY_OF_WEEK) - 1;
-//
-//        // move calendar backwards to the beginning of the week
-//        calendar.add(Calendar.DAY_OF_MONTH, -monthBeginningCell);
-//
-//        // fill cells
-//        while (cells.size() < DAYS_COUNT)
-//        {
-//            cells.add(calendar.getTime());
-//            calendar.add(Calendar.DAY_OF_MONTH, 1);
-//        }
+    public void updateCalendar(ArrayList<CalendarEvent> events) {
+        this.events = events;
 
-        // update grid
-//        grid.setAdapter(new CalendarAdapter(getContext(), cells, events));
+        headerColumnViewPager.setAdapter(new CalendarDatePagerAdapter(getContext()));
+        contentColumnViewPager.setAdapter(new CalendarPagerAdapter(getContext()/*, events*/));
 
-        contentColumnViewPager.setAdapter(new CalendarPagerAdapter(getContext()));
+        // Synchronise both ViewPagers
+        headerColumnViewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                contentColumnViewPager.onTouchEvent(event);
+                return false;
+            }
+        });
+        contentColumnViewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                headerColumnViewPager.onTouchEvent(event);
+                return false;
+            }
+        });
 
         // Scrolls to the current day
         final Calendar cal = Calendar.getInstance();
-        contentColumnViewPager.setCurrentItem(cal.DAY_OF_WEEK - 1);
+        contentColumnViewPager.setCurrentItem(getDayOfWeekIndex(cal));
+        headerColumnViewPager.setCurrentItem(getDayOfWeekIndex(cal));
 
         // Scrolls to the current time (with padding above)
         calendarHorizontalScrollView.post(new Runnable() {
@@ -234,16 +237,98 @@ public class CalendarView extends LinearLayout {
 
     }
 
+    // returns index of a day from 0-6 where Monday is 0
+    public int getDayOfWeekIndex(Calendar cal) {
+        return (cal.get(Calendar.DAY_OF_WEEK) + 7 - 2) % 7;
+    }
 
+    // converts display pixels to pixels
+    private int dpToPx(int dp) {
+        return (int) (dp * SCREEN_DENSITY + 0.5f);
+    }
+
+    // converts the current time to a position relative to the top of the calendar based on the current height
+    public int timeToScreenPosition(Calendar cal) {
+        int minutes = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
+        float relativeTimePosition = minutes / (24 * 60f);
+        int positionOffset = (int) (CALENDAR_HEIGHT * relativeTimePosition);
+        return dpToPx(positionOffset);
+    }
+
+
+    class CalendarDatePagerAdapter extends PagerAdapter {
+
+        public CalendarDatePagerAdapter(Context context/*, ArrayList<CalendarEvent> events*/) {
+//            super(context, R.layout.control_calendar_day, days);
+//            super.events = events;
+        }
+
+        @Override
+        public float getPageWidth(int position) {
+            return CALENDAR_DAY_WIDTH;
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_DAYS;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, final int position) {
+            View page = null;
+            Log.d(LOG_TAG, "instantiateItem: pre");
+            if (dayHeaderViews.get(position) == null) {
+                LinearLayout dayHeaderView = (LinearLayout) inflater.inflate(R.layout.calendar_day_header_view, container, false);
+
+                Calendar weekDayDate = (Calendar) weekStartDate.clone();
+                weekDayDate.add(Calendar.DAY_OF_YEAR, position);
+
+                SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE");
+                SimpleDateFormat dateOfMonthFormat = new SimpleDateFormat("dd" + (weekDayDate.get(Calendar.DAY_OF_MONTH) == 1? " MMMM":""));
+                String dayOfWeek = dayOfWeekFormat.format(weekDayDate.getTime());
+                String dateOfMonth = dateOfMonthFormat.format(weekDayDate.getTime());
+
+                TextView dayOfWeekViewText = (TextView) dayHeaderView.findViewById(R.id.headerDayOfWeekTextView);
+                dayOfWeekViewText.setText(dayOfWeek);
+
+                TextView dateOfMonthViewText = (TextView) dayHeaderView.findViewById(R.id.headerDateOfMonthTextView);
+                dateOfMonthViewText.setText(dateOfMonth);
+
+                Calendar today = Calendar.getInstance();
+                if (position == getDayOfWeekIndex(today)) {
+                    if (today.get(Calendar.YEAR) == weekDayDate.get(Calendar.YEAR) &&
+                            today.get(Calendar.DAY_OF_YEAR) == weekDayDate.get(Calendar.DAY_OF_YEAR)) {
+                        dayOfWeekViewText.setTextColor(Color.parseColor("#2222AA"));
+                        dateOfMonthViewText.setTextColor(Color.parseColor("#2222AA"));
+                    }
+                }
+
+                dayHeaderViews.put(position, dayHeaderView);
+            }
+            page = dayHeaderViews.get(position);
+
+            ((ViewPager) container).addView(page, 0);
+
+            return page;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object page) {
+            ((ViewPager) container).removeView((View) page);
+            dayHeaderViews.remove(position);
+        }
+    }
 
     class CalendarPagerAdapter extends PagerAdapter {
 
-        // days with events
-        private HashSet<Date> eventDays;
-
-        public CalendarPagerAdapter(Context context) {
+        public CalendarPagerAdapter(Context context/*, ArrayList<CalendarEvent> events*/) {
 //            super(context, R.layout.control_calendar_day, days);
-//            this.eventDays = eventDays;
+//            super.events = events;
         }
 
         @Override
@@ -267,61 +352,54 @@ public class CalendarView extends LinearLayout {
             Log.d(LOG_TAG, "instantiateItem: pre");
             if (dayViews.get(position) == null) {
                 RelativeLayout dayView = (RelativeLayout) inflater.inflate(R.layout.calendar_day_view, container, false);
-                // TODO use cursor adapter
 
-                    LinearLayout eventView = (LinearLayout) inflater.inflate(R.layout.calendar_event_view, container, false);
+                Calendar today = Calendar.getInstance();
+                if (position == getDayOfWeekIndex(today)) {
 
-                    String text = "";
-                    int eventPosition = 0;
-                    int eventEndPosition = 0;
-                    int eventHeight = 0;
-                    Calendar start = Calendar.getInstance();
-                    Calendar end = Calendar.getInstance();
-                    switch (position) {
-                        case 0:
-                            start.set(2016, 3, 18, 15, 0);
-                            end.set(2016, 3, 18, 16, 0);
-                            eventPosition = timeToScreenPosition(start);
-                            eventEndPosition = timeToScreenPosition(end);
-                            eventHeight = eventEndPosition - eventPosition;
-                            break;
-                        case 1:
-                            start.set(2016, 3, 19, 14, 0);
-                            end.set(2016, 3, 19, 16, 0);
-                            eventPosition = timeToScreenPosition(start);
-                            eventEndPosition = timeToScreenPosition(end);
-                            eventHeight = eventEndPosition - eventPosition;
-                            break;
-                        default:
-                            start.set(2016, 3, 20, 9, 0);
-                            end.set(2016, 3, 20, 10, 0);
-                            eventPosition = timeToScreenPosition(start);
-                            eventEndPosition = timeToScreenPosition(end);
-                            eventHeight = eventEndPosition - eventPosition;
-                            break;
+                    Calendar weekDayDate = (Calendar) weekStartDate.clone();
+                    weekDayDate.add(Calendar.DAY_OF_YEAR, position);
+
+                    if (today.get(Calendar.YEAR) == weekDayDate.get(Calendar.YEAR) &&
+                            today.get(Calendar.DAY_OF_YEAR) == weekDayDate.get(Calendar.DAY_OF_YEAR)) {
+
+                        addTimeIndicator(dayView, position);
+
+                        dayView.setBackgroundColor(Color.parseColor("#999999"));
                     }
-                    eventView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, eventHeight));
-
-                    TextView eventViewText = (TextView) eventView.findViewById(R.id.eventTextView);
-                    eventViewText.setText("hello");
-
-                    dayView.addView(eventView);
-
-                    MarginLayoutParams params = (MarginLayoutParams) eventView.getLayoutParams();
-                    params.topMargin = eventPosition;
-
-                    eventView.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Log.d("test", "" + position);
-                        }
-                    });
-
-                Log.d(LOG_TAG, "instantiateItem: views created " + position);
-
-                if (position == Calendar.getInstance().DAY_OF_WEEK - 1) {
-                    addTimeIndicator(dayView, position);
                 }
+
+                for(CalendarEvent event : events) {
+                    if (getDayOfWeekIndex(event.getStartDateTime()) == position) {
+                        LinearLayout eventView = (LinearLayout) inflater.inflate(R.layout.calendar_event_view, container, false);
+
+                        int eventPosition = timeToScreenPosition(event.getStartDateTime());
+                        int eventEndPosition = timeToScreenPosition(event.getEndDateTime());
+                        int eventHeight = eventEndPosition - eventPosition;
+
+                        eventView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, eventHeight));
+
+                        GradientDrawable bgShape = (GradientDrawable)eventView.getBackground();
+                        bgShape.setColor(Color.parseColor(event.getColor()));
+
+                        TextView eventViewText = (TextView) eventView.findViewById(R.id.eventTextView);
+                        eventViewText.setText(event.getTitle());
+
+                        dayView.addView(eventView);
+
+                        MarginLayoutParams params = (MarginLayoutParams) eventView.getLayoutParams();
+                        params.topMargin = eventPosition;
+                        params.leftMargin = dpToPx(10);
+                        params.rightMargin = dpToPx(2);
+
+                        eventView.setOnClickListener(new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Log.d("test", "" + position);
+                            }
+                        });
+                    }
+                }
+                Log.d(LOG_TAG, "instantiateItem: views created " + position);
 
                 dayViews.put(position, dayView);
             }
@@ -344,7 +422,7 @@ public class CalendarView extends LinearLayout {
             ((RelativeLayout) container).addView(timeSlider);
 
             MarginLayoutParams params = (MarginLayoutParams) timeSlider.getLayoutParams();
-            params.topMargin = timeToScreenPosition(Calendar.getInstance()) - dpToPx(1);
+            params.topMargin = timeToScreenPosition(Calendar.getInstance()) - dpToPx(6);
         }
 
     }
