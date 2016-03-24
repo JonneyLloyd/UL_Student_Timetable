@@ -21,12 +21,19 @@ import java.util.Calendar;
 import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
 import ie.gavin.ulstudenttimetable.calendar.CalendarView;
 
+import java.sql.Time;
+
+import ie.gavin.ulstudenttimetable.data.Module;
+import ie.gavin.ulstudenttimetable.data.MyDBHandler;
+
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private CalendarView cv;
 
     private final int REQUEST_CODE_ADD_TIMETABLE = 100;
+    MyDBHandler dbHandler;
+    Module tempModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,6 +169,31 @@ public class TimetableActivity extends AppCompatActivity
         if(resultCode == REQUEST_CODE_ADD_TIMETABLE){
             String studentId = data.getExtras().get("studentId").toString();
             Toast.makeText(TimetableActivity.this, studentId, Toast.LENGTH_SHORT).show();
+
+
+
+            //adding a module to DB for testing purposes
+
+            /*
+            tempModule = new Module(2, "CS4014", "10:30:00" , "11:30:00", "AB100", "Conor Ryan", 1, "2A", "Lab");
+            dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
+            dbHandler.addModule(tempModule);
+            Toast.makeText(TimetableActivity.this, "CS4014 added", Toast.LENGTH_SHORT).show();
+            */
+
+            //testing module search & handle no result
+
+            /*
+
+            dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
+            tempModule = dbHandler.getModuleFromID(101);
+            if (tempModule != null) {
+                Toast.makeText(TimetableActivity.this, tempModule.get_lecturer(), Toast.LENGTH_SHORT).show();
+            }
+            else
+                Toast.makeText(TimetableActivity.this, "ID not found", Toast.LENGTH_SHORT).show();
+            */
+
         }
 
     }
