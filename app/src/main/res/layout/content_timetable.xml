@@ -12,11 +12,11 @@
     tools:context=".TimetableActivity"
     tools:showIn="@layout/app_bar_timetable">
 
-    <ie.gavin.ulstudenttimetable.CalendarView
+    <ie.gavin.ulstudenttimetable.calendar.CalendarView
         android:id="@+id/calendar_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </ie.gavin.ulstudenttimetable.CalendarView>
+    </ie.gavin.ulstudenttimetable.calendar.CalendarView>
 
 </RelativeLayout>

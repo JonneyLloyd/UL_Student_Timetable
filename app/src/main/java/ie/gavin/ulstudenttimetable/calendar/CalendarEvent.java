@@ -1,4 +1,4 @@
-package ie.gavin.ulstudenttimetable;
+package ie.gavin.ulstudenttimetable.calendar;
 
 import java.util.Calendar;
 

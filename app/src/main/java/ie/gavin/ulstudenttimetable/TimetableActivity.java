@@ -18,6 +18,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
+import ie.gavin.ulstudenttimetable.calendar.CalendarView;
+
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 

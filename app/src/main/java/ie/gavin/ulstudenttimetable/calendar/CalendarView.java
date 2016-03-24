@@ -1,4 +1,4 @@
-package ie.gavin.ulstudenttimetable;
+package ie.gavin.ulstudenttimetable.calendar;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -24,6 +24,8 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import ie.gavin.ulstudenttimetable.R;
 
 public class CalendarView extends LinearLayout {
 
