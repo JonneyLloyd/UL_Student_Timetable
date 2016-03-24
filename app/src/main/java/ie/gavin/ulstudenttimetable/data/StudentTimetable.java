@@ -1,13 +1,11 @@
 package ie.gavin.ulstudenttimetable.data;
 
-import java.util.Date;
-
 public class StudentTimetable {
     private int _idTablePointer;
     private String _moduleCode;
     private int _modulePointer;
     private String _start_time;
-    private Date _day;//int 0-6
+    private int _day;//int 0-6
     private String _endTime;
     private int _studentID;
     private String _notes;
@@ -15,6 +13,7 @@ public class StudentTimetable {
     private String _type;
     private String _title;
     private String _lecturer;
+    private String _room;
 
     public StudentTimetable() {
     }
@@ -23,7 +22,7 @@ public class StudentTimetable {
         this._modulePointer = _modulePointer;
     }
 
-    public StudentTimetable(int _idTablePointer, String _moduleCode, int _modulePointer, String _start_time, Date _day, String _endTime, int _studentID, String _notes, String _groupName, String _type, String _title, String _lecturer) {
+    public StudentTimetable(int _idTablePointer, String _moduleCode, int _modulePointer, String _start_time, int _day, String _endTime, int _studentID, String _notes, String _groupName, String _type, String _title, String _lecturer, String _room) {
         this._idTablePointer = _idTablePointer;
         this._moduleCode = _moduleCode;
         this._modulePointer = _modulePointer;
@@ -36,6 +35,7 @@ public class StudentTimetable {
         this._type = _type;
         this._title = _title;
         this._lecturer = _lecturer;
+        this._room = _room;
     }
 
     public int get_idTablePointer() {
@@ -54,7 +54,7 @@ public class StudentTimetable {
         return _start_time;
     }
 
-    public Date get_day() {
+    public int get_day() {
         return _day;
     }
 
@@ -86,6 +86,10 @@ public class StudentTimetable {
         return _lecturer;
     }
 
+    public String get_room() {
+        return _room;
+    }
+
     public void set_idTablePointer(int _idTablePointer) {
         this._idTablePointer = _idTablePointer;
     }
@@ -102,7 +106,7 @@ public class StudentTimetable {
         this._start_time = _start_time;
     }
 
-    public void set_day(Date _day) {
+    public void set_day(int _day) {
         this._day = _day;
     }
 
@@ -132,5 +136,9 @@ public class StudentTimetable {
 
     public void set_lecturer(String _lecturer) {
         this._lecturer = _lecturer;
+    }
+
+    public void set_room(String _room) {
+        this._room = _room;
     }
 }

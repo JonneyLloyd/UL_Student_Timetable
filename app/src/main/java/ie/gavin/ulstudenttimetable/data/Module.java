@@ -1,14 +1,11 @@
 package ie.gavin.ulstudenttimetable.data;
 
-import java.sql.Time;
-import java.util.Date;
-
 public class Module {
 
     private int _idTablePointer;
     private String _ModuleCode;
-    private Time _startTime;
-    private Time _endTime;
+    private String _startTime;
+    private String _endTime;
     private String _room;
     private String _lecturer;
     private int _day;//int 0-6
@@ -19,7 +16,7 @@ public class Module {
 
     }
 
-    public Module(int _idTablePointer, String _ModuleCode, Time _startTime, Time _endTime, String _room, String _lecturer, int _day, String _groupName, String _type) {
+    public Module(int _idTablePointer, String _ModuleCode, String _startTime, String _endTime, String _room, String _lecturer, int _day, String _groupName, String _type) {
         this._idTablePointer = _idTablePointer;
         this._ModuleCode = _ModuleCode;
         this._startTime = _startTime;
@@ -39,11 +36,11 @@ public class Module {
         return _ModuleCode;
     }
 
-    public Time get_startTime() {
+    public String get_startTime() {
         return _startTime;
     }
 
-    public Time get_endTime() {
+    public String get_endTime() {
         return _endTime;
     }
 
@@ -75,11 +72,11 @@ public class Module {
         this._ModuleCode = _ModuleCode;
     }
 
-    public void set_startTime(Time _startTime) {
+    public void set_startTime(String _startTime) {
         this._startTime = _startTime;
     }
 
-    public void set_endTime(Time _endTime) {
+    public void set_endTime(String _endTime) {
         this._endTime = _endTime;
     }
 

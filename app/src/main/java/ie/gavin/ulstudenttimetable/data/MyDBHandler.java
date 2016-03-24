@@ -1,11 +1,15 @@
 package ie.gavin.ulstudenttimetable.data;
 
 
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.content.Context;
 import android.content.ContentValues;
+import android.util.Log;
+import android.widget.Toast;
 
 public class MyDBHandler extends SQLiteOpenHelper{
 
@@ -84,6 +88,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_TYPE + " VARCHAR(45), " +
                 COLUMN_TITLE + " VARCHAR(45), " +
                 COLUMN_LECTURER + " VARCHAR(45) " +
+                COLUMN_ROOM + " VARCHAR(10), " +
                 ");";
 
         String query4 = "CREATE TABLE " + TABLE_CLASS_WEEKS + "(" +
@@ -138,19 +143,144 @@ public class MyDBHandler extends SQLiteOpenHelper{
         values.put(COLUMN_GROUP_NAME, module.get_groupName());
         values.put(COLUMN_TYPE, module.get_type());
 
-
-
         db.insert(TABLE_MODULE, null, values);
-
         db.close();
     }
 
-    //Delete a row from database
-    public void  deleteModule(String moduleID){
+    //add row to studentTimetable table
+    public void addToStudentTimetable(StudentTimetable entry){
+        SQLiteDatabase db = getWritableDatabase();
+        long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_ID_TABLE_POINTER, id);
+        values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
+        values.put(COLUMN_MODULE_CODE, entry.get_moduleCode());
+        values.put(COLUMN_START_TIME, entry.get_start_time());
+        values.put(COLUMN_DAY, String.valueOf(entry.get_day()));
+        values.put(COLUMN_END_TIME, entry.get_endTime());
+        values.put(COLUMN_STUDENT_ID, entry.get_endTime());
+        values.put(COLUMN_NOTES, entry.get_studentID());
+        values.put(COLUMN_GROUP_NAME, entry.get_groupName());
+        values.put(COLUMN_TYPE, entry.get_type());
+        values.put( COLUMN_TITLE, entry.get_title());
+        values.put(COLUMN_LECTURER, entry.get_lecturer());
+        values.put(COLUMN_ROOM, entry.get_room());
+
+        db.insert(TABLE_STUDENT_TIMETABLE, null, values);
+        db.close();
+    }
+
+    //return a module row from id
+    public Module getModuleFromID(int id){
+        Module result = null;
+        String query = "SELECT * FROM " + TABLE_MODULE + " WHERE " +
+                COLUMN_ID_TABLE_POINTER + " = " + id + ";";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            result = new Module(
+                    Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                    c.getString(c.getColumnIndex("moduleCode")),
+                    c.getString(c.getColumnIndex("startTime")),
+                    c.getString(c.getColumnIndex("endTime")),
+                    c.getString(c.getColumnIndex("room")),
+                    c.getString(c.getColumnIndex("lecturer")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                    c.getString(c.getColumnIndex("groupName")),
+                    c.getString(c.getColumnIndex("type"))
+            );
+        }
+            catch (SQLiteException e)
+            {
+                Log.d("SQL Error", e.getMessage());
+                return null;
+            }
+            catch (CursorIndexOutOfBoundsException ce)
+            {
+                Log.d("ID not found", ce.getMessage());
+
+            }
+            finally
+            {
+                //release all resources
+                c.close();
+                db.close();
+            }
+        return result;
+    }
+
+    //return a studentTimetable row from id
+    public StudentTimetable getStudentTimetableFroID(int id){
+        StudentTimetable result = null;
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " +
+                COLUMN_ID_TABLE_POINTER + " = " + id + ";";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            result = new StudentTimetable(
+                    Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                    c.getString(c.getColumnIndex("moduleCode")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                    c.getString(c.getColumnIndex("startTime")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                    c.getString(c.getColumnIndex("endTime")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                    c.getString(c.getColumnIndex("notes")),
+                    c.getString(c.getColumnIndex("groupName")),
+                    c.getString(c.getColumnIndex("type")),
+                    c.getString(c.getColumnIndex("title")),
+                    c.getString(c.getColumnIndex("lecturer")),
+                    c.getString(c.getColumnIndex("room"))
+            );
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
+
+        }
+        finally
+        {
+            //release all resources
+            c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+
+
+    //Delete a row from moduleTimetable
+    public void  deleteModuleEntryFromID(int IDTablePointer){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_MODULE + " WHERE " + COLUMN_ID_TABLE_POINTER + "=\"" + IDTablePointer + "\";");
+        db.close();
+
+    }
+    //delete all entries with this moduleID
+    public void  deleteModule(int moduleID){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_MODULE + " WHERE " + COLUMN_MODULE_CODE + "=\"" + moduleID + "\";");
         db.close();
 
+    }
+
+    //delete a row from studentTimetable
+    public void  deleteStudentTimetableEntryFromID(int IDTablePointer){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " + COLUMN_ID_TABLE_POINTER + "=\"" + IDTablePointer + "\";");
+        db.close();
 
     }
 }

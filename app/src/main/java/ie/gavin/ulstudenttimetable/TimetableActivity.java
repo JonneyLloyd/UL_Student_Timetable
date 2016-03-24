@@ -27,7 +27,6 @@ public class TimetableActivity extends AppCompatActivity
     private final int REQUEST_CODE_ADD_TIMETABLE = 100;
     MyDBHandler dbHandler;
     Module tempModule;
-    Time tempTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,14 +130,30 @@ public class TimetableActivity extends AppCompatActivity
             String studentId = data.getExtras().get("studentId").toString();
             Toast.makeText(TimetableActivity.this, studentId, Toast.LENGTH_SHORT).show();
 
+
+
             //adding a module to DB for testing purposes
+
             /*
-            tempTime = java.sql.Time.valueOf("10:30:00");
-            tempModule = new Module(2, "CS4014", tempTime , tempTime, "AB100", "Conor Ryan", 1, "2A", "Lab");
+            tempModule = new Module(2, "CS4014", "10:30:00" , "11:30:00", "AB100", "Conor Ryan", 1, "2A", "Lab");
             dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
             dbHandler.addModule(tempModule);
             Toast.makeText(TimetableActivity.this, "CS4014 added", Toast.LENGTH_SHORT).show();
             */
+
+            //testing module search & handle no result
+
+            /*
+
+            dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
+            tempModule = dbHandler.getModuleFromID(101);
+            if (tempModule != null) {
+                Toast.makeText(TimetableActivity.this, tempModule.get_lecturer(), Toast.LENGTH_SHORT).show();
+            }
+            else
+                Toast.makeText(TimetableActivity.this, "ID not found", Toast.LENGTH_SHORT).show();
+            */
+
         }
 
     }
