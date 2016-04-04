@@ -3,6 +3,7 @@ package ie.gavin.ulstudenttimetable.calendar;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -40,6 +41,7 @@ public class CalendarView extends LinearLayout {
     private int CALENDAR_HEIGHT;
     private int CALENDAR_TIME_WIDTH;
     private float CALENDAR_DAY_WIDTH;
+    private int CALENDAR_DAYS_VISIBLE;
 
     private LinearLayout calendarViewContainer;
 
@@ -59,7 +61,7 @@ public class CalendarView extends LinearLayout {
     private SparseArray<View> dayHeaderViews = new SparseArray<>();
 
     // events
-    private ArrayList<CalendarEvent> events;
+    private ArrayList<CalendarEvent> events = new ArrayList<>();
 
     public CalendarView(Context context) {
         super(context);
@@ -77,6 +79,7 @@ public class CalendarView extends LinearLayout {
     }
 
     public void setVisibleDays(int number) {
+        CALENDAR_DAYS_VISIBLE = number;
         CALENDAR_DAY_WIDTH = 1f/number;
     }
 
@@ -90,7 +93,7 @@ public class CalendarView extends LinearLayout {
 
         calculateDisplaySettings(context);
 
-        assignUiElements(context);
+        assignUiElements();
         assignClickHandlers();
 
         drawUiElements();
@@ -98,7 +101,7 @@ public class CalendarView extends LinearLayout {
     }
 
 
-    private void assignUiElements(Context context) {
+    private void assignUiElements() {
         // layout is inflated, assign local variables to components
         calendarViewContainer = (LinearLayout) findViewById(R.id.calendar_view_container);
 
@@ -224,6 +227,10 @@ public class CalendarView extends LinearLayout {
             }
         });
 
+        focusCalendar();
+    }
+
+    public void focusCalendar() {
         // Scrolls to the current day
         final Calendar cal = Calendar.getInstance();
         contentColumnViewPager.setCurrentItem(getDayOfWeekIndex(cal));
@@ -236,7 +243,6 @@ public class CalendarView extends LinearLayout {
                 calendarHorizontalScrollView.scrollTo(0, position);
             }
         });
-
     }
 
     // returns index of a day from 0-6 where Monday is 0
@@ -282,16 +288,17 @@ public class CalendarView extends LinearLayout {
 
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
-            View page = null;
-            Log.d(LOG_TAG, "instantiateItem: pre");
             if (dayHeaderViews.get(position) == null) {
                 LinearLayout dayHeaderView = (LinearLayout) inflater.inflate(R.layout.calendar_day_header_view, container, false);
 
                 Calendar weekDayDate = (Calendar) weekStartDate.clone();
                 weekDayDate.add(Calendar.DAY_OF_YEAR, position);
 
-                SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE");
-                SimpleDateFormat dateOfMonthFormat = new SimpleDateFormat("dd" + (weekDayDate.get(Calendar.DAY_OF_MONTH) == 1? " MMMM":""));
+                SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat(getContext().getString(R.string.wideDayOfWeekFormat));
+                if (CALENDAR_DAYS_VISIBLE > 3) dayOfWeekFormat = new SimpleDateFormat(getContext().getString(R.string.narrowDayOfWeekFormat));
+
+                SimpleDateFormat dateOfMonthFormat = new SimpleDateFormat(getContext().getString(R.string.dateOfMonthFormat) + (weekDayDate.get(Calendar.DAY_OF_MONTH) == 1? getContext().getString(R.string.monthOfYearFormat):""));
+
                 String dayOfWeek = dayOfWeekFormat.format(weekDayDate.getTime());
                 String dateOfMonth = dateOfMonthFormat.format(weekDayDate.getTime());
 
@@ -302,26 +309,30 @@ public class CalendarView extends LinearLayout {
                 dateOfMonthViewText.setText(dateOfMonth);
 
                 Calendar today = Calendar.getInstance();
-                if (position == getDayOfWeekIndex(today)) {
-                    if (today.get(Calendar.YEAR) == weekDayDate.get(Calendar.YEAR) &&
-                            today.get(Calendar.DAY_OF_YEAR) == weekDayDate.get(Calendar.DAY_OF_YEAR)) {
-                        dayOfWeekViewText.setTextColor(Color.parseColor("#2222AA"));
-                        dateOfMonthViewText.setTextColor(Color.parseColor("#2222AA"));
-                    }
+
+                if (today.get(Calendar.YEAR) == weekDayDate.get(Calendar.YEAR) &&
+                        today.get(Calendar.DAY_OF_YEAR) == weekDayDate.get(Calendar.DAY_OF_YEAR)) {
+                    dayOfWeekViewText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorHighlight));
+                    dateOfMonthViewText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorHighlight));
+                }
+                else if (today.get(Calendar.YEAR) <= weekDayDate.get(Calendar.YEAR) &&
+                        today.get(Calendar.DAY_OF_YEAR) < weekDayDate.get(Calendar.DAY_OF_YEAR)) {
+                    dayOfWeekViewText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+                    dateOfMonthViewText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
                 }
 
                 dayHeaderViews.put(position, dayHeaderView);
             }
-            page = dayHeaderViews.get(position);
+            View page = dayHeaderViews.get(position);
 
-            ((ViewPager) container).addView(page, 0);
+            container.addView(page, 0);
 
             return page;
         }
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object page) {
-            ((ViewPager) container).removeView((View) page);
+            container.removeView((View) page);
             dayHeaderViews.remove(position);
         }
     }
@@ -350,8 +361,6 @@ public class CalendarView extends LinearLayout {
 
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
-            View page = null;
-            Log.d(LOG_TAG, "instantiateItem: pre");
             if (dayViews.get(position) == null) {
                 RelativeLayout dayView = (RelativeLayout) inflater.inflate(R.layout.calendar_day_view, container, false);
 
@@ -364,9 +373,9 @@ public class CalendarView extends LinearLayout {
                     if (today.get(Calendar.YEAR) == weekDayDate.get(Calendar.YEAR) &&
                             today.get(Calendar.DAY_OF_YEAR) == weekDayDate.get(Calendar.DAY_OF_YEAR)) {
 
-                        addTimeIndicator(dayView, position);
+                        addTimeIndicator(dayView);
 
-                        dayView.setBackgroundColor(Color.parseColor("#999999"));
+                        dayView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorContentBackgroundDark));
                     }
                 }
 
@@ -390,41 +399,40 @@ public class CalendarView extends LinearLayout {
 
                         MarginLayoutParams params = (MarginLayoutParams) eventView.getLayoutParams();
                         params.topMargin = eventPosition;
-                        params.leftMargin = dpToPx(10);
-                        params.rightMargin = dpToPx(2);
+                        params.leftMargin = (int) getResources().getDimension(R.dimen.event_margin_left);
+                        params.rightMargin = (int) getResources().getDimension(R.dimen.event_margin_right);
 
                         eventView.setOnClickListener(new OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Log.d("test", "" + position);
+                            Log.d("test", "" + position);
                             }
                         });
                     }
                 }
-                Log.d(LOG_TAG, "instantiateItem: views created " + position);
 
                 dayViews.put(position, dayView);
             }
-            page = dayViews.get(position);
+            View page = dayViews.get(position);
 
-            ((ViewPager) container).addView(page, 0);
-            Log.d(LOG_TAG, "instantiateItem: post");
+            container.addView(page, 0);
 
             return page;
         }
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object page) {
-            ((ViewPager) container).removeView((View) page);
+            container.removeView((View) page);
             dayViews.remove(position);
         }
 
-        public void addTimeIndicator(ViewGroup container, int position) {
+        public void addTimeIndicator(ViewGroup container) {
             View timeSlider = inflater.inflate(R.layout.calendar_time_indicator_view, container, false);
-            ((RelativeLayout) container).addView(timeSlider);
+            container.addView(timeSlider);
 
             MarginLayoutParams params = (MarginLayoutParams) timeSlider.getLayoutParams();
-            params.topMargin = timeToScreenPosition(Calendar.getInstance()) - dpToPx(6);
+            int timeIndicatorHeight =  (int) (getResources().getDimension(R.dimen.time_indicator_height));  // value in px
+            params.topMargin = timeToScreenPosition(Calendar.getInstance()) - timeIndicatorHeight / 2;    // half the indicators height
         }
 
     }
