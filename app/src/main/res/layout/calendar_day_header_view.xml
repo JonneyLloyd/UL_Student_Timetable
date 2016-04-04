@@ -18,21 +18,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="3dp"
-        android:paddingBottom="5dp"
+        android:paddingBottom="0dp"
         android:paddingLeft="5dp"
         android:paddingRight="3dp"
+        android:layout_marginBottom="0dp"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/darker_gray"/>
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/headerDateOfMonthTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="3dp"
+        android:paddingTop="0dp"
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="3dp"
+        android:layout_marginTop="0dp"
         android:textAppearance="@android:style/TextAppearance.Large"
-        android:textColor="@android:color/white"/>
+        android:textSize="35sp"
+        android:textColor="@android:color/darker_gray"/>
 
 </LinearLayout>

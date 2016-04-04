@@ -14,7 +14,7 @@
             android:orientation="vertical"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:background="#dddddd">
+            android:background="@color/colorFrameBackground">
         </LinearLayout>
 
         <android.support.v4.view.ViewPager
@@ -22,7 +22,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:background="#dddddd"/>
+            android:overScrollMode="never"
+            android:background="@color/colorFrameBackground"/>
     </LinearLayout>
 
     <ScrollView
@@ -40,7 +41,7 @@
                 android:orientation="vertical"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:background="#dddddd"
+                android:background="@color/colorFrameBackground"
                 android:id="@+id/timeColumnLinearLayout">
             </LinearLayout>
 
@@ -49,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:background="@android:color/darker_gray"/>
+                android:background="@color/colorContentBackground"/>
         </LinearLayout>
     </ScrollView>
 

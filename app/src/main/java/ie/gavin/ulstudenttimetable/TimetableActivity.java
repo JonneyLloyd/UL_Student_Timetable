@@ -2,7 +2,6 @@ package ie.gavin.ulstudenttimetable;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -13,10 +12,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
 import ie.gavin.ulstudenttimetable.calendar.CalendarView;
@@ -24,7 +27,7 @@ import ie.gavin.ulstudenttimetable.data.Module;
 import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 
 public class TimetableActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
 
     private CalendarView cv;
 
@@ -72,21 +75,19 @@ public class TimetableActivity extends AppCompatActivity
         ));
 
         cv = ((CalendarView)findViewById(R.id.calendar_view));
-        cv.setVisibleDays(5);
+//        cv.setVisibleDays(5);
         Calendar weekStart = Calendar.getInstance();
-        weekStart.set(2016, 3-1, 21);
+        weekStart.set(2016, 3-1, 28);
         cv.setweekStartDate(weekStart);
         cv.updateCalendar(events);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                 // TODO remove
-                cv.setVisibleDays(3);
-                cv.updateCalendar();
             }
         });
 
@@ -99,6 +100,51 @@ public class TimetableActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+
+        // Spinner element
+        Spinner spinner = (Spinner) findViewById(R.id.weekSpinner);
+
+        // Spinner click listener
+        spinner.setOnItemSelectedListener(this);
+
+        // Spinner Drop down elements
+        List<String> categories = new ArrayList<String>();
+        categories.add("Week 1");
+        categories.add("Week 2");
+        categories.add("Week 3");
+        categories.add("Week 4");
+        categories.add("Week 5");
+        categories.add("Week 6");
+        categories.add("Week 7");
+        categories.add("Week 8");
+        categories.add("Easter");
+        categories.add("Week 9");
+        categories.add("Week 10");
+        categories.add("Week 11");
+        categories.add("Week 12");
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.toolbar_spinner_item_actionbar, categories);
+
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(R.layout.toolbar_spinner_item_dropdown);
+
+        // attaching data adapter to spinner
+        spinner.setAdapter(dataAdapter);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        String item = parent.getItemAtPosition(position).toString();
+
+        // Showing selected spinner item
+        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+    }
+
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
     }
 
     @Override
@@ -128,6 +174,9 @@ public class TimetableActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_now) {
+            cv.focusCalendar();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -139,12 +188,15 @@ public class TimetableActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
+        if (id == R.id.nav_one_day) {
+            cv.setVisibleDays(1);
+            cv.updateCalendar();
+        } else if (id == R.id.nav_three_day) {
+            cv.setVisibleDays(3);
+            cv.updateCalendar();
+        } else if (id == R.id.nav_five_day) {
+            cv.setVisibleDays(5);
+            cv.updateCalendar();
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
