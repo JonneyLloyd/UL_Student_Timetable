@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">UL Student Timetable</string>
-    <string name="title_activity_timetable">Timetable</string>
+    <string name="title_activity_timetable"></string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_test_calendar">TestCalendarActivity</string>
+    <string name="monthOfYearFormat"> MMM</string>
+    <string name="dateOfMonthFormat">dd</string>
+    <string name="narrowDayOfWeekFormat">EEE</string>
+    <string name="wideDayOfWeekFormat">EEEE</string>
 </resources>
