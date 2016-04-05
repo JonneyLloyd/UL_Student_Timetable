@@ -14,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,7 +31,18 @@ import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
 
+    private Spinner weekSpinner;
+    private NavigationView navigationView;
+    private RelativeLayout navHeader;
+    private Menu navMenu;
     private CalendarView cv;
+    ArrayList<CalendarEvent> events = new ArrayList<>();
+
+    // TODO load defaults from shared prefs
+    private int userId;         // load primary user
+    private int puid;           // stores previous id
+    private int weekId;         // load the curent week
+    private int daysVisible;    // load previous number of days visible
 
     private final int REQUEST_CODE_ADD_TIMETABLE = 100;
     MyDBHandler dbHandler;
@@ -42,44 +55,38 @@ public class TimetableActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (true) {
-            Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
-            intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
-            startActivityForResult(intent, REQUEST_CODE_ADD_TIMETABLE);
-        }
+        loadPreferences();
 
-        final ArrayList<CalendarEvent> events = new ArrayList<>();
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
 
-        Calendar start = Calendar.getInstance();
-        Calendar end = Calendar.getInstance();
-        start.set(2016, 3-1, 21, 15, 0);
-        end.set(2016, 3-1, 21, 17, 0);
-        events.add(new CalendarEvent(
-                start,
-                end,
-                "Testing",
-                "#222222",
-                22
-        ));
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-        Calendar astart = Calendar.getInstance();
-        Calendar aend = Calendar.getInstance();
-        astart.set(2016, 3 - 1, 23, 11, 0);
-        aend.set(2016, 3 - 1, 23, 12, 0);
-        events.add(new CalendarEvent(
-                astart,
-                aend,
-                "Testing",
-                "#ff2222",
-                20
-        ));
+        navHeader = (RelativeLayout) navigationView.getHeaderView(0);
+        navHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // toggle visibility of users list
+                if (navMenu.getItem(0).isVisible()) {
+                    navMenu.setGroupVisible(R.id.nav_group_users, false);
+                } else {
+                    navMenu.setGroupVisible(R.id.nav_group_users, true);
+                }
+            }
+        });
 
-        cv = ((CalendarView)findViewById(R.id.calendar_view));
-//        cv.setVisibleDays(5);
-        Calendar weekStart = Calendar.getInstance();
-        weekStart.set(2016, 3-1, 28);
-        cv.setweekStartDate(weekStart);
-        cv.updateCalendar(events);
+        loadNavigationUsers();
+        loadActionbarWeeks();
+        loadTimetable();
+
+//        if (true) {   // if no user set yet
+//            Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
+//            intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
+//            startActivityForResult(intent, REQUEST_CODE_ADD_TIMETABLE);
+//        }
 
         com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -90,61 +97,6 @@ public class TimetableActivity extends AppCompatActivity
                 // TODO remove
             }
         });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-
-
-        // Spinner element
-        Spinner spinner = (Spinner) findViewById(R.id.weekSpinner);
-
-        // Spinner click listener
-        spinner.setOnItemSelectedListener(this);
-
-        // Spinner Drop down elements
-        List<String> categories = new ArrayList<String>();
-        categories.add("Week 1");
-        categories.add("Week 2");
-        categories.add("Week 3");
-        categories.add("Week 4");
-        categories.add("Week 5");
-        categories.add("Week 6");
-        categories.add("Week 7");
-        categories.add("Week 8");
-        categories.add("Easter");
-        categories.add("Week 9");
-        categories.add("Week 10");
-        categories.add("Week 11");
-        categories.add("Week 12");
-
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.toolbar_spinner_item_actionbar, categories);
-
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(R.layout.toolbar_spinner_item_dropdown);
-
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // On selecting a spinner item
-        String item = parent.getItemAtPosition(position).toString();
-
-        // Showing selected spinner item
-        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
-    }
-
-    public void onNothingSelected(AdapterView<?> arg0) {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -188,7 +140,16 @@ public class TimetableActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_one_day) {
+        if (id == 14161044) {
+            // TODO dynamically
+            Toast.makeText(TimetableActivity.this, "Oliver", Toast.LENGTH_SHORT).show();
+            setNavigationViewUser(14161044, "Oliver Gavin");
+        } else if (id == 14161045) {
+            Toast.makeText(TimetableActivity.this, "Jonney", Toast.LENGTH_SHORT).show();
+            setNavigationViewUser(14161045, "Jonathan Lloyd");
+        } else if (id == R.id.users_add) {
+            Toast.makeText(TimetableActivity.this, "Add user", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.nav_one_day) {
             cv.setVisibleDays(1);
             cv.updateCalendar();
         } else if (id == R.id.nav_three_day) {
@@ -245,5 +206,100 @@ public class TimetableActivity extends AppCompatActivity
 
         }
 
+    }
+
+    public void loadNavigationUsers() {
+        // TODO populate from DB or shared prefs??
+        navMenu = navigationView.getMenu();
+
+        navMenu.add(R.id.nav_group_users, 14161044, Menu.NONE, "Oliver Gavin");
+        navMenu.add(R.id.nav_group_users, 14161045, Menu.NONE, "Jonathan Lloyd");
+        navMenu.setGroupVisible(R.id.nav_group_users, false);
+
+        setNavigationViewUser(14161044, "Oliver Gavin");
+    }
+
+    public void setNavigationViewUser(int userId, String userName) {
+        this.userId = userId;
+        navMenu.findItem(puid).setChecked(false);
+        navMenu.findItem(userId).setChecked(true);
+        ((TextView) navHeader.findViewById(R.id.user_name)).setText(userName);
+        ((TextView) navHeader.findViewById(R.id.user_id)).setText(""+userId);
+        puid = userId;
+    }
+
+    public void loadActionbarWeeks() {
+        // Spinner element
+        weekSpinner = (Spinner) findViewById(R.id.weekSpinner);
+
+        // Spinner click listener
+        weekSpinner.setOnItemSelectedListener(this);
+
+        // TODO load from DB
+        // Spinner Drop down elements
+        List<String> categories = new ArrayList<String>();
+        categories.add("Week 1"); categories.add("Week 2"); categories.add("Week 3"); categories.add("Week 4"); categories.add("Week 5"); categories.add("Week 6"); categories.add("Week 7"); categories.add("Week 8"); categories.add("Easter"); categories.add("Week 9"); categories.add("Week 10"); categories.add("Week 11"); categories.add("Week 12");
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.toolbar_spinner_item_actionbar, categories);
+        // Drop down layout style
+        dataAdapter.setDropDownViewResource(R.layout.toolbar_spinner_item_dropdown);
+        weekSpinner.setAdapter(dataAdapter);
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        String item = parent.getItemAtPosition(position).toString();
+
+        // Showing selected spinner item
+        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+    }
+
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    public void loadTimetable() {
+        // TODO load events from DB
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        start.set(2016, 3-1, 21, 15, 0);
+        end.set(2016, 3-1, 21, 17, 0);
+        events.add(new CalendarEvent(
+                start,
+                end,
+                "Testing",
+                "#222222",
+                22
+        ));
+
+        Calendar astart = Calendar.getInstance();
+        Calendar aend = Calendar.getInstance();
+        astart.set(2016, 3 - 1, 23, 11, 0);
+        aend.set(2016, 3 - 1, 23, 12, 0);
+        events.add(new CalendarEvent(
+                astart,
+                aend,
+                "Testing",
+                "#ff2222",
+                20
+        ));
+
+        cv = ((CalendarView)findViewById(R.id.calendar_view));
+        navigationView.setCheckedItem(R.id.nav_five_day);
+        cv.setVisibleDays(5);
+        Calendar weekStart = Calendar.getInstance();
+        weekStart.set(2016, 3-1, 28);
+        cv.setweekStartDate(weekStart);
+        cv.updateCalendar(events);
+    }
+
+    public void loadPreferences() {
+        // TODO
+        userId = 14161044;
+        weekId = 11;
+        daysVisible = 3;
     }
 }
