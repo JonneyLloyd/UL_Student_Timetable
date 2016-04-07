@@ -9,7 +9,8 @@ import android.database.Cursor;
 import android.content.Context;
 import android.content.ContentValues;
 import android.util.Log;
-import android.widget.Toast;
+
+import java.util.Date;
 
 public class MyDBHandler extends SQLiteOpenHelper{
 
@@ -127,16 +128,16 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     }
 
-    //Add a new row to the database
-    public void addModule(Module module){
+    //Add a new row to the Module database
+    public void addToModuleTable(Module module){
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID_TABLE_POINTER, id);//id taken from UID table
         values.put(COLUMN_MODULE_CODE, module.get_ModuleCode());
-        values.put(COLUMN_START_TIME, String.valueOf(module.get_startTime()));
-        values.put(COLUMN_END_TIME, String.valueOf(module.get_endTime()));
+        values.put(COLUMN_START_TIME, module.get_startTime());
+        values.put(COLUMN_END_TIME, module.get_endTime());
         values.put(COLUMN_ROOM, module.get_room());
         values.put(COLUMN_LECTURER, module.get_lecturer());
         values.put(COLUMN_DAY, String.valueOf(module.get_day()));
@@ -146,6 +147,52 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.insert(TABLE_MODULE, null, values);
         db.close();
     }
+
+
+    // addToWeekTable
+    public void addToWeekTable(int week, String weekLabel, Date weekStart){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_WEEK, week);
+        values.put(COLUMN_WEEK_LABEL, weekLabel);
+        values.put(COLUMN_WEEK_START, String.valueOf(weekStart));
+
+        db.insert(TABLE_WEEK, null, values);
+        db.close();
+    }
+
+
+
+    // addToClassWeeksTable
+    public void addToClassWeekTable(int startWeek, int endWeek, int idPointer){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_START_WEEK, startWeek);
+        values.put(COLUMN_END_WEEK, endWeek);
+        values.put(COLUMN_ID_TABLE_POINTER, String.valueOf(idPointer));
+
+        db.insert(TABLE_CLASS_WEEKS, null, values);
+        db.close();
+    }
+
+    //// addToModuleNamesTable
+    public void addToModuleNamesTable(String moduleCode, String moduleName){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_MODULE_CODE, moduleCode);
+        values.put(COLUMN_MODULE_NAME, moduleName);
+
+        db.insert(TABLE_MODULE_NAMES, null, values);
+        db.close();
+    }
+
+
+
+
+
 
     //add row to studentTimetable table
     public void addToStudentTimetable(StudentTimetable entry){
@@ -163,7 +210,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         values.put(COLUMN_NOTES, entry.get_studentID());
         values.put(COLUMN_GROUP_NAME, entry.get_groupName());
         values.put(COLUMN_TYPE, entry.get_type());
-        values.put( COLUMN_TITLE, entry.get_title());
+        values.put(COLUMN_TITLE, entry.get_title());
         values.put(COLUMN_LECTURER, entry.get_lecturer());
         values.put(COLUMN_ROOM, entry.get_room());
 
@@ -206,7 +253,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
             finally
             {
                 //release all resources
-                c.close();
+                if (c != null) c.close();
                 db.close();
             }
         return result;
@@ -251,7 +298,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         finally
         {
             //release all resources
-            c.close();
+            if (c != null) c.close();
             db.close();
         }
 
@@ -281,6 +328,5 @@ public class MyDBHandler extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " + COLUMN_ID_TABLE_POINTER + "=\"" + IDTablePointer + "\";");
         db.close();
-
     }
 }
