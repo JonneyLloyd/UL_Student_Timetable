@@ -82,11 +82,11 @@ public class TimetableActivity extends AppCompatActivity
         loadActionbarWeeks();
         loadTimetable();
 
-//        if (true) {   // if no user set yet
-//            Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
-//            intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
-//            startActivityForResult(intent, REQUEST_CODE_ADD_TIMETABLE);
-//        }
+        if (true) {   // if no user set yet
+            Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
+            intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
+            startActivityForResult(intent, REQUEST_CODE_ADD_TIMETABLE);
+        }
 
         com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
         fab.setOnClickListener(new View.OnClickListener() {
