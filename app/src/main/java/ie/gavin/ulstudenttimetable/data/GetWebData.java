@@ -81,7 +81,7 @@ public class GetWebData extends AsyncTask<String, Void, String> {
             String line;
             while ( (line = reader.readLine()) != null ) {
                 buffer.append(line);
-                Log.v(LOG_TAG, line);
+//                Log.v(LOG_TAG, line);
             }
 
             return buffer.toString();
