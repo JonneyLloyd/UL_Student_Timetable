@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import ie.gavin.ulstudenttimetable.data.Constants;
 import ie.gavin.ulstudenttimetable.data.GetStudentData;
@@ -20,11 +21,14 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
     int resultCode;
     String studentId;
     private Snackbar snackbar;
+    private ProgressBar mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addstudenttimetable);
+
+        mProgress = (ProgressBar) findViewById(R.id.progress_bar);
 
         // Receiving the Data
         resultCode = getIntent().getIntExtra("resultCode", 0);
@@ -35,6 +39,7 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
         final BroadcastReceiver mResponseReveiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                mProgress.setIndeterminate(false);
                 String message = intent.getStringExtra(Constants.EXTENDED_DATA_STATUS);
                 snackbar = Snackbar.make(findViewById(R.id.addStudentContainer), message, Snackbar.LENGTH_LONG);
                 snackbar.setAction("Retry", new View.OnClickListener() {
@@ -71,6 +76,7 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
             public void onClick(View v) {
                 studentId = etStudentId.getText().toString();
 
+                mProgress.setIndeterminate(true);
                 new Thread(new Runnable() {
                     // Handles processing (AsyncTasks download)
                     @Override
