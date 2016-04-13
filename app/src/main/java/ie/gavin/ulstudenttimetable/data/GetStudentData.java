@@ -8,6 +8,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -140,6 +141,31 @@ public class GetStudentData {
             broadcastStatus("Preparing your timetable");
 
             // SQL here, call function
+
+            // iterate through the hashmap (list of ALL module data) getting modulecode and data
+            for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleTimetables.entrySet()) {
+                String moduleCode = entry.getKey();
+
+                // The data for ONE module
+                ArrayList<ArrayList<String>> moduleTimetable = entry.getValue();
+
+                // go through all lecture/lab/tut for a module
+                for (ArrayList<String> moduleEvent : moduleTimetable) {
+
+                    // Output everything for one lecture/lab/tut
+                    String r = moduleCode + " -> "; // module code is not in the data, added so we know what is what
+                    for (String strrow : moduleEvent) {
+                        r += strrow + "|";
+                    }
+                    Log.v(LOG_TAG, "event: " + r);
+
+                }
+
+            }
+
+
+
+
 
             broadcastStatus("Success");
         } else {
