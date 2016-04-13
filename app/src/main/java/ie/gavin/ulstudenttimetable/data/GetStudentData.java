@@ -62,11 +62,14 @@ public class GetStudentData {
                     return;
                 }
 
-                studentTimetables.put(studentId, studentTimetableData.getTimetableData());
+                studentTimetables.put(studentId, super.getTimetableData());
+
                 // Get all the module info for a students timetable
+                ArrayList<String> modules = new ArrayList<>();  // keep track of modules already fetched
                 for (ArrayList<String> row : studentTimetables.get(studentId)) {
                     final String moduleCode = row.get(2);
-                    if (!studentTimetables.containsKey(moduleCode)) {   // Avoid repetition
+                    if (!modules.contains(moduleCode)) {   // Avoid repetition
+                        modules.add(moduleCode);
 
                         //        Module Timetable
                         moduleTimetableData = new GetModuleTimetableData(moduleCode) {
@@ -77,7 +80,7 @@ public class GetStudentData {
                                 if (!checkTimetableDataResult(this)) {
                                     return;
                                 }
-                                moduleTimetables.put(moduleCode, moduleDetailsData.getTimetableData());
+                                moduleTimetables.put(moduleCode, super.getTimetableData());
                             }
                         };
                         tasks.add(moduleTimetableData);
@@ -93,7 +96,7 @@ public class GetStudentData {
                                 if (!checkTimetableDataResult(this)) {
                                     return;
                                 }
-                                moduleDetails.put(moduleCode, moduleDetailsData.getTimetableData());
+                                moduleDetails.put(moduleCode, super.getTimetableData());
                             }
                         };
                         tasks.add(moduleDetailsData);
