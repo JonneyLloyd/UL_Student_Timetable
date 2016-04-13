@@ -14,7 +14,6 @@ public class StudentTimetable {
     private String _title;
     private String _lecturer;
     private String _room;
-
     public StudentTimetable() {
     }
 

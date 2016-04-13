@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 
 /**
  * Created by Oliver on 05/03/2016.
@@ -30,6 +31,11 @@ public class GetStudentData {
     private HashMap<String, ArrayList<ArrayList<String>>> studentTimetables = new HashMap<>();
     private HashMap<String, ArrayList<ArrayList<String>>> moduleTimetables = new HashMap<>();
     private HashMap<String, ArrayList<ArrayList<String>>> moduleDetails = new HashMap<>();
+
+    MyDBHandler dbHandler;
+    Module tempModule;
+
+
 
     public GetStudentData(String studentId, Context context) {
         this.studentId = studentId;
@@ -132,6 +138,13 @@ public class GetStudentData {
     }
 
     public void processData() {
+        Module module;
+        dbHandler = new MyDBHandler(this.context, null, null, 1);
+        String aModuleCode, startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
+        int day;
+
+
+
         if (weekDatesData.getDownloadStatus() == DownloadStatus.OK &&
             studentTimetableData.getDownloadStatus() == DownloadStatus.OK &&
             moduleTimetableData.getDownloadStatus() == DownloadStatus.OK &&
@@ -142,6 +155,38 @@ public class GetStudentData {
 
             // SQL here, call function
 
+
+            //moduleDetails
+            for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleDetails.entrySet()) {
+                String moduleCode = entry.getKey();
+
+                // The data for ONE module
+                ArrayList<ArrayList<String>> moduleDetails = entry.getValue();
+
+                // go through all lecture/lab/tut for a module
+                for (ArrayList<String> moduleEvent : moduleDetails) {
+
+                    // Output everything for one lecture/lab/tut
+                    String r = moduleCode + " -> "; // module code is not in the data, added so we know what is what
+                    for (String strrow : moduleEvent) {
+                        r += strrow + "|";
+
+                    }
+                    Log.v(LOG_TAG, "Module Name: " + r);
+                    moduleName =  moduleEvent.get(0);
+                    dbHandler.addToModuleNamesTable(moduleCode, moduleName );
+
+                    //below tests DB names
+                    String test;
+                    test = dbHandler.getModuleName(moduleCode);
+                    Log.v(LOG_TAG, "Database TEST: " + test);
+                }
+
+            }
+
+
+
+            //moduleTimetable
             // iterate through the hashmap (list of ALL module data) getting modulecode and data
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleTimetables.entrySet()) {
                 String moduleCode = entry.getKey();
@@ -156,13 +201,60 @@ public class GetStudentData {
                     String r = moduleCode + " -> "; // module code is not in the data, added so we know what is what
                     for (String strrow : moduleEvent) {
                         r += strrow + "|";
+
                     }
                     Log.v(LOG_TAG, "event: " + r);
+                    startTime =  moduleEvent.get(0);
+                    endTime =  moduleEvent.get(1);
+                    type =  moduleEvent.get(2);
+                    group =  moduleEvent.get(3);
+                    lecturer =  moduleEvent.get(4);
+                    room =  moduleEvent.get(5);
+                    weeks =  moduleEvent.get(6);
+                    //need a day int
+
+                    //tempModule = new Module(null, moduleCode, startTime , endTime, room, lecturer, day(int), group, type);
+                    //dbHandler.addModule(tempModule);
+
 
                 }
 
             }
 
+            //studentTimetables
+            // iterate through the hashmap (list of ALL module data) getting modulecode and data
+            for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : studentTimetables.entrySet()) {
+                String studentID = entry.getKey();
+                String moduleCode;
+
+                // The data for ONE module
+                ArrayList<ArrayList<String>> studentTimetables = entry.getValue();
+
+                // go through all lecture/lab/tut for a module
+                for (ArrayList<String> moduleEvent : studentTimetables) {
+
+                    // Output everything for one lecture/lab/tut
+                    String r = studentID + " -> "; // module code is not in the data, added so we know what is what
+                    for (String strrow : moduleEvent) {
+                        r += strrow + "|";
+
+                    }
+                    Log.v(LOG_TAG, "event: " + r);
+                    startTime =  moduleEvent.get(0);
+                    endTime =  moduleEvent.get(1);
+                    moduleCode = moduleEvent.get(2);
+                    type =  moduleEvent.get(3);
+                    group =  moduleEvent.get(4);
+                    room =  moduleEvent.get(5);
+                    weeks =  moduleEvent.get(6);
+                    //need a day int
+                    //tempStudent = new StudentTimetable(null, moduleCode, null, startTime, int _day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room);
+                    //dbHandler.addStudentTimetable(tempStudent);
+
+
+                }
+
+            }
 
 
 

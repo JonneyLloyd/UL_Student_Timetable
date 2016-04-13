@@ -128,6 +128,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     }
 
+
     //Add a new row to the Module database
     public void addToModuleTable(Module module){
         SQLiteDatabase db = getWritableDatabase();
@@ -180,16 +181,46 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //// addToModuleNamesTable
     public void addToModuleNamesTable(String moduleCode, String moduleName){
         SQLiteDatabase db = getWritableDatabase();
+        if (getModuleName(moduleCode) == null) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_MODULE_CODE, moduleCode);
+            values.put(COLUMN_MODULE_NAME, moduleName);
 
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_MODULE_CODE, moduleCode);
-        values.put(COLUMN_MODULE_NAME, moduleName);
-
-        db.insert(TABLE_MODULE_NAMES, null, values);
-        db.close();
+            db.insert(TABLE_MODULE_NAMES, null, values);
+            db.close();
+        }
     }
 
+    public String getModuleName(String moduleCode){
+        String result = null;
+        String query = "SELECT * FROM " + TABLE_MODULE_NAMES + " WHERE " +
+                COLUMN_MODULE_CODE + " = '" + moduleCode + "';";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            result = c.getString(c.getColumnIndex("moduleName"));
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
 
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+        return result;
+    }
 
 
 
