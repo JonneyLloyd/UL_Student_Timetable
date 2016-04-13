@@ -34,7 +34,7 @@ public class GetModuleDetailsData extends GetTimetableData {
         Element el = doc.select("table table tbody tr:eq(1) td:eq(1) b font").first();
         String title = el.html().trim();
         data.add(new ArrayList<String>(Arrays.asList(title)));
-
+        super.setTimetableData(data);
 
         if (data.size() > 0) {
             super.setTimetableData(data);

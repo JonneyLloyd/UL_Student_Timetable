@@ -41,6 +41,7 @@ public class GetWeekDatesData extends GetTimetableData {
             data.add(new ArrayList<String>(Arrays.asList(row)));
 
         }
+        super.setTimetableData(data);
 
         if (data.size() > 0) {
             super.setTimetableData(data);

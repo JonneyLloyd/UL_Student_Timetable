@@ -15,6 +15,8 @@ import java.util.Arrays;
  */
 public class GetModuleTimetableData extends GetTimetableData {
 
+    private ArrayList<ArrayList<String>> data = new ArrayList<>();
+
     private String LOG_TAG = GetModuleTimetableData.class.getSimpleName();
 
     public GetModuleTimetableData(String moduleCode) {
@@ -26,8 +28,6 @@ public class GetModuleTimetableData extends GetTimetableData {
     @Override
     public void processResult(String html) {
 
-        ArrayList<ArrayList<String>> data = new ArrayList<>();
-
         // 16:00|17:00|LEC|&nbsp;|RYAN CONOR PROFESSOR|S205|Wks:1-5|
         // 14:00|15:00|LAB|2A|RYAN CONOR PROFESSOR|CS2044|Wks:1-5|
 
@@ -38,6 +38,7 @@ public class GetModuleTimetableData extends GetTimetableData {
             data.add(new ArrayList<String>(Arrays.asList(row)));
 
         }
+        super.setTimetableData(data);
 
         if (data.size() > 0) {
             super.setTimetableData(data);
