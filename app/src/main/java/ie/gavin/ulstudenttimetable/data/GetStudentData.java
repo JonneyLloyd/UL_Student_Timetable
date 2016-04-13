@@ -68,7 +68,7 @@ public class GetStudentData {
                 // Get all the module info for a students timetable
                 ArrayList<String> modules = new ArrayList<>();  // keep track of modules already fetched
                 for (ArrayList<String> row : studentTimetables.get(studentId)) {
-                    final String moduleCode = row.get(2);
+                    final String moduleCode = row.get(3);
                     if (!modules.contains(moduleCode)) {   // Avoid repetition
                         modules.add(moduleCode);
 

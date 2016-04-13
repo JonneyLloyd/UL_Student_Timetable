@@ -31,12 +31,27 @@ public class GetModuleTimetableData extends GetTimetableData {
         // 16:00|17:00|LEC|&nbsp;|RYAN CONOR PROFESSOR|S205|Wks:1-5|
         // 14:00|15:00|LAB|2A|RYAN CONOR PROFESSOR|CS2044|Wks:1-5|
 
-        Document doc = Jsoup.parse(html);
-        Elements els = doc.select("tbody tr:gt(0) td p font b");
-        for (Element el : els) {
-            String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
-            data.add(new ArrayList<String>(Arrays.asList(row)));
+//        Document doc = Jsoup.parse(html);
+//        Elements els = doc.select("tbody tr:gt(0) td p font b");
+//        for (Element el : els) {
+//            String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
+//            data.add(new ArrayList<String>(Arrays.asList(row)));
+//
+//        }
 
+        int dayOfWeek = 1;
+        Document doc = Jsoup.parse(html);
+        Elements cols = doc.select("tbody tr:gt(0) td");
+        for (Element col : cols) {
+            Elements rows = col.select("p font b");
+            for (Element el : rows) {
+                String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
+                ArrayList<String> event = new ArrayList<String>(Arrays.asList(row));
+                event.add(0, ""+dayOfWeek); // for identification
+                data.add(event);
+
+            }
+            dayOfWeek++;
         }
         super.setTimetableData(data);
 
