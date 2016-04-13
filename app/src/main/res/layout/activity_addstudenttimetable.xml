@@ -10,34 +10,52 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".AddStudentTimetableActivity">
 
-    <TextView
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Student ID"
-        android:id="@+id/tvStudentIdLabel"
-        android:layout_marginBottom="60dp"
-        android:layout_above="@+id/bLogin"
-        android:layout_alignStart="@+id/etStudentId" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned"
-        android:ems="10"
-        android:id="@+id/etStudentId"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="113dp"
-        android:singleLine="false" />
+        android:layout_marginTop="113dp">
+
+        <EditText
+            android:id="@+id/etStudentId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberSigned"
+            android:ems="10"
+            android:hint="Student ID" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+        <!--android:text="Student ID"-->
+        <!--android:id="@+id/tvStudentIdLabel"-->
+        <!--android:layout_marginBottom="60dp"-->
+        <!--android:layout_above="@+id/bLogin"-->
+        <!--android:layout_alignStart="@+id/etStudentId" />-->
+
+    <!--<EditText-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:inputType="numberSigned"-->
+        <!--android:ems="10"-->
+        <!--android:id="@+id/etStudentId"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginTop="113dp"-->
+        <!--android:singleLine="false" />-->
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Get timetable"
         android:id="@+id/bLogin"
-        android:layout_below="@+id/etStudentId"
-        android:layout_alignEnd="@+id/etStudentId" />
+        android:layout_below="@+id/input_layout_id"
+        android:layout_alignEnd="@+id/input_layout_id" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
