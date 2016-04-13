@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -67,6 +68,9 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
         };
         // Registers the ResponseReceiver and its Intent filters
         LocalBroadcastManager.getInstance(this).registerReceiver(mResponseReveiver, mStatusIntentFilter);
+
+        // Forces content above the keyboard so that e.g. snackbar is visible
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         final EditText etStudentId = (EditText) findViewById(R.id.etStudentId);
         Button bLogin = (Button) findViewById(R.id.bLogin);
