@@ -139,7 +139,7 @@ public class GetStudentData {
 
     public void processData() {
         Module module;
-        dbHandler = new MyDBHandler(this.context, null, null, 2);
+        dbHandler = new MyDBHandler(this.context, null, null, 3);
         String aModuleCode, startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
         int day;
 

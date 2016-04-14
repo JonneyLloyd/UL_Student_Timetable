@@ -180,16 +180,16 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //// addToModuleNamesTable
     public void addToModuleNamesTable(String moduleCode, String moduleName){
-//        SQLiteDatabase db = getWritableDatabase();
-////        if (getModuleName(moduleCode) == null) {
-////            ContentValues values = new ContentValues();
-////            values.put(COLUMN_MODULE_CODE, moduleCode);
-////            values.put(COLUMN_MODULE_NAME, moduleName);
-////
-////            db.insert(TABLE_MODULE_NAMES, null, values);
-//
-//            db.close();
-//        }
+        if (getModuleName(moduleCode) == null) {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_MODULE_CODE, moduleCode);
+            values.put(COLUMN_MODULE_NAME, moduleName);
+
+            db.insert(TABLE_MODULE_NAMES, null, values);
+
+            db.close();
+        }
     }
 
     public String getModuleName(String moduleCode){
