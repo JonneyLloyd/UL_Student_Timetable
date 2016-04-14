@@ -14,7 +14,7 @@ import java.util.Date;
 
 public class MyDBHandler extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -65,7 +65,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_END_TIME + " TIME, " +
                 COLUMN_ROOM + " VARCHAR(10), " +
                 COLUMN_LECTURER + " VARCHAR(10), " +
-                COLUMN_DAY + " INT, " +             //check data type
+                COLUMN_DAY + " INT, " +
                 COLUMN_GROUP_NAME + " VARCHAR(5), " +
                 COLUMN_TYPE + " VARCHAR(45) " +
                 ");";
@@ -88,8 +88,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_GROUP_NAME + " VARCHAR(5), " +
                 COLUMN_TYPE + " VARCHAR(45), " +
                 COLUMN_TITLE + " VARCHAR(45), " +
-                COLUMN_LECTURER + " VARCHAR(45) " +
-                COLUMN_ROOM + " VARCHAR(10), " +
+                COLUMN_LECTURER + " VARCHAR(45), " +
+                COLUMN_ROOM + " VARCHAR(10) " +
                 ");";
 
         String query4 = "CREATE TABLE " + TABLE_CLASS_WEEKS + "(" +
@@ -118,12 +118,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_MODULE);
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_WEEK);
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_STUDENT_TIMETABLE);
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_CLASS_WEEKS);
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_UID);
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_MODULE_NAMES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODULE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WEEK);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STUDENT_TIMETABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLASS_WEEKS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_UID);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODULE_NAMES);
         onCreate(db);
 
     }
@@ -180,15 +180,16 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //// addToModuleNamesTable
     public void addToModuleNamesTable(String moduleCode, String moduleName){
-        SQLiteDatabase db = getWritableDatabase();
-        if (getModuleName(moduleCode) == null) {
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_MODULE_CODE, moduleCode);
-            values.put(COLUMN_MODULE_NAME, moduleName);
-
-            db.insert(TABLE_MODULE_NAMES, null, values);
-            db.close();
-        }
+//        SQLiteDatabase db = getWritableDatabase();
+////        if (getModuleName(moduleCode) == null) {
+////            ContentValues values = new ContentValues();
+////            values.put(COLUMN_MODULE_CODE, moduleCode);
+////            values.put(COLUMN_MODULE_NAME, moduleName);
+////
+////            db.insert(TABLE_MODULE_NAMES, null, values);
+//
+//            db.close();
+//        }
     }
 
     public String getModuleName(String moduleCode){
@@ -360,4 +361,17 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " + COLUMN_ID_TABLE_POINTER + "=\"" + IDTablePointer + "\";");
         db.close();
     }
+
+    public void  deleteAllFromModule(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_MODULE + ";");
+        db.close();
+    }
+
+    public void  deleteAllFromStudent(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + ";");
+        db.close();
+    }
+
 }

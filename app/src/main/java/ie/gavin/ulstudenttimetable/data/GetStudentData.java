@@ -139,7 +139,7 @@ public class GetStudentData {
 
     public void processData() {
         Module module;
-        dbHandler = new MyDBHandler(this.context, null, null, 1);
+        dbHandler = new MyDBHandler(this.context, null, null, 2);
         String aModuleCode, startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
         int day;
 
@@ -190,6 +190,7 @@ public class GetStudentData {
             // iterate through the hashmap (list of ALL module data) getting modulecode and data
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleTimetables.entrySet()) {
                 String moduleCode = entry.getKey();
+                dbHandler.deleteAllFromModule();
 
                 // The data for ONE module
                 ArrayList<ArrayList<String>> moduleTimetable = entry.getValue();
@@ -204,20 +205,22 @@ public class GetStudentData {
 
                     }
                     Log.v(LOG_TAG, "event: " + r);
-                    startTime =  moduleEvent.get(0);
-                    endTime =  moduleEvent.get(1);
-                    type =  moduleEvent.get(2);
-                    group =  moduleEvent.get(3);
-                    lecturer =  moduleEvent.get(4);
-                    room =  moduleEvent.get(5);
-                    weeks =  moduleEvent.get(6);
+                    day = Integer.parseInt(moduleEvent.get(0));
+                    startTime =  moduleEvent.get(1);
+                    endTime =  moduleEvent.get(2);
+                    type =  moduleEvent.get(3);
+                    group =  moduleEvent.get(4);
+                    lecturer =  moduleEvent.get(5);
+                    room =  moduleEvent.get(6);
+                    weeks =  moduleEvent.get(7);
                     //need a day int
 
-                    //tempModule = new Module(null, moduleCode, startTime , endTime, room, lecturer, day(int), group, type);
-                    //dbHandler.addModule(tempModule);
+                    tempModule = new Module(0, moduleCode, startTime , endTime, room, lecturer, day, group, type);
+                    dbHandler.addToModuleTable(tempModule);
 
-
+                    Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
                 }
+
 
             }
 
@@ -225,7 +228,9 @@ public class GetStudentData {
             // iterate through the hashmap (list of ALL module data) getting modulecode and data
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : studentTimetables.entrySet()) {
                 String studentID = entry.getKey();
-                String moduleCode;
+                String moduleCode, notes;
+                StudentTimetable tempStudent;
+                dbHandler.deleteAllFromStudent();
 
                 // The data for ONE module
                 ArrayList<ArrayList<String>> studentTimetables = entry.getValue();
@@ -240,16 +245,18 @@ public class GetStudentData {
 
                     }
                     Log.v(LOG_TAG, "event: " + r);
-                    startTime =  moduleEvent.get(0);
-                    endTime =  moduleEvent.get(1);
-                    moduleCode = moduleEvent.get(2);
-                    type =  moduleEvent.get(3);
-                    group =  moduleEvent.get(4);
-                    room =  moduleEvent.get(5);
-                    weeks =  moduleEvent.get(6);
-                    //need a day int
-                    //tempStudent = new StudentTimetable(null, moduleCode, null, startTime, int _day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room);
-                    //dbHandler.addStudentTimetable(tempStudent);
+                    day = Integer.parseInt(moduleEvent.get(0));
+                    startTime =  moduleEvent.get(1);
+                    endTime =  moduleEvent.get(2);
+                    moduleCode = moduleEvent.get(3);
+                    type =  moduleEvent.get(4);
+                    group =  moduleEvent.get(5);
+                    room =  moduleEvent.get(6);
+                    weeks =  moduleEvent.get(7);
+                    lecturer = null;
+                    notes = null;
+                    tempStudent = new StudentTimetable(0, moduleCode, 0, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room);
+                    dbHandler.addToStudentTimetable(tempStudent);
 
 
                 }
