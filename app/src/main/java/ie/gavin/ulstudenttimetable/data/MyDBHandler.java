@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MyDBHandler extends SQLiteOpenHelper{
@@ -130,7 +131,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
 
     //Add a new row to the Module database
-    public void addToModuleTable(Module module){
+    //pass in week and handle weeks table entry at the same time
+    public void addToModuleTable(Module module, String weeks){
+
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
 
@@ -147,6 +150,22 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_MODULE, null, values);
         db.close();
+
+        if (weeks.contains(",")){
+            String[] splitArray = weeks.split(",");
+            for(int i = 0; i <splitArray.length; i++) {
+                String[] secondSplitArray = splitArray[i].split("-");
+                addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
+            }
+
+        }
+
+        else {
+            String[] splitArray = weeks.split("-");
+            addToClassWeekTable(splitArray[0], splitArray[1], id);
+        }
+
+
     }
 
 
@@ -166,7 +185,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
 
     // addToClassWeeksTable
-    public void addToClassWeekTable(int startWeek, int endWeek, int idPointer){
+    public void addToClassWeekTable(String startWeek, String endWeek, long idPointer){
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -176,6 +195,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_CLASS_WEEKS, null, values);
         db.close();
+        Log.v("Class Week Data added", " " + startWeek + " - " + endWeek + ": " + String.valueOf(idPointer));
     }
 
     //// addToModuleNamesTable
@@ -227,7 +247,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
 
     //add row to studentTimetable table
-    public void addToStudentTimetable(StudentTimetable entry){
+    //pass in week and handle weeks table entry at the same time?
+    public void addToStudentTimetable(StudentTimetable entry, String weeks){
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
         ContentValues values = new ContentValues();
@@ -238,8 +259,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
         values.put(COLUMN_START_TIME, entry.get_start_time());
         values.put(COLUMN_DAY, String.valueOf(entry.get_day()));
         values.put(COLUMN_END_TIME, entry.get_endTime());
-        values.put(COLUMN_STUDENT_ID, entry.get_endTime());
-        values.put(COLUMN_NOTES, entry.get_studentID());
+        values.put(COLUMN_STUDENT_ID, entry.get_studentID());
+        values.put(COLUMN_NOTES, entry.get_notes());
         values.put(COLUMN_GROUP_NAME, entry.get_groupName());
         values.put(COLUMN_TYPE, entry.get_type());
         values.put(COLUMN_TITLE, entry.get_title());
@@ -248,6 +269,20 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_STUDENT_TIMETABLE, null, values);
         db.close();
+
+        if (weeks.contains(",")){
+            String[] splitArray = weeks.split(",");
+            for(int i = 0; i <splitArray.length; i++) {
+                String[] secondSplitArray = splitArray[i].split("-");
+                addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
+            }
+
+        }
+
+        else {
+            String[] splitArray = weeks.split("-");
+            addToClassWeekTable(splitArray[0], splitArray[1], id);
+        }
     }
 
     //return a module row from id
@@ -338,6 +373,161 @@ public class MyDBHandler extends SQLiteOpenHelper{
         return result;
     }
 
+    //get all from studentTimetable
+    public ArrayList<StudentTimetable> getAllFromStudentTimetable(){
+        ArrayList<StudentTimetable> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + ";";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+            result.add(new StudentTimetable(
+                    Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                    c.getString(c.getColumnIndex("moduleCode")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                    c.getString(c.getColumnIndex("startTime")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                    c.getString(c.getColumnIndex("endTime")),
+                    Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                    c.getString(c.getColumnIndex("notes")),
+                    c.getString(c.getColumnIndex("groupName")),
+                    c.getString(c.getColumnIndex("type")),
+                    c.getString(c.getColumnIndex("title")),
+                    c.getString(c.getColumnIndex("lecturer")),
+                    c.getString(c.getColumnIndex("room"))
+            ));
+            }
+            while (c.moveToNext());
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
+
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+
+    //get all from Module Table
+    public ArrayList<Module> getAllFromModuleTable(){
+        ArrayList<Module> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + ";";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+                result.add(new Module(
+                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        c.getString(c.getColumnIndex("moduleCode")),
+                        c.getString(c.getColumnIndex("startTime")),
+                        c.getString(c.getColumnIndex("endTime")),
+                        c.getString(c.getColumnIndex("room")),
+                        c.getString(c.getColumnIndex("lecturer")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                        c.getString(c.getColumnIndex("groupName")),
+                        c.getString(c.getColumnIndex("type"))
+                ));
+            }
+            while (c.moveToNext());
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
+
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+
+
+    //get all from Module Table
+    public ArrayList<Module> getAllFromModuleTable(String moduleCode){
+        ArrayList<Module> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE  + " WHERE " +
+                COLUMN_MODULE_CODE + " = '" + moduleCode + "';";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+                result.add(new Module(
+                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        c.getString(c.getColumnIndex("moduleCode")),
+                        c.getString(c.getColumnIndex("startTime")),
+                        c.getString(c.getColumnIndex("endTime")),
+                        c.getString(c.getColumnIndex("room")),
+                        c.getString(c.getColumnIndex("lecturer")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                        c.getString(c.getColumnIndex("groupName")),
+                        c.getString(c.getColumnIndex("type"))
+                ));
+            }
+            while (c.moveToNext());
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
+
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+    //Add a note
+    public void  insertNoteOnTimetableEntry(int IDTablePointer, String note){
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "UPDATE `" + TABLE_STUDENT_TIMETABLE + "` SET `" + COLUMN_NOTES +
+                "` = '" + note  + "' WHERE " + COLUMN_ID_TABLE_POINTER + "= '" + IDTablePointer +"';";
+        db.execSQL(query);
+        db.close();
+    }
+
 
 
     //Delete a row from moduleTimetable
@@ -371,6 +561,18 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public void  deleteAllFromStudent(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + ";");
+        db.close();
+    }
+
+    public void  deleteAllClassWeeks(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS + ";");
+        db.close();
+    }
+
+    public void  deleteAllUIDs(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_UID + ";");
         db.close();
     }
 

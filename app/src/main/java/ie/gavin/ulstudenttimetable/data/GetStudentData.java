@@ -83,7 +83,7 @@ public class GetStudentData {
                             @Override
                             public void processResult(String html) {
                                 super.processResult(html);
-                                Log.v(LOG_TAG, "mt" + moduleCode);
+                                //Log.v(LOG_TAG, "mt" + moduleCode);
                                 if (!checkTimetableDataResult(this)) {
                                     return;
                                 }
@@ -99,7 +99,7 @@ public class GetStudentData {
                             @Override
                             public void processResult(String html) {
                                 super.processResult(html);
-                                Log.v(LOG_TAG, "md" + moduleCode);
+                                //Log.v(LOG_TAG, "md" + moduleCode);
                                 if (!checkTimetableDataResult(this)) {
                                     return;
                                 }
@@ -138,8 +138,11 @@ public class GetStudentData {
     }
 
     public void processData() {
+
         Module module;
         dbHandler = new MyDBHandler(this.context, null, null, 3);
+        dbHandler. deleteAllClassWeeks();
+        dbHandler.deleteAllUIDs();
         String aModuleCode, startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
         int day;
 
@@ -172,14 +175,14 @@ public class GetStudentData {
                         r += strrow + "|";
 
                     }
-                    Log.v(LOG_TAG, "Module Name: " + r);
+                    //Log.v(LOG_TAG, "Module Name: " + r);
                     moduleName =  moduleEvent.get(0);
                     dbHandler.addToModuleNamesTable(moduleCode, moduleName );
 
                     //below tests DB names
                     String test;
                     test = dbHandler.getModuleName(moduleCode);
-                    Log.v(LOG_TAG, "Database TEST: " + test);
+                    //Log.v(LOG_TAG, "Database TEST: " + test);
                 }
 
             }
@@ -213,13 +216,22 @@ public class GetStudentData {
                     lecturer =  moduleEvent.get(5);
                     room =  moduleEvent.get(6);
                     weeks =  moduleEvent.get(7);
-                    //need a day int
+
 
                     tempModule = new Module(0, moduleCode, startTime , endTime, room, lecturer, day, group, type);
-                    dbHandler.addToModuleTable(tempModule);
+                    dbHandler.addToModuleTable(tempModule, weeks);
 
-                    Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
+                    //Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
                 }
+
+                //testing module table
+//                ArrayList<Module> test = new ArrayList<>();
+//                test = dbHandler.getAllFromModuleTable(moduleCode);
+//                for(int i = 0; i < test.size(); i++){
+//                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName());
+//
+//
+//                }
 
 
             }
@@ -244,7 +256,7 @@ public class GetStudentData {
                         r += strrow + "|";
 
                     }
-                    Log.v(LOG_TAG, "event: " + r);
+                    //Log.v(LOG_TAG, "event: " + r);
                     day = Integer.parseInt(moduleEvent.get(0));
                     startTime =  moduleEvent.get(1);
                     endTime =  moduleEvent.get(2);
@@ -255,13 +267,34 @@ public class GetStudentData {
                     weeks =  moduleEvent.get(7);
                     lecturer = null;
                     notes = null;
+                    /*Log.v(LOG_TAG, "day: " + day);
+                    Log.v(LOG_TAG, "startTime: " + startTime);
+                    Log.v(LOG_TAG, "endTime: " + endTime);
+                    Log.v(LOG_TAG, "moduleCode: " + moduleCode);
+                    Log.v(LOG_TAG, "type: " + type);
+                    Log.v(LOG_TAG, "group: " + group);
+                    Log.v(LOG_TAG, "room: " + room);
+                    Log.v(LOG_TAG, "weeks: " + weeks);*/
                     tempStudent = new StudentTimetable(0, moduleCode, 0, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room);
-                    dbHandler.addToStudentTimetable(tempStudent);
+                    dbHandler.addToStudentTimetable(tempStudent, weeks);
 
 
                 }
 
+                //testing Module database contents
+                ArrayList<StudentTimetable> test = new ArrayList<>();
+                test = dbHandler.getAllFromStudentTimetable();
+                for(int i = 0; i < test.size(); i++){
+                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()));
+                    if(test.get(i).get_moduleCode().equals("CS4014")){
+                        dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
+                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFroID(test.get(i).get_idTablePointer()).get_notes());
+                    }
+
+                }
+
             }
+
 
 
 
