@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class MyDBHandler extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -42,6 +42,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final String COLUMN_GROUP_NAME = "groupName";
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_COLOR = "color";
 
     //class weeks
     public static final String COLUMN_START_WEEK = "startWeek";
@@ -105,7 +106,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_TYPE + " VARCHAR(45), " +
                 COLUMN_TITLE + " VARCHAR(45), " +
                 COLUMN_LECTURER + " VARCHAR(45), " +
-                COLUMN_ROOM + " VARCHAR(10) " +
+                COLUMN_ROOM + " VARCHAR(10), " +
+                COLUMN_COLOR + " VARCHAR(6) " +
                 ");";
 
         String query4 = "CREATE TABLE " + TABLE_CLASS_WEEKS + "(" +
@@ -281,6 +283,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         values.put(COLUMN_TITLE, entry.get_title());
         values.put(COLUMN_LECTURER, entry.get_lecturer());
         values.put(COLUMN_ROOM, entry.get_room());
+        values.put(COLUMN_COLOR, entry.get_color());
 
         db.insert(TABLE_STUDENT_TIMETABLE, null, values);
         db.close();
@@ -364,7 +367,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     c.getString(c.getColumnIndex("type")),
                     c.getString(c.getColumnIndex("title")),
                     c.getString(c.getColumnIndex("lecturer")),
-                    c.getString(c.getColumnIndex("room"))
+                    c.getString(c.getColumnIndex("room")),
+                    c.getString(c.getColumnIndex("color"))
             );
         }
         catch (SQLiteException e)
@@ -412,7 +416,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     c.getString(c.getColumnIndex("type")),
                     c.getString(c.getColumnIndex("title")),
                     c.getString(c.getColumnIndex("lecturer")),
-                    c.getString(c.getColumnIndex("room"))
+                    c.getString(c.getColumnIndex("room")),
+                    c.getString(c.getColumnIndex("color"))
             ));
                 Log.v("BUG", "s: " + result.get(0).get_start_time() + " e: " + result.get(0).get_endTime());   // BUG VISIBLE HERE
             }

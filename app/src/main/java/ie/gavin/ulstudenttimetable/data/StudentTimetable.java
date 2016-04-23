@@ -14,6 +14,7 @@ public class StudentTimetable {
     private String _title;
     private String _lecturer;
     private String _room;
+    private String _color;
     public StudentTimetable() {
     }
 
@@ -21,7 +22,7 @@ public class StudentTimetable {
         this._modulePointer = _modulePointer;
     }
 
-    public StudentTimetable(int _idTablePointer, String _moduleCode, int _modulePointer, String _start_time, int _day, String _endTime, int _studentID, String _notes, String _groupName, String _type, String _title, String _lecturer, String _room) {
+    public StudentTimetable(int _idTablePointer, String _moduleCode, int _modulePointer, String _start_time, int _day, String _endTime, int _studentID, String _notes, String _groupName, String _type, String _title, String _lecturer, String _room, String _color) {
         this._idTablePointer = _idTablePointer;
         this._moduleCode = _moduleCode;
         this._modulePointer = _modulePointer;
@@ -35,6 +36,7 @@ public class StudentTimetable {
         this._title = _title;
         this._lecturer = _lecturer;
         this._room = _room;
+        this._color = _color;
     }
 
     public int get_idTablePointer() {
@@ -89,6 +91,10 @@ public class StudentTimetable {
         return _room;
     }
 
+    public String get_color() {
+        return _color;
+    }
+
     public void set_idTablePointer(int _idTablePointer) {
         this._idTablePointer = _idTablePointer;
     }
@@ -139,5 +145,9 @@ public class StudentTimetable {
 
     public void set_room(String _room) {
         this._room = _room;
+    }
+
+    public void set_color(String _color) {
+        this._color = _color;
     }
 }
