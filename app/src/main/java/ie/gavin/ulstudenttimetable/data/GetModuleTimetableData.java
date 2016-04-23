@@ -48,6 +48,7 @@ public class GetModuleTimetableData extends GetTimetableData {
                 String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
                 ArrayList<String> event = new ArrayList<String>(Arrays.asList(row));
                 event.add(0, ""+dayOfWeek); // for identification
+                event.set(4, event.get(4).replace("&nbsp;", ""));
                 data.add(event);
 
             }

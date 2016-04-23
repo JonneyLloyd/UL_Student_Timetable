@@ -48,6 +48,7 @@ public class GetStudentTimetableData extends GetTimetableData {
                 String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
                 ArrayList<String> event = new ArrayList<String>(Arrays.asList(row));
                 event.add(0, ""+dayOfWeek); // for identification
+                event.set(5, event.get(5).replace("&nbsp;", ""));
                 data.add(event);
 
             }

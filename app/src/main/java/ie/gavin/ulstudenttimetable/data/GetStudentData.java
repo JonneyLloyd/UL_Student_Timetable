@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import ie.gavin.ulstudenttimetable.data.MyDBHandler;
-
 /**
  * Created by Oliver on 05/03/2016.
  */
@@ -140,8 +138,9 @@ public class GetStudentData {
     public void processData() {
 
         Module module;
-        dbHandler = new MyDBHandler(this.context, null, null, 3);
-        dbHandler. deleteAllClassWeeks();
+//        dbHandler = new MyDBHandler(this.context, null, null, 3);
+        dbHandler = MyDBHandler.getInstance(this.context);
+        dbHandler.deleteAllClassWeeks();
         dbHandler.deleteAllUIDs();
         String aModuleCode, startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
         int day;
@@ -288,7 +287,7 @@ public class GetStudentData {
                     Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()));
                     if(test.get(i).get_moduleCode().equals("CS4014")){
                         dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
-                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFroID(test.get(i).get_idTablePointer()).get_notes());
+                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());
                     }
 
                 }
