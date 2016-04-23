@@ -53,8 +53,23 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //uid
     public static final String COLUMN_ID = "id";
 
-    public MyDBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+//    public MyDBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+//        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+//    }
+
+    private static MyDBHandler mInstance = null;
+    private Context context;
+
+    public static MyDBHandler getInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new MyDBHandler(context.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private MyDBHandler(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -327,7 +342,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
     //return a studentTimetable row from id
-    public StudentTimetable getStudentTimetableFroID(int id){
+    public StudentTimetable getStudentTimetableFromID(int id){
         StudentTimetable result = null;
         String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " +
                 COLUMN_ID_TABLE_POINTER + " = " + id + ";";
@@ -399,6 +414,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     c.getString(c.getColumnIndex("lecturer")),
                     c.getString(c.getColumnIndex("room"))
             ));
+                Log.v("BUG", "s: " + result.get(0).get_start_time() + " e: " + result.get(0).get_endTime());   // BUG VISIBLE HERE
             }
             while (c.moveToNext());
         }
