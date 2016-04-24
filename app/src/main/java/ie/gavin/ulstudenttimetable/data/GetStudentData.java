@@ -224,13 +224,13 @@ public class GetStudentData {
                 }
 
                 //testing module table
-//                ArrayList<Module> test = new ArrayList<>();
-//                test = dbHandler.getAllFromModuleTable(moduleCode);
-//                for(int i = 0; i < test.size(); i++){
-//                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName());
-//
-//
-//                }
+                ArrayList<Module> test = new ArrayList<>();
+                test = dbHandler.getAllFromModuleTable(moduleCode);
+                for(int i = 0; i < test.size(); i++){
+                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
+
+
+                }
 
 
             }
@@ -281,11 +281,11 @@ public class GetStudentData {
 
                 }
 
-                //testing Module database contents
+                //testing Student database contents
                 ArrayList<StudentTimetable> test = new ArrayList<>();
-                test = dbHandler.getAllFromStudentTimetable(Integer.parseInt(studentID), 3);
+                test = dbHandler.getAllFromStudentTimetable();
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer())+ " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_color()));
+                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_color())+ " - " + (test.get(i).get_weeks()));
                     if(test.get(i).get_moduleCode().equals("CS4014")){
                         dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
                         Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());

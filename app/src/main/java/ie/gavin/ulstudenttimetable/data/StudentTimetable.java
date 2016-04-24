@@ -1,5 +1,7 @@
 package ie.gavin.ulstudenttimetable.data;
 
+import java.util.ArrayList;
+
 public class StudentTimetable {
     private int _idTablePointer;
     private String _moduleCode;
@@ -15,6 +17,8 @@ public class StudentTimetable {
     private String _lecturer;
     private String _room;
     private String _color;
+    private ArrayList<String> _weeks;
+
     public StudentTimetable() {
     }
 
@@ -95,6 +99,10 @@ public class StudentTimetable {
         return _color;
     }
 
+    public ArrayList<String> get_weeks() {
+        return _weeks;
+    }
+
     public void set_idTablePointer(int _idTablePointer) {
         this._idTablePointer = _idTablePointer;
     }
@@ -149,5 +157,9 @@ public class StudentTimetable {
 
     public void set_color(String _color) {
         this._color = _color;
+    }
+
+    public void set_weeks(ArrayList<String> _weeks) {
+        this._weeks = _weeks;
     }
 }

@@ -1,5 +1,7 @@
 package ie.gavin.ulstudenttimetable.data;
 
+import java.util.ArrayList;
+
 public class Module {
 
     private int _idTablePointer;
@@ -11,6 +13,7 @@ public class Module {
     private int _day;//int 0-6
     private String _groupName;
     private String _type;
+    private ArrayList<String> _weeks;
 
     public Module() {
 
@@ -26,6 +29,10 @@ public class Module {
         this._day = _day;
         this._groupName = _groupName;
         this._type = _type;
+    }
+
+    public ArrayList<String> get_weeks() {
+        return _weeks;
     }
 
     public int get_idTablePointer() {
@@ -98,5 +105,9 @@ public class Module {
 
     public void set_type(String _type) {
         this._type = _type;
+    }
+
+    public void set_weeks(ArrayList<String> _weeks) {
+        this._weeks = _weeks;
     }
 }

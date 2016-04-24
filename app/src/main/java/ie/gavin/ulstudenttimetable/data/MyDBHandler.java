@@ -301,7 +301,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         else {
             String[] splitArray = weeks.split("-");
             addToClassWeekTable(splitArray[0], splitArray[1], id);
-            Log.v("Testing WEEKS " , "s: " + splitArray[0] + "e: " + splitArray[1]);
+            //Log.v("Testing WEEKS " , "s: " + splitArray[0] + "e: " + splitArray[1]);
         }
     }
 
@@ -349,8 +349,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //return a studentTimetable row from id
     public StudentTimetable getStudentTimetableFromID(int id){
         StudentTimetable result = null;
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " +
-                COLUMN_ID_TABLE_POINTER + " = " + id + ";";
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+                + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + id
+                + ";";
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -372,6 +374,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     c.getString(c.getColumnIndex("room")),
                     c.getString(c.getColumnIndex("color"))
             );
+            ArrayList<String> weeks = new ArrayList<>();
+            weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+            result.set_weeks(weeks);
         }
         catch (SQLiteException e)
         {
@@ -397,7 +402,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //get all from studentTimetable
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(){
         ArrayList<StudentTimetable> result = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + ";";
+        //String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + ";";
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+                +";";
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -421,6 +429,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     c.getString(c.getColumnIndex("room")),
                     c.getString(c.getColumnIndex("color"))
             ));
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                result.get(result.size()-1).set_weeks(weeks);
             }
             while (c.moveToNext());
         }
@@ -446,9 +457,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
 
-    //get all timetable results for a particular ID
+    //get all timetable results for a particular ID on a particular week
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID, int week){
         ArrayList<StudentTimetable> result = new ArrayList<>();
+
         String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
                 + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
                 + " WHERE " + COLUMN_STUDENT_ID + " = " + studentID
@@ -478,6 +490,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
                         c.getString(c.getColumnIndex("room")),
                         c.getString(c.getColumnIndex("color"))
                 ));
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                result.get(result.size()-1).set_weeks(weeks);
             }
             while (c.moveToNext());
         }
@@ -506,7 +521,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //get all from Module Table
     public ArrayList<Module> getAllFromModuleTable(){
         ArrayList<Module> result = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + ";";
+        //String query = "SELECT * FROM " + TABLE_MODULE + ";";
+        String query = "SELECT * FROM " + TABLE_MODULE + " JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+                +";";
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -525,6 +543,69 @@ public class MyDBHandler extends SQLiteOpenHelper{
                         c.getString(c.getColumnIndex("groupName")),
                         c.getString(c.getColumnIndex("type"))
                 ));
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                result.get(result.size()-1).set_weeks(weeks);
+            }
+            while (c.moveToNext());
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
+
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+
+    //get all from Module Table with an ID & week
+    public ArrayList<Module> getAllFromModuleTable(String moduleCode, int week){
+        ArrayList<Module> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_MODULE + " JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+                + " WHERE " + COLUMN_MODULE_CODE + " = '" + moduleCode
+                + "' AND " + COLUMN_START_WEEK + " <= " + week
+                + " AND " + COLUMN_END_WEEK + " >= " + week
+                +";";
+
+
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+                result.add(new Module(
+                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        c.getString(c.getColumnIndex("moduleCode")),
+                        c.getString(c.getColumnIndex("startTime")),
+                        c.getString(c.getColumnIndex("endTime")),
+                        c.getString(c.getColumnIndex("room")),
+                        c.getString(c.getColumnIndex("lecturer")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                        c.getString(c.getColumnIndex("groupName")),
+                        c.getString(c.getColumnIndex("type"))
+                ));
+
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                result.get(result.size()-1).set_weeks(weeks);
+                //Log.v("TESTING WEEKS: ", " " + (c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek"))));
+
             }
             while (c.moveToNext());
         }
@@ -554,8 +635,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //get all from Module Table
     public ArrayList<Module> getAllFromModuleTable(String moduleCode){
         ArrayList<Module> result = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE  + " WHERE " +
-                COLUMN_MODULE_CODE + " = '" + moduleCode + "';";
+        String query = "SELECT * FROM " + TABLE_MODULE + " JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+                + " WHERE " + COLUMN_MODULE_CODE + " = '" + moduleCode
+                 + "';";
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -574,6 +657,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
                         c.getString(c.getColumnIndex("groupName")),
                         c.getString(c.getColumnIndex("type"))
                 ));
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                result.get(result.size()-1).set_weeks(weeks);
             }
             while (c.moveToNext());
         }
