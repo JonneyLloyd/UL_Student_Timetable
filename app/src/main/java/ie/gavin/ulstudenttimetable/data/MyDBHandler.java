@@ -150,7 +150,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //Add a new row to the Module database
     //pass in week and handle weeks table entry at the same time
     public void addToModuleTable(Module module, String weeks){
-
+        weeks = weeks.substring(weeks.indexOf(":") + 1);
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
 
@@ -217,6 +217,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //// addToModuleNamesTable
     public void addToModuleNamesTable(String moduleCode, String moduleName){
+
         if (getModuleName(moduleCode) == null) {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -269,7 +270,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
         ContentValues values = new ContentValues();
-
+        weeks = weeks.substring(weeks.indexOf(":") + 1);
         values.put(COLUMN_ID_TABLE_POINTER, id);
         values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
         values.put(COLUMN_MODULE_CODE, entry.get_moduleCode());
@@ -300,6 +301,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         else {
             String[] splitArray = weeks.split("-");
             addToClassWeekTable(splitArray[0], splitArray[1], id);
+            Log.v("Testing WEEKS " , "s: " + splitArray[0] + "e: " + splitArray[1]);
         }
     }
 
@@ -430,6 +432,63 @@ public class MyDBHandler extends SQLiteOpenHelper{
         catch (CursorIndexOutOfBoundsException ce)
         {
             Log.d("ID not found", ce.getMessage());
+
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+
+    //get all timetable results for a particular ID
+    public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID, int week){
+        ArrayList<StudentTimetable> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+                + " WHERE " + COLUMN_STUDENT_ID + " = " + studentID
+                + " AND " + COLUMN_START_WEEK + " <= " + week
+                + " AND " + COLUMN_END_WEEK + " >= " + week
+                +";";
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+                result.add(new StudentTimetable(
+                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        c.getString(c.getColumnIndex("moduleCode")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                        c.getString(c.getColumnIndex("startTime")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                        c.getString(c.getColumnIndex("endTime")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                        c.getString(c.getColumnIndex("notes")),
+                        c.getString(c.getColumnIndex("groupName")),
+                        c.getString(c.getColumnIndex("type")),
+                        c.getString(c.getColumnIndex("title")),
+                        c.getString(c.getColumnIndex("lecturer")),
+                        c.getString(c.getColumnIndex("room")),
+                        c.getString(c.getColumnIndex("color"))
+                ));
+            }
+            while (c.moveToNext());
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage()+ query);
 
         }
         finally
