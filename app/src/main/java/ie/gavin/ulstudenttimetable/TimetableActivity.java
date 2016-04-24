@@ -27,6 +27,7 @@ import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
 import ie.gavin.ulstudenttimetable.calendar.CalendarView;
 import ie.gavin.ulstudenttimetable.data.Module;
 import ie.gavin.ulstudenttimetable.data.MyDBHandler;
+import ie.gavin.ulstudenttimetable.data.StudentTimetable;
 
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
@@ -224,7 +225,7 @@ public class TimetableActivity extends AppCompatActivity
         navMenu.findItem(puid).setChecked(false);
         navMenu.findItem(userId).setChecked(true);
         ((TextView) navHeader.findViewById(R.id.user_name)).setText(userName);
-        ((TextView) navHeader.findViewById(R.id.user_id)).setText(""+userId);
+        ((TextView) navHeader.findViewById(R.id.user_id)).setText("" + userId);
         puid = userId;
     }
 
@@ -261,37 +262,64 @@ public class TimetableActivity extends AppCompatActivity
         // TODO Auto-generated method stub
     }
 
+    public String formatEvent(Object obj) {
+        // TODO more + sortable
+        if (obj instanceof StudentTimetable) {
+            return ((StudentTimetable) obj).get_moduleCode()
+                    + " " + ((StudentTimetable) obj).get_type()
+                    + " " + ((StudentTimetable) obj).get_groupName()
+                    + " " + ((StudentTimetable) obj).get_room();
+        } else if (obj instanceof Module) {
+            return ((Module) obj).get_type()
+                    + " " + ((Module) obj).get_groupName()
+                    + " " + ((Module) obj).get_room();
+        } else {
+            return obj.toString();
+        }
+    }
+
     public void loadTimetable() {
         // TODO load events from DB
-        Calendar start = Calendar.getInstance();
-        Calendar end = Calendar.getInstance();
-        start.set(2016, 3-1, 21, 15, 0);
-        end.set(2016, 3-1, 21, 17, 0);
-        events.add(new CalendarEvent(
-                start,
-                end,
-                "Testing",
-                "#222222",
-                22
-        ));
+        dbHandler = MyDBHandler.getInstance(this.getApplicationContext());
+        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable();
 
-        Calendar astart = Calendar.getInstance();
-        Calendar aend = Calendar.getInstance();
-        astart.set(2016, 3 - 1, 23, 11, 0);
-        aend.set(2016, 3 - 1, 23, 12, 0);
-        events.add(new CalendarEvent(
-                astart,
-                aend,
-                "Testing",
-                "#ff2222",
-                20
-        ));
+        for (StudentTimetable studentTimetable : StudentTimetables) {
+
+            String [] startTime = studentTimetable.get_start_time().split(":");
+            String [] endTime = studentTimetable.get_endTime().split(":");
+            int day = studentTimetable.get_day();
+            Calendar start = Calendar.getInstance();
+            Calendar end = Calendar.getInstance();
+            start.set(2016, 4-1, 18 + day - 1, Integer.parseInt(startTime[0]), Integer.parseInt(startTime[1]));
+            end.set(2016, 4 - 1, 18 + day - 1, Integer.parseInt(endTime[0]), Integer.parseInt(endTime[1]));
+
+            events.add(new CalendarEvent(
+                    start,
+                    end,
+                    formatEvent(studentTimetable),
+                    "#888888",
+                    studentTimetable.get_idTablePointer()
+            ));
+
+        }
 
         cv = ((CalendarView)findViewById(R.id.calendar_view));
+        cv.setEventClickListener(new CalendarView.EventClickListener() {
+            @Override
+            public void onEventClick(int eventId) {
+                Toast.makeText(TimetableActivity.this, "" + eventId, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onEventLongClick(int eventId) {
+                Toast.makeText(TimetableActivity.this, "" + eventId, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         navigationView.setCheckedItem(R.id.nav_five_day);
         cv.setVisibleDays(5);
         Calendar weekStart = Calendar.getInstance();
-        weekStart.set(2016, 3-1, 28);
+        weekStart.set(2016, 4-1, 18);
         cv.setweekStartDate(weekStart);
         cv.updateCalendar(events);
     }

@@ -414,7 +414,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     c.getString(c.getColumnIndex("lecturer")),
                     c.getString(c.getColumnIndex("room"))
             ));
-                Log.v("BUG", "s: " + result.get(0).get_start_time() + " e: " + result.get(0).get_endTime());   // BUG VISIBLE HERE
             }
             while (c.moveToNext());
         }

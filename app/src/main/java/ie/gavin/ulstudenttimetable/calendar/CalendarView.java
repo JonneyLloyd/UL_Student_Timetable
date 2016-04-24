@@ -63,6 +63,19 @@ public class CalendarView extends LinearLayout {
     // events
     private ArrayList<CalendarEvent> events = new ArrayList<>();
 
+    // listener on events - for callbacks
+    public interface EventClickListener {
+        public void onEventClick(int eventId);
+        public void onEventLongClick(int eventId);
+    }
+
+    private EventClickListener eventClickListener;
+
+    public void setEventClickListener(EventClickListener eventClickListener) {
+        this.eventClickListener = eventClickListener;
+    }
+
+
     public CalendarView(Context context) {
         super(context);
         loadLayout(context, null);
@@ -402,12 +415,22 @@ public class CalendarView extends LinearLayout {
                         params.leftMargin = (int) getResources().getDimension(R.dimen.event_margin_left);
                         params.rightMargin = (int) getResources().getDimension(R.dimen.event_margin_right);
 
+                        eventView.setTag(event.getDatabaseId());
                         eventView.setOnClickListener(new OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                            Log.d("test", "" + position);
+                                Log.d("test", "" + v.getTag());
+                                eventClickListener.onEventClick((int) v.getTag());
                             }
                         });
+                        eventView.setOnLongClickListener(new OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+                                eventClickListener.onEventLongClick((int) v.getTag());
+                                return false;
+                            }
+                        });
+
                     }
                 }
 
