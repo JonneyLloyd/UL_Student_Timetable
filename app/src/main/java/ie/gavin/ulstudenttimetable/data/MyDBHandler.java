@@ -152,8 +152,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public void addToModuleTable(Module module, String weeks){
         weeks = weeks.substring(weeks.indexOf(":") + 1);
         SQLiteDatabase db = getWritableDatabase();
-        long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
 
+        long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID_TABLE_POINTER, id);//id taken from UID table
         values.put(COLUMN_MODULE_CODE, module.get_ModuleCode());
@@ -266,11 +266,11 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //add row to studentTimetable table
     //pass in week and handle weeks table entry at the same time?
-    public void addToStudentTimetable(StudentTimetable entry, String weeks){
+    public void addToStudentTimetable(StudentTimetable entry, String weeks) {
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
         ContentValues values = new ContentValues();
-        weeks = weeks.substring(weeks.indexOf(":") + 1);
+        if (!weeks.isEmpty()) weeks = weeks.substring(weeks.indexOf(":") + 1);
         values.put(COLUMN_ID_TABLE_POINTER, id);
         values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
         values.put(COLUMN_MODULE_CODE, entry.get_moduleCode());
@@ -288,21 +288,20 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_STUDENT_TIMETABLE, null, values);
         db.close();
+        if (!weeks.isEmpty()){
+            if (weeks.contains(",")) {
+                String[] splitArray = weeks.split(",");
+                for (int i = 0; i < splitArray.length; i++) {
+                    String[] secondSplitArray = splitArray[i].split("-");
+                    addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
+                }
 
-        if (weeks.contains(",")){
-            String[] splitArray = weeks.split(",");
-            for(int i = 0; i <splitArray.length; i++) {
-                String[] secondSplitArray = splitArray[i].split("-");
-                addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
+            } else {
+                String[] splitArray = weeks.split("-");
+                addToClassWeekTable(splitArray[0], splitArray[1], id);
+                //Log.v("Testing WEEKS " , "s: " + splitArray[0] + "e: " + splitArray[1]);
             }
-
-        }
-
-        else {
-            String[] splitArray = weeks.split("-");
-            addToClassWeekTable(splitArray[0], splitArray[1], id);
-            //Log.v("Testing WEEKS " , "s: " + splitArray[0] + "e: " + splitArray[1]);
-        }
+            }
     }
 
     //return a module row from id
@@ -402,10 +401,29 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //get all from studentTimetable
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(){
         ArrayList<StudentTimetable> result = new ArrayList<>();
-        //String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + ";";
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+//        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
+//                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+//                +";";
+
+        String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
+                + " LEFT JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
+                + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
+                + COLUMN_MODULE_CODE + " modCode, "
+                + COLUMN_START_TIME + " modStrt, "
+                + COLUMN_END_TIME + " modEnd, "
+                + COLUMN_ROOM + " modRoom, "
+                + COLUMN_LECTURER + " modLec, "
+                + COLUMN_DAY + " modDay, "
+                + COLUMN_GROUP_NAME + " modGroup, "
+                + COLUMN_TYPE + " modType, "
+                + COLUMN_START_WEEK + " sWeek, "
+                + COLUMN_END_WEEK + " eWeek FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
                 +";";
+
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -413,26 +431,54 @@ public class MyDBHandler extends SQLiteOpenHelper{
             c.moveToFirst();
             do
             {
-            result.add(new StudentTimetable(
-                    Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                    c.getString(c.getColumnIndex("moduleCode")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                    c.getString(c.getColumnIndex("startTime")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                    c.getString(c.getColumnIndex("endTime")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                    c.getString(c.getColumnIndex("notes")),
-                    c.getString(c.getColumnIndex("groupName")),
-                    c.getString(c.getColumnIndex("type")),
-                    c.getString(c.getColumnIndex("title")),
-                    c.getString(c.getColumnIndex("lecturer")),
-                    c.getString(c.getColumnIndex("room")),
-                    c.getString(c.getColumnIndex("color"))
-            ));
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                result.get(result.size()-1).set_weeks(weeks);
+                if (c.getString(c.getColumnIndex("modulePointer")).equals("0")){
+                //if (true){
+                    result.add(new StudentTimetable(
+                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            c.getString(c.getColumnIndex("moduleCode")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            c.getString(c.getColumnIndex("startTime")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                            c.getString(c.getColumnIndex("endTime")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                            c.getString(c.getColumnIndex("notes")),
+                            c.getString(c.getColumnIndex("groupName")),
+                            c.getString(c.getColumnIndex("type")),
+                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("lecturer")),
+                            c.getString(c.getColumnIndex("room")),
+                            c.getString(c.getColumnIndex("color"))
+                    ));
+                    ArrayList<String> weeks = new ArrayList<>();
+                    weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                    result.get(result.size()-1).set_weeks(weeks);
+                }
+
+                else{
+                    result.add(new StudentTimetable(
+                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            c.getString(c.getColumnIndex("modCode")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            c.getString(c.getColumnIndex("modStrt")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
+                            c.getString(c.getColumnIndex("modEnd")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                            c.getString(c.getColumnIndex("notes")),
+                            c.getString(c.getColumnIndex("modGroup")),
+                            c.getString(c.getColumnIndex("modType")),
+                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("modLec")),
+                            c.getString(c.getColumnIndex("modRoom")),
+                            c.getString(c.getColumnIndex("color"))
+                    ));
+                    ArrayList<String> weeks = new ArrayList<>();
+                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+                    result.get(result.size()-1).set_weeks(weeks);
+                }
+
             }
+
+
             while (c.moveToNext());
         }
         catch (SQLiteException e)
@@ -739,6 +785,43 @@ public class MyDBHandler extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_UID + ";");
         db.close();
+    }
+
+
+    public int getUIDForModuleEntry(String moduleCode, int day, String start, String end){
+        SQLiteDatabase db = getWritableDatabase();
+        int result = 0;
+        String query = "SELECT " + COLUMN_ID_TABLE_POINTER + " FROM " + TABLE_MODULE
+                + " WHERE " + COLUMN_MODULE_CODE + " = '" + moduleCode
+                + "' AND "+ COLUMN_DAY + " = " + day
+                + " AND "+ COLUMN_START_TIME + " = '" + start
+                + "' AND "+ COLUMN_END_TIME + " = '" + end
+                + "';";
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            result = Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer")));
+        }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage() + query);
+            return 0;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage() + query);
+
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+            if (c == null) return 0;
+        }
+
+        return result;
     }
 
 }

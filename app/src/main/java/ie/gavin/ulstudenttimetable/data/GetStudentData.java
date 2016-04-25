@@ -57,6 +57,13 @@ public class GetStudentData {
             return;
         }
 
+
+
+
+
+
+
+
         //        Student Timetable
         studentTimetableData = new GetStudentTimetableData(studentId) {
             @Override
@@ -136,13 +143,16 @@ public class GetStudentData {
     }
 
     public void processData() {
-
-        Module module;
-//        dbHandler = new MyDBHandler(this.context, null, null, 3);
         dbHandler = MyDBHandler.getInstance(this.context);
         dbHandler.deleteAllClassWeeks();
         dbHandler.deleteAllUIDs();
-        String aModuleCode, startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
+        dbHandler.deleteAllFromModule();
+        dbHandler.deleteAllFromStudent();
+
+
+        Module module;
+//        dbHandler = new MyDBHandler(this.context, null, null, 3);
+        String startTime, endTime, room, lecturer, group , type, weeks, moduleName, prevModule = "";
         int day;
 
 
@@ -180,7 +190,7 @@ public class GetStudentData {
 
                     //below tests DB names
                     String test;
-                    test = dbHandler.getModuleName(moduleCode);
+                   // test = dbHandler.getModuleName(moduleCode);
                     //Log.v(LOG_TAG, "Database TEST: " + test);
                 }
 
@@ -190,9 +200,10 @@ public class GetStudentData {
 
             //moduleTimetable
             // iterate through the hashmap (list of ALL module data) getting modulecode and data
+
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleTimetables.entrySet()) {
                 String moduleCode = entry.getKey();
-                dbHandler.deleteAllFromModule();
+
 
                 // The data for ONE module
                 ArrayList<ArrayList<String>> moduleTimetable = entry.getValue();
@@ -206,7 +217,7 @@ public class GetStudentData {
                         r += strrow + "|";
 
                     }
-                    Log.v(LOG_TAG, "event: " + r);
+                    //Log.v(LOG_TAG, "event: " + r);
                     day = Integer.parseInt(moduleEvent.get(0));
                     startTime =  moduleEvent.get(1);
                     endTime =  moduleEvent.get(2);
@@ -227,7 +238,7 @@ public class GetStudentData {
                 ArrayList<Module> test = new ArrayList<>();
                 test = dbHandler.getAllFromModuleTable(moduleCode);
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
+                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
 
 
                 }
@@ -237,11 +248,13 @@ public class GetStudentData {
 
             //studentTimetables
             // iterate through the hashmap (list of ALL module data) getting modulecode and data
+
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : studentTimetables.entrySet()) {
                 String studentID = entry.getKey();
                 String moduleCode, notes, color;
+                int UID = 0;
                 StudentTimetable tempStudent;
-                dbHandler.deleteAllFromStudent();
+
 
                 // The data for ONE module
                 ArrayList<ArrayList<String>> studentTimetables = entry.getValue();
@@ -267,16 +280,18 @@ public class GetStudentData {
                     color = "FF0000";
                     lecturer = null;
                     notes = null;
-                    Log.v(LOG_TAG, "day: " + day);
-                    Log.v(LOG_TAG, "startTime: " + startTime);
-                    Log.v(LOG_TAG, "endTime: " + endTime);
+                    //Log.v(LOG_TAG, "day: " + day);
+                    //Log.v(LOG_TAG, "startTime: " + startTime);
+                    //Log.v(LOG_TAG, "endTime: " + endTime);
 //                    Log.v(LOG_TAG, "moduleCode: " + moduleCode);
 //                    Log.v(LOG_TAG, "type: " + type);
 //                    Log.v(LOG_TAG, "group: " + group);
 //                    Log.v(LOG_TAG, "room: " + room);
 //                    Log.v(LOG_TAG, "weeks: " + weeks);
-                    tempStudent = new StudentTimetable(0, moduleCode, 0, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room, color);
-                    dbHandler.addToStudentTimetable(tempStudent, weeks);
+                    UID = dbHandler.getUIDForModuleEntry(moduleCode, day, startTime, endTime);
+                   //tempStudent = new StudentTimetable(0, moduleCode, UID, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room, color);
+                    tempStudent = new StudentTimetable(0, null, UID, null, 0, null, Integer.parseInt(studentID),  null, null, null, null, null,  null, color);
+                    dbHandler.addToStudentTimetable(tempStudent, "");
 
 
                 }
@@ -285,11 +300,11 @@ public class GetStudentData {
                 ArrayList<StudentTimetable> test = new ArrayList<>();
                 test = dbHandler.getAllFromStudentTimetable();
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_color())+ " - " + (test.get(i).get_weeks()));
-                    if(test.get(i).get_moduleCode().equals("CS4014")){
-                        dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
-                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());
-                    }
+                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_day())+ " - " + (test.get(i).get_modulePointer())+ " - " + (test.get(i).get_weeks()));
+//                    if(test.get(i).get_moduleCode().equals("CS4014")){
+//                        dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
+//                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());
+//                    }
 
                 }
 
