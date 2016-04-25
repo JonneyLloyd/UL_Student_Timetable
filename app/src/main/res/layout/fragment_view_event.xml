@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TimetableActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="?attr/colorPrimary"
+        android:elevation="8dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:id="@+id/eventFields"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="20dp"
+            android:paddingBottom="30dp">
+
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/moduleCodeIcon"
+                    android:background="@drawable/ic_menu_share"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:text="New Text"
+                    android:id="@+id/moduleCodeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/titleIcon"
+                    android:background="@drawable/ic_menu_share"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:text="New Text"
+                    android:id="@+id/titleTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
