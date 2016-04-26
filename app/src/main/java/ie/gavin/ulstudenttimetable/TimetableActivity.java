@@ -1,5 +1,7 @@
 package ie.gavin.ulstudenttimetable;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -30,7 +32,7 @@ import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 import ie.gavin.ulstudenttimetable.data.StudentTimetable;
 
 public class TimetableActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener, EventDialogFragment.closeEventDialogListener {
 
     private Spinner weekSpinner;
     private NavigationView navigationView;
@@ -304,10 +306,12 @@ public class TimetableActivity extends AppCompatActivity
         }
 
         cv = ((CalendarView)findViewById(R.id.calendar_view));
+        // Add callbacks
         cv.setEventClickListener(new CalendarView.EventClickListener() {
             @Override
             public void onEventClick(int eventId) {
-                Toast.makeText(TimetableActivity.this, "" + eventId, Toast.LENGTH_SHORT).show();
+                openEventDialog(eventId, false);
+
             }
 
             @Override
@@ -322,6 +326,56 @@ public class TimetableActivity extends AppCompatActivity
         weekStart.set(2016, 4-1, 18);
         cv.setweekStartDate(weekStart);
         cv.updateCalendar(events);
+    }
+
+    public void openEventDialog(int eventId, boolean editable) {
+        String tag = "fragment_view_event";
+        if (editable) tag = "fragment_edit_event";
+
+        // close existing dialog fragments
+        FragmentManager manager = getFragmentManager();
+        Fragment frag = manager.findFragmentByTag(tag);
+        if (frag != null) {
+            manager.beginTransaction().remove(frag).commit();
+        }
+
+        Bundle args = new Bundle();
+        args.putInt("eventId", eventId);
+
+        if (!editable) {
+            EventViewDialogFragment eventViewDialog = new EventViewDialogFragment();
+            eventViewDialog.setArguments(args);
+            eventViewDialog.show(manager, tag);
+        } else {
+            EventEditDialogFragment eventEditDialog = new EventEditDialogFragment();
+            eventEditDialog.setArguments(args);
+            eventEditDialog.show(manager, tag);
+        }
+    }
+
+    @Override
+    public void onCloseEventDialog(String action, StudentTimetable studentTimetable) {
+
+        switch (action) {
+            case EventDialogFragment.CANCEL_ACTION:
+                break;
+
+            case EventDialogFragment.EDIT_ACTION:
+                openEventDialog(studentTimetable.get_idTablePointer(), true);
+                break;
+
+            case EventDialogFragment.SAVE_ACTION:
+                Toast.makeText(this, "s, " + studentTimetable.get_moduleCode(), Toast.LENGTH_SHORT).show();
+                // TODO save to DB
+                break;
+
+            case EventDialogFragment.DELETE_ACTION:
+                Toast.makeText(this, "d, " + studentTimetable.get_moduleCode(), Toast.LENGTH_SHORT).show();
+                // TODO
+                break;
+
+        }
+
     }
 
     public void loadPreferences() {
