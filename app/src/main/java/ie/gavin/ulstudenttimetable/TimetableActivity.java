@@ -283,7 +283,8 @@ public class TimetableActivity extends AppCompatActivity
     public void loadTimetable() {
         // TODO load events from DB
         dbHandler = MyDBHandler.getInstance(this.getApplicationContext());
-        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable();
+//        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable();
+        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable(14161044, 1);
 
         for (StudentTimetable studentTimetable : StudentTimetables) {
 
@@ -299,7 +300,7 @@ public class TimetableActivity extends AppCompatActivity
                     start,
                     end,
                     formatEvent(studentTimetable),
-                    "#888888",
+                    studentTimetable.get_color(),
                     studentTimetable.get_idTablePointer()
             ));
 

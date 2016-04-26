@@ -10,10 +10,10 @@ public class CalendarEvent {
     Calendar startDateTime;
     Calendar endDateTime;
     String title;
-    String color;
+    int color;
     int databaseId;
 
-    public CalendarEvent(Calendar startDateTime, Calendar endDateTime, String title, String color, int databaseId) {
+    public CalendarEvent(Calendar startDateTime, Calendar endDateTime, String title, int color, int databaseId) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.title = title;
@@ -33,7 +33,7 @@ public class CalendarEvent {
         return title;
     }
 
-    public String getColor() {
+    public int getColor() {
         return color;
     }
 

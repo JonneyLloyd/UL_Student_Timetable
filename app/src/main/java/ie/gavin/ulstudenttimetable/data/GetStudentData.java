@@ -2,6 +2,7 @@ package ie.gavin.ulstudenttimetable.data;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -254,7 +255,8 @@ public class GetStudentData {
 
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : studentTimetables.entrySet()) {
                 String studentID = entry.getKey();
-                String moduleCode, notes, color;
+                String moduleCode, notes;
+                int color;
                 int UID = 0;
                 StudentTimetable tempStudent;
 
@@ -280,7 +282,7 @@ public class GetStudentData {
                     group =  moduleEvent.get(5);
                     room =  moduleEvent.get(6);
                     weeks =  moduleEvent.get(7);
-                    color = "FF0000";
+                    color = Color.parseColor("#888888");
                     lecturer = null;
                     notes = null;
                     //Log.v(LOG_TAG, "day: " + day);

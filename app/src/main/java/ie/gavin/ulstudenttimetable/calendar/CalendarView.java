@@ -1,7 +1,6 @@
 package ie.gavin.ulstudenttimetable.calendar;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
@@ -403,7 +402,7 @@ public class CalendarView extends LinearLayout {
                         eventView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, eventHeight));
 
                         GradientDrawable bgShape = (GradientDrawable)eventView.getBackground();
-                        bgShape.setColor(Color.parseColor(event.getColor()));
+                        bgShape.setColor(event.getColor());
 
                         TextView eventViewText = (TextView) eventView.findViewById(R.id.eventTextView);
                         eventViewText.setText(event.getTitle());

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.content.Context;
 import android.content.ContentValues;
+import android.graphics.Color;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
     public static final int ADD = 1;
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -109,7 +110,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_TITLE + " VARCHAR(45), " +
                 COLUMN_LECTURER + " VARCHAR(45), " +
                 COLUMN_ROOM + " VARCHAR(10), " +
-                COLUMN_COLOR + " VARCHAR(6) " +
+                COLUMN_COLOR + " INTEGER " +
                 ");";
 
         String query4 = "CREATE TABLE " + TABLE_CLASS_WEEKS + "(" +
@@ -310,7 +311,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public void addOrRemoveModuleFromTimetable(ArrayList<Module> module, int studentID, int flag){
         int UID = 0;
         int modulePointer = 0;
-        String color = "FF0000";
+        int color = Color.parseColor("#FF0000");
         StudentTimetable tempStudent;
         if (flag == ADD) {
             for (int i = 0; i < module.size(); i++) {
@@ -380,34 +381,77 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //return a studentTimetable row from id
     public StudentTimetable getStudentTimetableFromID(int id){
         StudentTimetable result = null;
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
+        String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
+                + " LEFT JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
+                + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
+                + COLUMN_MODULE_CODE + " modCode, "
+                + COLUMN_START_TIME + " modStrt, "
+                + COLUMN_END_TIME + " modEnd, "
+                + COLUMN_ROOM + " modRoom, "
+                + COLUMN_LECTURER + " modLec, "
+                + COLUMN_DAY + " modDay, "
+                + COLUMN_GROUP_NAME + " modGroup, "
+                + COLUMN_TYPE + " modType, "
+                + COLUMN_START_WEEK + " sWeek, "
+                + COLUMN_END_WEEK + " eWeek FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
                 + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + id
-                + ";";
+                +";";
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
             c = db.rawQuery(query, null);
             c.moveToFirst();
-            result = new StudentTimetable(
-                    Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                    c.getString(c.getColumnIndex("moduleCode")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                    c.getString(c.getColumnIndex("startTime")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                    c.getString(c.getColumnIndex("endTime")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                    c.getString(c.getColumnIndex("notes")),
-                    c.getString(c.getColumnIndex("groupName")),
-                    c.getString(c.getColumnIndex("type")),
-                    c.getString(c.getColumnIndex("title")),
-                    c.getString(c.getColumnIndex("lecturer")),
-                    c.getString(c.getColumnIndex("room")),
-                    c.getString(c.getColumnIndex("color"))
-            );
-            ArrayList<String> weeks = new ArrayList<>();
-            weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-            result.set_weeks(weeks);
+
+            if (c.getString(c.getColumnIndex("modulePointer")).equals("0")){
+                //if (true){
+                result = new StudentTimetable(
+                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        c.getString(c.getColumnIndex("moduleCode")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                        c.getString(c.getColumnIndex("startTime")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                        c.getString(c.getColumnIndex("endTime")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                        c.getString(c.getColumnIndex("notes")),
+                        c.getString(c.getColumnIndex("groupName")),
+                        c.getString(c.getColumnIndex("type")),
+                        c.getString(c.getColumnIndex("title")),
+                        c.getString(c.getColumnIndex("lecturer")),
+                        c.getString(c.getColumnIndex("room")),
+                        c.getInt(c.getColumnIndex("color"))
+                );
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                result.set_weeks(weeks);
+            }
+
+            else{
+                result = new StudentTimetable(
+                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        c.getString(c.getColumnIndex("modCode")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                        c.getString(c.getColumnIndex("modStrt")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
+                        c.getString(c.getColumnIndex("modEnd")),
+                        Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                        c.getString(c.getColumnIndex("notes")),
+                        c.getString(c.getColumnIndex("modGroup")),
+                        c.getString(c.getColumnIndex("modType")),
+                        c.getString(c.getColumnIndex("title")),
+                        c.getString(c.getColumnIndex("modLec")),
+                        c.getString(c.getColumnIndex("modRoom")),
+                        c.getInt(c.getColumnIndex("color"))
+                );
+                ArrayList<String> weeks = new ArrayList<>();
+                weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+                result.set_weeks(weeks);
+            }
+
+
         }
         catch (SQLiteException e)
         {
@@ -476,7 +520,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("title")),
                             c.getString(c.getColumnIndex("lecturer")),
                             c.getString(c.getColumnIndex("room")),
-                            c.getString(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex("color"))
                     ));
                     ArrayList<String> weeks = new ArrayList<>();
                     weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
@@ -498,7 +542,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("title")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
-                            c.getString(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex("color"))
                     ));
                     ArrayList<String> weeks = new ArrayList<>();
                     weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
@@ -580,7 +624,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("title")),
                             c.getString(c.getColumnIndex("lecturer")),
                             c.getString(c.getColumnIndex("room")),
-                            c.getString(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex("color"))
                     ));
                     ArrayList<String> weeks = new ArrayList<>();
                     weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
@@ -602,7 +646,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("title")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
-                            c.getString(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex("color"))
                     ));
                     ArrayList<String> weeks = new ArrayList<>();
                     weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
@@ -685,7 +729,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("title")),
                             c.getString(c.getColumnIndex("lecturer")),
                             c.getString(c.getColumnIndex("room")),
-                            c.getString(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex("color"))
                     ));
                     ArrayList<String> weeks = new ArrayList<>();
                     weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
@@ -709,7 +753,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("title")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
-                            c.getString(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex("color"))
                     ));
                     ArrayList<String> weeks = new ArrayList<>();
                     weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));

@@ -16,7 +16,7 @@ public class StudentTimetable {
     private String _title;
     private String _lecturer;
     private String _room;
-    private String _color;
+    private int _color;
     private ArrayList<String> _weeks;
 
     public StudentTimetable() {
@@ -26,7 +26,7 @@ public class StudentTimetable {
         this._modulePointer = _modulePointer;
     }
 
-    public StudentTimetable(int _idTablePointer, String _moduleCode, int _modulePointer, String _start_time, int _day, String _endTime, int _studentID, String _notes, String _groupName, String _type, String _title, String _lecturer, String _room, String _color) {
+    public StudentTimetable(int _idTablePointer, String _moduleCode, int _modulePointer, String _start_time, int _day, String _endTime, int _studentID, String _notes, String _groupName, String _type, String _title, String _lecturer, String _room, int _color) {
         this._idTablePointer = _idTablePointer;
         this._moduleCode = _moduleCode;
         this._modulePointer = _modulePointer;
@@ -95,7 +95,7 @@ public class StudentTimetable {
         return _room;
     }
 
-    public String get_color() {
+    public int get_color() {
         return _color;
     }
 
@@ -155,7 +155,7 @@ public class StudentTimetable {
         this._room = _room;
     }
 
-    public void set_color(String _color) {
+    public void set_color(int _color) {
         this._color = _color;
     }
 
