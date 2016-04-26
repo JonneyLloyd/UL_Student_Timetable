@@ -1,18 +1,19 @@
 package ie.gavin.ulstudenttimetable.data;
 
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.Cursor;
-import android.content.Context;
-import android.content.ContentValues;
 import android.graphics.Color;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
@@ -174,7 +175,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
         if (weeks.contains(",")){
             String[] splitArray = weeks.split(",");
             for(int i = 0; i <splitArray.length; i++) {
-                String[] secondSplitArray = splitArray[i].split("-");
+                String[] secondSplitArray;
+                if (splitArray[i].contains("-")) {
+                    secondSplitArray = splitArray[i].split("-");
+                } else {
+                    secondSplitArray = new String[] {splitArray[i],splitArray[i]};
+                }
                 addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
             }
 
@@ -566,6 +572,42 @@ public class MyDBHandler extends SQLiteOpenHelper{
         }
         finally
         {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
+    }
+
+    //get all studentTimetable users
+    public HashMap<String, String> getUsers(){
+        HashMap<String, String> result = new HashMap<>();
+
+        String query = "SELECT DISTINCT " + COLUMN_STUDENT_ID
+                + " FROM " + TABLE_STUDENT_TIMETABLE
+                +";";
+
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+                result.put(c.getString(c.getColumnIndex("studentID")), "Blank Name");
+
+            } while (c.moveToNext());
+
+        } catch (SQLiteException e) {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+
+        } catch (CursorIndexOutOfBoundsException ce) {
+            Log.d("ID not found", ce.getMessage());
+
+        } finally {
             //release all resources
             if (c != null) c.close();
             db.close();
