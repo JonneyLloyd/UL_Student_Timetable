@@ -301,7 +301,7 @@ public class GetStudentData {
 
                 //testing Student database contents
                 ArrayList<StudentTimetable> test = new ArrayList<>();
-                test = dbHandler.getAllFromStudentTimetable();
+                test = dbHandler.getAllFromStudentTimetable(14117495, 3);
                 for(int i = 0; i < test.size(); i++){
                     Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_day())+ " - " + (test.get(i).get_modulePointer())+ " - " + (test.get(i).get_weeks()));
 //                    if(test.get(i).get_moduleCode().equals("CS4014")){
