@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class MyDBHandler extends SQLiteOpenHelper{
+    public static final int DELETE = 0;
+    public static final int ADD = 1;
 
     private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "ULtimetable.db";
@@ -304,6 +306,36 @@ public class MyDBHandler extends SQLiteOpenHelper{
             }
     }
 
+    //add or remove a module on studentTable
+    public void addOrRemoveModuleFromTimetable(ArrayList<Module> module, int studentID, int flag){
+        int UID = 0;
+        int modulePointer = 0;
+        String color = "FF0000";
+        StudentTimetable tempStudent;
+        if (flag == ADD) {
+            for (int i = 0; i < module.size(); i++) {
+                UID = module.get(i).get_idTablePointer();
+                tempStudent = new StudentTimetable(0, null, UID, null, 0, null, studentID, null, null, null, null, null, null, color);
+                addToStudentTimetable(tempStudent, "");
+            }
+        }
+        else {
+            for (int i = 0; i < module.size(); i++) {
+                modulePointer = module.get(i).get_idTablePointer();
+                deleteModuleFromStudentTimetable(modulePointer, studentID);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
     //return a module row from id
     public Module getModuleFromID(int id){
         Module result = null;
@@ -401,9 +433,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //get all from studentTimetable
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(){
         ArrayList<StudentTimetable> result = new ArrayList<>();
-//        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
-//                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
-//                +";";
 
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
                 + " LEFT JOIN " + TABLE_CLASS_WEEKS
@@ -503,16 +532,32 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
 
-    //get all timetable results for a particular ID on a particular week
-    public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID, int week){
+    //get all timetable results for a particular studentID
+    public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID){
         ArrayList<StudentTimetable> result = new ArrayList<>();
 
-        String query = "SELECT * FROM " + TABLE_STUDENT_TIMETABLE + " JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
-                + " WHERE " + COLUMN_STUDENT_ID + " = " + studentID
-                + " AND " + COLUMN_START_WEEK + " <= " + week
-                + " AND " + COLUMN_END_WEEK + " >= " + week
+        String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
+                + " LEFT JOIN " + TABLE_CLASS_WEEKS
+                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
+                + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
+                + COLUMN_MODULE_CODE + " modCode, "
+                + COLUMN_START_TIME + " modStrt, "
+                + COLUMN_END_TIME + " modEnd, "
+                + COLUMN_ROOM + " modRoom, "
+                + COLUMN_LECTURER + " modLec, "
+                + COLUMN_DAY + " modDay, "
+                + COLUMN_GROUP_NAME + " modGroup, "
+                + COLUMN_TYPE + " modType, "
+                + COLUMN_START_WEEK + " sWeek, "
+                + COLUMN_END_WEEK + " eWeek FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
+                + " WHERE " +  COLUMN_STUDENT_ID + " = "+ studentID
                 +";";
+
+
+
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -520,25 +565,50 @@ public class MyDBHandler extends SQLiteOpenHelper{
             c.moveToFirst();
             do
             {
-                result.add(new StudentTimetable(
-                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                        c.getString(c.getColumnIndex("moduleCode")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                        c.getString(c.getColumnIndex("startTime")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                        c.getString(c.getColumnIndex("endTime")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                        c.getString(c.getColumnIndex("notes")),
-                        c.getString(c.getColumnIndex("groupName")),
-                        c.getString(c.getColumnIndex("type")),
-                        c.getString(c.getColumnIndex("title")),
-                        c.getString(c.getColumnIndex("lecturer")),
-                        c.getString(c.getColumnIndex("room")),
-                        c.getString(c.getColumnIndex("color"))
-                ));
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                result.get(result.size()-1).set_weeks(weeks);
+                if (c.getString(c.getColumnIndex("modulePointer")).equals("0")){
+                    result.add(new StudentTimetable(
+                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            c.getString(c.getColumnIndex("moduleCode")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            c.getString(c.getColumnIndex("startTime")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("day"))),
+                            c.getString(c.getColumnIndex("endTime")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                            c.getString(c.getColumnIndex("notes")),
+                            c.getString(c.getColumnIndex("groupName")),
+                            c.getString(c.getColumnIndex("type")),
+                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("lecturer")),
+                            c.getString(c.getColumnIndex("room")),
+                            c.getString(c.getColumnIndex("color"))
+                    ));
+                    ArrayList<String> weeks = new ArrayList<>();
+                    weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
+                    result.get(result.size()-1).set_weeks(weeks);
+                }
+
+                else{
+                    result.add(new StudentTimetable(
+                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            c.getString(c.getColumnIndex("modCode")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            c.getString(c.getColumnIndex("modStrt")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
+                            c.getString(c.getColumnIndex("modEnd")),
+                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
+                            c.getString(c.getColumnIndex("notes")),
+                            c.getString(c.getColumnIndex("modGroup")),
+                            c.getString(c.getColumnIndex("modType")),
+                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("modLec")),
+                            c.getString(c.getColumnIndex("modRoom")),
+                            c.getString(c.getColumnIndex("color"))
+                    ));
+                    ArrayList<String> weeks = new ArrayList<>();
+                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+                    result.get(result.size()-1).set_weeks(weeks);
+                }
+
             }
             while (c.moveToNext());
         }
@@ -760,6 +830,14 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public void  deleteStudentTimetableEntryFromID(int IDTablePointer){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " + COLUMN_ID_TABLE_POINTER + "=\"" + IDTablePointer + "\";");
+        db.close();
+    }
+
+    //delete a Module from studentTimetable for one Student
+    public void  deleteModuleFromStudentTimetable(int modulePointer, int studentID){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_STUDENT_TIMETABLE + " WHERE " + COLUMN_MODULE_POINTER + "=\"" + modulePointer + "\""
+                + " AND " + COLUMN_STUDENT_ID + " = \"" + studentID + "\";");
         db.close();
     }
 

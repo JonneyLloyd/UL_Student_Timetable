@@ -236,6 +236,9 @@ public class GetStudentData {
 
                 //testing module table
                 ArrayList<Module> test = new ArrayList<>();
+                //testing method to add/remove modules on student table
+                //test = dbHandler.getAllFromModuleTable(moduleCode);
+                //dbHandler.addOrRemoveModuleFromTimetable(test, 11111111, 1);
                 test = dbHandler.getAllFromModuleTable(moduleCode);
                 for(int i = 0; i < test.size(); i++){
                     Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
