@@ -243,10 +243,14 @@ public class GetStudentData {
                 test = dbHandler.getAllFromModuleTable(moduleCode);
                 for(int i = 0; i < test.size(); i++){
                     Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
-
+                    //dbHandler.updateModuleTable(test.get(i));
+                    //Log.v(LOG_TAG, "UpdatedMod: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_endTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
 
                 }
-
+                //Code snippet testing updateModuleTable()
+//                tempModule = new Module(0, "CS4416", "10:00" , "11:00", "HSG037", "NIKOLOV NIKOLA DR", 2, "", "LEC");
+//                boolean ok = dbHandler.updateModuleTable(tempModule);
+//                Log.v(LOG_TAG, "UpdatedSuccess: " + ok);
 
             }
 
