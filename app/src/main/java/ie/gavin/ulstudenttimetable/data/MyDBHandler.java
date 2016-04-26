@@ -19,7 +19,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
     public static final int ADD = 1;
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -130,12 +130,22 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_MODULE_NAME + " VARCHAR(45) " +
                 ");";
 
+        String query7 = "CREATE TRIGGER module_update AFTER UPDATE ON "
+                        + TABLE_MODULE
+                        + " FOR EACH ROW BEGIN UPDATE "
+                        + TABLE_STUDENT_TIMETABLE
+                        + " SET " + COLUMN_MODULE_POINTER + " = "
+                        + " new." +COLUMN_ID_TABLE_POINTER
+                        + " WHERE " + COLUMN_MODULE_POINTER + " = "
+                        + "old." + COLUMN_ID_TABLE_POINTER + "; END;";
+
         db.execSQL(query1);
         db.execSQL(query2);
         db.execSQL(query3);
         db.execSQL(query4);
         db.execSQL(query5);
         db.execSQL(query6);
+        db.execSQL(query7);
     }
 
     @Override
@@ -149,6 +159,47 @@ public class MyDBHandler extends SQLiteOpenHelper{
         onCreate(db);
 
     }
+
+
+    //update a module
+    public boolean updateModuleTable(Module module){
+        SQLiteDatabase db = getWritableDatabase();
+        String whereClause = COLUMN_MODULE_CODE + " = '" + module.get_ModuleCode() + "'"
+                + " AND " + COLUMN_START_TIME + " = '" + module.get_startTime()+ "'"
+                + " AND " + COLUMN_END_TIME + " = '" + module.get_endTime()+ "'"
+                + " AND " + COLUMN_DAY + " = '" + module.get_day()
+                + "';";
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ROOM, module.get_room());
+        values.put(COLUMN_LECTURER, module.get_lecturer());
+        values.put(COLUMN_GROUP_NAME, module.get_groupName());
+        values.put(COLUMN_TYPE, module.get_type());
+        int id = db.update(TABLE_MODULE, values, whereClause, null);
+        //Log.d("UPDATED ROWS", ": " + id);
+        //long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
+
+        if (id == 0){
+            whereClause = COLUMN_MODULE_CODE + " = '" + module.get_ModuleCode() + "'"
+                    + " AND " + COLUMN_ROOM + " = '" + module.get_room()+ "'"
+                    + " AND " + COLUMN_LECTURER + " = '" + module.get_lecturer()+ "'"
+                    + " AND " + COLUMN_GROUP_NAME + " = '" + module.get_groupName() + "'"
+                    + " AND " + COLUMN_TYPE + " = '" + module.get_type()
+                    + "';";
+            ContentValues values2 = new ContentValues();
+            values2.put(COLUMN_START_TIME, module.get_startTime());
+            values2.put(COLUMN_END_TIME, module.get_endTime());
+            values2.put(COLUMN_DAY, module.get_day());
+            id = db.update(TABLE_MODULE, values2, whereClause, null);
+        }
+
+        db.close();
+        if (id == 1)
+            return true;
+        else
+            return false;
+
+    }
+
 
 
     //Add a new row to the Module database
@@ -221,7 +272,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_CLASS_WEEKS, null, values);
         db.close();
-        Log.v("Class Week Data added", " " + startWeek + " - " + endWeek + ": " + String.valueOf(idPointer));
+       // Log.v("Class Week Data added", " " + startWeek + " - " + endWeek + ": " + String.valueOf(idPointer));
     }
 
     //// addToModuleNamesTable
