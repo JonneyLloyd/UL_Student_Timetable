@@ -11,7 +11,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -224,18 +223,66 @@ public class CalendarView extends LinearLayout {
         contentColumnViewPager.setAdapter(new CalendarPagerAdapter(getContext()/*, events*/));
 
         // Synchronise both ViewPagers
-        headerColumnViewPager.setOnTouchListener(new View.OnTouchListener() {
+//        headerColumnViewPager.setOnTouchListener(new OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                contentColumnViewPager.onTouchEvent(event);
+//                return false;
+//            }
+//        });
+//        contentColumnViewPager.setOnTouchListener(new OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                headerColumnViewPager.onTouchEvent(event);
+//                return false;
+//            }
+//        });
+
+        headerColumnViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            private int mScrollState = ViewPager.SCROLL_STATE_IDLE;
+
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                contentColumnViewPager.onTouchEvent(event);
-                return false;
+            public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
+                if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+                    return;
+                }
+                contentColumnViewPager.scrollTo(headerColumnViewPager.getScrollX(), contentColumnViewPager.getScrollY());
+            }
+
+            @Override
+            public void onPageSelected(final int position) { }
+
+            @Override
+            public void onPageScrollStateChanged(final int state) {
+                mScrollState = state;
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    contentColumnViewPager.setCurrentItem(headerColumnViewPager.getCurrentItem(), false);
+                }
             }
         });
-        contentColumnViewPager.setOnTouchListener(new View.OnTouchListener() {
+
+        contentColumnViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            private int mScrollState = ViewPager.SCROLL_STATE_IDLE;
+
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                headerColumnViewPager.onTouchEvent(event);
-                return false;
+            public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
+                if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+                    return;
+                }
+                headerColumnViewPager.scrollTo(contentColumnViewPager.getScrollX(), headerColumnViewPager.getScrollY());
+            }
+
+            @Override
+            public void onPageSelected(final int position) { }
+
+            @Override
+            public void onPageScrollStateChanged(final int state) {
+                mScrollState = state;
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    headerColumnViewPager.setCurrentItem(contentColumnViewPager.getCurrentItem(), false);
+                }
             }
         });
 
