@@ -58,11 +58,7 @@ public class GetStudentData {
             return;
         }
 
-
-
-
-
-
+        // TODO check if already exists
 
 
         //        Student Timetable
@@ -145,10 +141,10 @@ public class GetStudentData {
 
     public void processData() {
         dbHandler = MyDBHandler.getInstance(this.context);
-        dbHandler.deleteAllClassWeeks();
-        dbHandler.deleteAllUIDs();
-        dbHandler.deleteAllFromModule();
-        dbHandler.deleteAllFromStudent();
+//        dbHandler.deleteAllClassWeeks();
+//        dbHandler.deleteAllUIDs();
+//        dbHandler.deleteAllFromModule();
+//        dbHandler.deleteAllFromStudent();
 
 
         Module module;

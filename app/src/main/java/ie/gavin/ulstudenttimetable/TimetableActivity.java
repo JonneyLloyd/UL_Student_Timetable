@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +24,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
 import ie.gavin.ulstudenttimetable.calendar.CalendarView;
@@ -40,6 +43,7 @@ public class TimetableActivity extends AppCompatActivity
     private Menu navMenu;
     private CalendarView cv;
     ArrayList<CalendarEvent> events = new ArrayList<>();
+    HashMap<String, String> users = new HashMap<>();
 
     // TODO load defaults from shared prefs
     private int userId;         // load primary user
@@ -85,10 +89,8 @@ public class TimetableActivity extends AppCompatActivity
         loadActionbarWeeks();
         loadTimetable();
 
-        if (true) {   // if no user set yet
-            Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
-            intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
-            startActivityForResult(intent, REQUEST_CODE_ADD_TIMETABLE);
+        if (userId == 0) {   // if no user set yet
+            addUser();
         }
 
         com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
@@ -143,15 +145,14 @@ public class TimetableActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == 14161044) {
-            // TODO dynamically
-            Toast.makeText(TimetableActivity.this, "Oliver", Toast.LENGTH_SHORT).show();
-            setNavigationViewUser(14161044, "Oliver Gavin");
-        } else if (id == 14161045) {
-            Toast.makeText(TimetableActivity.this, "Jonney", Toast.LENGTH_SHORT).show();
-            setNavigationViewUser(14161045, "Jonathan Lloyd");
+        if (users.containsKey(Integer.toString(id))) {
+            String name = users.get(Integer.toString(id));
+            Toast.makeText(TimetableActivity.this, name + "," + id, Toast.LENGTH_SHORT).show();
+            setNavigationViewUser(id, name);
+            loadTimetable();
         } else if (id == R.id.users_add) {
             Toast.makeText(TimetableActivity.this, "Add user", Toast.LENGTH_SHORT).show();
+            addUser();  // TODO add to list after
         } else if (id == R.id.nav_one_day) {
             cv.setVisibleDays(1);
             cv.updateCalendar();
@@ -174,52 +175,50 @@ public class TimetableActivity extends AppCompatActivity
         return true;
     }
 
+    public void addUser() {
+        Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
+        intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
+        startActivityForResult(intent, REQUEST_CODE_ADD_TIMETABLE);
+    }
+
     // Function to read the result from newly created activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == REQUEST_CODE_ADD_TIMETABLE){
-            String studentId = data.getExtras().get("studentId").toString();
-            Toast.makeText(TimetableActivity.this, studentId, Toast.LENGTH_SHORT).show();
-
-
-
-            //adding a module to DB for testing purposes
-
-            /*
-            tempModule = new Module(2, "CS4014", "10:30:00" , "11:30:00", "AB100", "Conor Ryan", 1, "2A", "Lab");
-            dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
-            dbHandler.addModule(tempModule);
-            Toast.makeText(TimetableActivity.this, "CS4014 added", Toast.LENGTH_SHORT).show();
-            */
-
-            //testing module search & handle no result
-
-            /*
-
-            dbHandler = new MyDBHandler(TimetableActivity.this, null, null, 1);
-            tempModule = dbHandler.getModuleFromID(101);
-            if (tempModule != null) {
-                Toast.makeText(TimetableActivity.this, tempModule.get_lecturer(), Toast.LENGTH_SHORT).show();
-            }
-            else
-                Toast.makeText(TimetableActivity.this, "ID not found", Toast.LENGTH_SHORT).show();
-            */
-
+            String studentId = (String) data.getExtras().get("studentId");
+            Toast.makeText(TimetableActivity.this, studentId + " was added!", Toast.LENGTH_SHORT).show();
+            userId = Integer.parseInt(studentId);
+            loadNavigationUsers();  // reload list
+            // TODO reload timetable
+            loadTimetable();
         }
 
     }
 
     public void loadNavigationUsers() {
         // TODO populate from DB or shared prefs??
+        String userName = "";
         navMenu = navigationView.getMenu();
+        // TODO add users names DB
+        dbHandler = MyDBHandler.getInstance(getApplicationContext());
+        users = dbHandler.getUsers();
 
-        navMenu.add(R.id.nav_group_users, 14161044, Menu.NONE, "Oliver Gavin");
-        navMenu.add(R.id.nav_group_users, 14161045, Menu.NONE, "Jonathan Lloyd");
+        for (Map.Entry<String, String> user : users.entrySet()) {
+            int id = Integer.parseInt(user.getKey());
+            String name = user.getValue();
+            navMenu.add(R.id.nav_group_users, id, Menu.NONE, name);
+            if (id == userId) userName = name;
+        }
+
+//        navMenu.add(R.id.nav_group_users, 14161044, Menu.NONE, "Oliver Gavin");
+//        navMenu.add(R.id.nav_group_users, 14161045, Menu.NONE, "Jonathan Lloyd");
         navMenu.setGroupVisible(R.id.nav_group_users, false);
 
-        setNavigationViewUser(14161044, "Oliver Gavin");
+        if (userId != 0) {
+            setNavigationViewUser(userId, userName);
+        }
     }
 
     public void setNavigationViewUser(int userId, String userName) {
@@ -241,13 +240,14 @@ public class TimetableActivity extends AppCompatActivity
         // TODO load from DB
         // Spinner Drop down elements
         List<String> categories = new ArrayList<String>();
-        categories.add("Week 1"); categories.add("Week 2"); categories.add("Week 3"); categories.add("Week 4"); categories.add("Week 5"); categories.add("Week 6"); categories.add("Week 7"); categories.add("Week 8"); categories.add("Easter"); categories.add("Week 9"); categories.add("Week 10"); categories.add("Week 11"); categories.add("Week 12");
+        categories.add("Week 1"); categories.add("Week 2"); categories.add("Week 3"); categories.add("Week 4"); categories.add("Week 5"); categories.add("Week 6"); categories.add("Week 7"); categories.add("Week 8"); categories.add("Easter"); categories.add("Week 9"); categories.add("Week 10"); categories.add("Week 11"); categories.add("Week 12"); categories.add("Study Week"); categories.add("Exam Week");
 
         // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.toolbar_spinner_item_actionbar, categories);
         // Drop down layout style
         dataAdapter.setDropDownViewResource(R.layout.toolbar_spinner_item_dropdown);
         weekSpinner.setAdapter(dataAdapter);
+        weekSpinner.setSelection(weekId);
 
     }
 
@@ -258,6 +258,10 @@ public class TimetableActivity extends AppCompatActivity
 
         // Showing selected spinner item
         Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+
+        weekId = position + 1;
+        Log.v("week", ""+weekId);
+        loadTimetable();
     }
 
     public void onNothingSelected(AdapterView<?> arg0) {
@@ -281,11 +285,11 @@ public class TimetableActivity extends AppCompatActivity
     }
 
     public void loadTimetable() {
-        // TODO load events from DB
+        Toast.makeText(TimetableActivity.this, "loading: "+userId, Toast.LENGTH_SHORT).show();
         dbHandler = MyDBHandler.getInstance(this.getApplicationContext());
-//        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable();
-        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable(14161044, 1);
+        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable(userId, weekId);
 
+        events.clear();
         for (StudentTimetable studentTimetable : StudentTimetables) {
 
             String [] startTime = studentTimetable.get_start_time().split(":");
@@ -381,8 +385,13 @@ public class TimetableActivity extends AppCompatActivity
 
     public void loadPreferences() {
         // TODO
-        userId = 14161044;
-        weekId = 11;
+        userId = 0;
+//        userId = 14161044;
         daysVisible = 3;
+        weekId = 11;    // DB
+    }
+
+    public void savePreferences() {
+
     }
 }

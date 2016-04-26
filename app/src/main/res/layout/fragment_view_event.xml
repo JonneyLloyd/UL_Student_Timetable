@@ -62,6 +62,36 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/locationIcon"
+                    android:background="@drawable/ic_menu_share"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:text="New Text"
+                    android:id="@+id/locationTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/notesIcon"
+                    android:background="@drawable/ic_menu_share"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:text="New Text"
+                    android:id="@+id/notesTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

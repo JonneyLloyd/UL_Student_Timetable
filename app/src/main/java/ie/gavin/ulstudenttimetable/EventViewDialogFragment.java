@@ -16,6 +16,8 @@ public class EventViewDialogFragment extends EventDialogFragment {
 
     private TextView moduleCodeTextView;
     private TextView titleTextView;
+    private TextView locationTextView;
+    private TextView notesTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -28,14 +30,19 @@ public class EventViewDialogFragment extends EventDialogFragment {
 
         moduleCodeTextView = (TextView) view.findViewById(R.id.moduleCodeTextView);
         titleTextView = (TextView) view.findViewById(R.id.titleTextView);
+        locationTextView = (TextView) view.findViewById(R.id.locationTextView);
+        notesTextView = (TextView) view.findViewById(R.id.notesTextView);
 
         moduleCodeTextView.setText(studentTimetable.get_moduleCode());
         titleTextView.setText(studentTimetable.get_title());
+        locationTextView.setText(studentTimetable.get_room());
+        notesTextView.setText(studentTimetable.get_notes());
 
 //        TextView tv = (TextView) view.findViewById(R.id.text);
 //        tv.setText("This is an instance of ActionBarDialog");
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(studentTimetable.get_color());
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {

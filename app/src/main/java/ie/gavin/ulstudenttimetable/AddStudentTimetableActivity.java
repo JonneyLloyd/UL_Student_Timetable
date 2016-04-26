@@ -37,7 +37,7 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
         // Filter's action is BROADCAST_ACTION
         IntentFilter mStatusIntentFilter = new IntentFilter(Constants.BROADCAST_ACTION);
         // Instantiates a new receiver
-        final BroadcastReceiver mResponseReveiver = new BroadcastReceiver() {
+        final BroadcastReceiver mResponseReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 mProgress.setIndeterminate(false);
@@ -67,7 +67,7 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
             }
         };
         // Registers the ResponseReceiver and its Intent filters
-        LocalBroadcastManager.getInstance(this).registerReceiver(mResponseReveiver, mStatusIntentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mResponseReceiver, mStatusIntentFilter);
 
         // Forces content above the keyboard so that e.g. snackbar is visible
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
