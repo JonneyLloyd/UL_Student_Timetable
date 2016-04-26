@@ -394,7 +394,7 @@ public class CalendarView extends LinearLayout {
 
                 for(CalendarEvent event : events) {
                     if (getDayOfWeekIndex(event.getStartDateTime()) == position) {
-                        LinearLayout eventView = (LinearLayout) inflater.inflate(R.layout.calendar_event_view, container, false);
+                        CalendarEventView eventView = (CalendarEventView) inflater.inflate(R.layout.calendar_event_view, container, false);
 
                         int eventPosition = timeToScreenPosition(event.getStartDateTime());
                         int eventEndPosition = timeToScreenPosition(event.getEndDateTime());
@@ -427,7 +427,7 @@ public class CalendarView extends LinearLayout {
                             @Override
                             public boolean onLongClick(View v) {
                                 eventClickListener.onEventLongClick((int) v.getTag());
-                                return false;
+                                return true;
                             }
                         });
 

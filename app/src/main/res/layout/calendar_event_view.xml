@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ie.gavin.ulstudenttimetable.calendar.CalendarEventView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:id="@+id/eventView"
     android:background="@drawable/event_view"
@@ -17,4 +18,4 @@
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:textColor="@android:color/white"/>
 
-</LinearLayout>
+</ie.gavin.ulstudenttimetable.calendar.CalendarEventView>
