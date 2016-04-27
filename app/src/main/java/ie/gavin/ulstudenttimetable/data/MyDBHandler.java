@@ -19,7 +19,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
     public static final int ADD = 1;
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -135,7 +135,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                         + " FOR EACH ROW BEGIN UPDATE "
                         + TABLE_STUDENT_TIMETABLE
                         + " SET " + COLUMN_MODULE_POINTER + " = "
-                        + " new." +COLUMN_ID_TABLE_POINTER
+                        + " new." + COLUMN_ID_TABLE_POINTER
                         + " WHERE " + COLUMN_MODULE_POINTER + " = "
                         + "old." + COLUMN_ID_TABLE_POINTER + "; END;";
 
@@ -180,7 +180,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         if (id == 0){
             whereClause = COLUMN_MODULE_CODE + " = '" + module.get_ModuleCode() + "'"
-                    + " AND " + COLUMN_ROOM + " = '" + module.get_room()+ "'"
                     + " AND " + COLUMN_LECTURER + " = '" + module.get_lecturer()+ "'"
                     + " AND " + COLUMN_GROUP_NAME + " = '" + module.get_groupName() + "'"
                     + " AND " + COLUMN_TYPE + " = '" + module.get_type()
@@ -199,6 +198,37 @@ public class MyDBHandler extends SQLiteOpenHelper{
             return false;
 
     }
+
+
+
+
+    //update a module with UID
+    public boolean updateModuleTable(int oldUID, Module module){
+        SQLiteDatabase db = getWritableDatabase();
+        String whereClause = COLUMN_ID_TABLE_POINTER + " = '" + module.get_idTablePointer() + "'"
+                + ";";
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ROOM, module.get_room());
+        values.put(COLUMN_LECTURER, module.get_lecturer());
+        values.put(COLUMN_GROUP_NAME, module.get_groupName());
+        values.put(COLUMN_TYPE, module.get_type());
+        values.put(COLUMN_START_TIME, module.get_startTime());
+        values.put(COLUMN_END_TIME, module.get_endTime());
+        values.put(COLUMN_DAY, module.get_day());
+        int id = db.update(TABLE_MODULE, values, whereClause, null);
+
+
+        db.close();
+        if (id == 1)
+            return true;
+        else
+            return false;
+
+    }
+
+
+
+
 
 
 
@@ -259,6 +289,52 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
     }
 
+
+
+    public void compareModuleLists(ArrayList<Module> oldModule, ArrayList<Module> newModule){
+        boolean removed = false;
+        for (int i = oldModule.size() -1; i >= 0; i--){
+            removed = false;
+            for(int x = newModule.size()-1; x >=0 && !removed; ){
+                if (oldModule.get(i).compareTo(newModule.get(x)) == 0){
+                    //Log.d("Identical Modules", ": " + oldModule.get(i).get_ModuleCode() );
+                    oldModule.remove(i);
+                    newModule.remove(x);
+                    removed = true;
+                }
+                else
+                    x--;
+            }
+
+        }
+        Log.d("FINAL diff", ": " + newModule.size() );
+
+        boolean added = false;
+        boolean success = false;
+
+        for (int i = oldModule.size() -1; i >= 0; i--){
+            removed = false;
+            for(int x = newModule.size()-1; x >=0 && !added; ){
+                if (oldModule.get(i).get_ModuleCode().equals(newModule.get(x).get_ModuleCode())
+                        && oldModule.get(i).get_type().equals(newModule.get(x).get_type())
+                        ){
+                    //Log.d("Identical Modules", ": " + oldModule.get(i).get_ModuleCode() );
+                    success = updateModuleTable(oldModule.get(i).get_idTablePointer(), newModule.get(x) );
+                    Log.d("CHANGED Module", ": " + newModule.get(i).get_ModuleCode() );
+                    oldModule.remove(i);
+                    newModule.remove(x);
+
+                    added = true;
+                }
+                else
+                    x--;
+            }
+
+        }
+//TODO add remaining newModules to moduletable
+
+
+    }
 
 
     // addToClassWeeksTable
@@ -450,10 +526,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
+                + COLUMN_MODULE_NAME + " modTitle, "
                 + COLUMN_START_WEEK + " sWeek, "
                 + COLUMN_END_WEEK + " eWeek FROM "
                 +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
+                + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
                 + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + id
                 +";";
@@ -498,7 +576,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                         c.getString(c.getColumnIndex("notes")),
                         c.getString(c.getColumnIndex("modGroup")),
                         c.getString(c.getColumnIndex("modType")),
-                        c.getString(c.getColumnIndex("title")),
+                        c.getString(c.getColumnIndex("modTitle")),
                         c.getString(c.getColumnIndex("modLec")),
                         c.getString(c.getColumnIndex("modRoom")),
                         c.getInt(c.getColumnIndex("color"))
@@ -547,10 +625,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
+                + COLUMN_MODULE_NAME + " modTitle, "
                 + COLUMN_START_WEEK + " sWeek, "
                 + COLUMN_END_WEEK + " eWeek FROM "
                 +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
+                + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
                 +";";
 
@@ -596,7 +676,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("notes")),
                             c.getString(c.getColumnIndex("modGroup")),
                             c.getString(c.getColumnIndex("modType")),
-                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("modTitle")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
                             c.getInt(c.getColumnIndex("color"))
@@ -685,10 +765,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
+                + COLUMN_MODULE_NAME + " modTitle, "
                 + COLUMN_START_WEEK + " sWeek, "
                 + COLUMN_END_WEEK + " eWeek FROM "
                 +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ") JOIN " +TABLE_MODULE_NAMES
+                + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
                 + " WHERE " +  COLUMN_STUDENT_ID + " = "+ studentID
                 +";";
@@ -736,7 +818,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("notes")),
                             c.getString(c.getColumnIndex("modGroup")),
                             c.getString(c.getColumnIndex("modType")),
-                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("modTitle")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
                             c.getInt(c.getColumnIndex("color"))
@@ -788,10 +870,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
+                + COLUMN_MODULE_NAME + " modTitle, "
                 + COLUMN_START_WEEK + " sWeek, "
                 + COLUMN_END_WEEK + " eWeek FROM "
                 +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ") ) as t"
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
+                + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
                 + " WHERE " +  COLUMN_STUDENT_ID + " = "+ studentID
                 +";";
@@ -843,7 +927,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                             c.getString(c.getColumnIndex("notes")),
                             c.getString(c.getColumnIndex("modGroup")),
                             c.getString(c.getColumnIndex("modType")),
-                            c.getString(c.getColumnIndex("title")),
+                            c.getString(c.getColumnIndex("modTitle")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
                             c.getInt(c.getColumnIndex("color"))
