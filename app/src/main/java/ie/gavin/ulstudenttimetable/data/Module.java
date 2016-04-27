@@ -2,7 +2,7 @@ package ie.gavin.ulstudenttimetable.data;
 
 import java.util.ArrayList;
 
-public class Module {
+public class Module implements Comparable <Module> {
 
     private int _idTablePointer;
     private String _ModuleCode;
@@ -109,5 +109,19 @@ public class Module {
 
     public void set_weeks(ArrayList<String> _weeks) {
         this._weeks = _weeks;
+    }
+
+    @Override
+    public int compareTo(Module another) {
+        if((this._ModuleCode.equals(another._ModuleCode) &&
+                this._startTime.equals(another._startTime) &&
+                this._endTime.equals(another._endTime) &&
+                this._room.equals(another._room) &&
+                this._lecturer.equals(another._lecturer) &&
+                this._day == another._day &&
+                this._groupName.equals(another._groupName) &&
+                this._type.equals(another._type)))
+            return 0;
+        else return 1;
     }
 }

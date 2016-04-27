@@ -148,10 +148,10 @@ public class GetStudentData {
 
     public void processData() {
         dbHandler = MyDBHandler.getInstance(this.context);
-//        dbHandler.deleteAllClassWeeks();
-//        dbHandler.deleteAllUIDs();
-//        dbHandler.deleteAllFromModule();
-//        dbHandler.deleteAllFromStudent();
+        dbHandler.deleteAllClassWeeks();
+        dbHandler.deleteAllUIDs();
+        dbHandler.deleteAllFromModule();
+        dbHandler.deleteAllFromStudent();
 
 
         Module module;
@@ -251,10 +251,30 @@ public class GetStudentData {
                     lecturer =  moduleEvent.get(5);
                     room =  moduleEvent.get(6);
                     weeks =  moduleEvent.get(7);
-
-
                     tempModule = new Module(0, moduleCode, startTime , endTime, room, lecturer, day, group, type);
-                    dbHandler.addToModuleTable(tempModule, weeks);
+                    weeks = weeks.substring(weeks.indexOf(":") + 1);
+                    ArrayList<String> temp = new ArrayList<>();
+                    if (weeks.contains(",")){
+                        String[] splitArray = weeks.split(",");
+                        for(int i = 0; i <splitArray.length; i++) {
+                            String[] secondSplitArray;
+                            if (splitArray[i].contains("-")) {
+                                secondSplitArray = splitArray[i].split("-");
+                            } else {
+                                secondSplitArray = new String[] {splitArray[i],splitArray[i]};
+                            }
+                            temp.add(secondSplitArray[0] + "-" + secondSplitArray[1]);
+                        }
+
+                    }
+//
+                    else {
+                        String[] splitArray = weeks.split("-");
+                        temp.add(splitArray[0] + "-" + splitArray[1]);
+                    }
+                    tempModule.set_weeks(temp);
+
+                    dbHandler.addToModuleTable(tempModule);
 
                     //Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
                 }
@@ -262,21 +282,26 @@ public class GetStudentData {
                 //testing module table
                 ArrayList<Module> test = new ArrayList<>();
                 //testing method to add/remove modules on student table
-                //test = dbHandler.getAllFromModuleTable(moduleCode);
-                //dbHandler.addOrRemoveModuleFromTimetable(test, 11111111, 1);
+
                 test = dbHandler.getAllFromModuleTable(moduleCode);
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
+                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks()+ " - " + test.get(i).get_lecturer());
                     //dbHandler.updateModuleTable(test.get(i));
                     //Log.v(LOG_TAG, "UpdatedMod: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_endTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
 
                 }
+
+
+
+                //dbHandler.addOrRemoveModuleFromTimetable(test, 11111111, 1);
+
                 //Code snippet testing updateModuleTable()
 //                tempModule = new Module(0, "CS4416", "10:00" , "11:00", "HSG037", "NIKOLOV NIKOLA DR", 2, "", "LEC");
 //                boolean ok = dbHandler.updateModuleTable(tempModule);
 //                Log.v(LOG_TAG, "UpdatedSuccess: " + ok);
 
             }
+
 
             //studentTimetables
             // iterate through the hashmap (list of ALL module data) getting modulecode and data
@@ -333,7 +358,7 @@ public class GetStudentData {
                 ArrayList<StudentTimetable> test = new ArrayList<>();
                 test = dbHandler.getAllFromStudentTimetable(14117495, 3);
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_day())+ " - " + (test.get(i).get_modulePointer())+ " - " + (test.get(i).get_weeks()));
+                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_day())+ " - " + (test.get(i).get_modulePointer())+ " - " + (test.get(i).get_weeks())+ " - " + (test.get(i).get_title()));
 //                    if(test.get(i).get_moduleCode().equals("CS4014")){
 //                        dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
 //                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());
