@@ -13,7 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +34,7 @@ import ie.gavin.ulstudenttimetable.calendar.CalendarView;
 import ie.gavin.ulstudenttimetable.data.Module;
 import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 import ie.gavin.ulstudenttimetable.data.StudentTimetable;
+import ie.gavin.ulstudenttimetable.data.Week;
 
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener, EventDialogFragment.closeEventDialogListener {
@@ -201,6 +201,7 @@ public class TimetableActivity extends AppCompatActivity
             navigationView.getMenu().add(R.id.nav_group_users, userId, Menu.NONE, studentName);
             setNavigationViewUser(userId, studentName);
             loadTimetable();
+            loadActionbarWeeks();
         }
 
     }
@@ -209,8 +210,7 @@ public class TimetableActivity extends AppCompatActivity
         // TODO populate from DB or shared prefs??
         String userName = "";
         navMenu = navigationView.getMenu();
-//        navMenu.r
-        // TODO add users names DB
+
         dbHandler = MyDBHandler.getInstance(getApplicationContext());
         users = dbHandler.getUsers();
 
@@ -221,8 +221,6 @@ public class TimetableActivity extends AppCompatActivity
             if (id == userId) userName = name;
         }
 
-//        navMenu.add(R.id.nav_group_users, 14161044, Menu.NONE, "Oliver Gavin");
-//        navMenu.add(R.id.nav_group_users, 14161045, Menu.NONE, "Jonathan Lloyd");
         navMenu.setGroupVisible(R.id.nav_group_users, false);
 
         if (userId != 0) {
@@ -247,12 +245,13 @@ public class TimetableActivity extends AppCompatActivity
         weekSpinner.setOnItemSelectedListener(this);
 
         // TODO load from DB
+        List<Week> weekDetails =  MyDBHandler.getInstance(getApplicationContext()).getWeekDetails();
         // Spinner Drop down elements
-        List<String> categories = new ArrayList<String>();
-        categories.add("Week 1"); categories.add("Week 2"); categories.add("Week 3"); categories.add("Week 4"); categories.add("Week 5"); categories.add("Week 6"); categories.add("Week 7"); categories.add("Week 8"); categories.add("Easter"); categories.add("Week 9"); categories.add("Week 10"); categories.add("Week 11"); categories.add("Week 12"); categories.add("Study Week"); categories.add("Exam Week");
+//        List<String> categories = new ArrayList<String>();
+//        categories.add("Week 1"); categories.add("Week 2"); categories.add("Week 3"); categories.add("Week 4"); categories.add("Week 5"); categories.add("Week 6"); categories.add("Week 7"); categories.add("Week 8"); categories.add("Easter"); categories.add("Week 9"); categories.add("Week 10"); categories.add("Week 11"); categories.add("Week 12"); categories.add("Study Week"); categories.add("Exam Week");
 
         // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.toolbar_spinner_item_actionbar, categories);
+        ArrayAdapter<Week> dataAdapter = new ArrayAdapter<Week>(this, R.layout.toolbar_spinner_item_actionbar, weekDetails);
         // Drop down layout style
         dataAdapter.setDropDownViewResource(R.layout.toolbar_spinner_item_dropdown);
         weekSpinner.setAdapter(dataAdapter);
@@ -263,13 +262,13 @@ public class TimetableActivity extends AppCompatActivity
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // On selecting a spinner item
-        String item = parent.getItemAtPosition(position).toString();
+        Week item = (Week) parent.getItemAtPosition(position);
+
+        weekId = item.get_week();
 
         // Showing selected spinner item
-        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+        Toast.makeText(parent.getContext(), "Selected: " + item + ": " + item.get_weekStart() + " -> " + weekId, Toast.LENGTH_LONG).show();
 
-        weekId = position + 1;
-        Log.v("week", ""+weekId);
         loadTimetable();
     }
 

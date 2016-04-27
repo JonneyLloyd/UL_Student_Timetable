@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.util.Log;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -259,17 +260,66 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
 
-    // addToWeekTable
-    public void addToWeekTable(int week, String weekLabel, Date weekCommencing){
+    // addToWeekDetails
+    public void addToWeekDetails(int week, String weekLabel, Date weekCommencing){
         SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd");
         String weekStart = outFormat.format( weekCommencing );
+        Log.v("Datetestin", weekStart);
         SQLiteDatabase db = getWritableDatabase();
 
         String sql="REPLACE INTO " + TABLE_WEEK + " (" + COLUMN_WEEK + ", " + COLUMN_WEEK_LABEL + ", " + COLUMN_WEEK_START + ") " +
-                "VALUES (" + week + ", '" + weekLabel + "', " + weekStart + ")";
+                "VALUES (" + week + ", '" + weekLabel + "', '" + weekStart + "')";
 
         db.execSQL(sql);
         db.close();
+    }
+
+    //get all studentTimetable users
+    public ArrayList<Week> getWeekDetails(){
+        ArrayList<Week> result = new ArrayList<>();
+
+        String query = "SELECT * "
+                + " FROM " + TABLE_WEEK
+                + ";";
+
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = null;
+        try {
+            c = db.rawQuery(query, null);
+            c.moveToFirst();
+            do
+            {
+                Log.v("Datetestout", c.getString(c.getColumnIndex(COLUMN_WEEK_START)));
+                SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date weekStart = inFormat.parse(c.getString(c.getColumnIndex(COLUMN_WEEK_START)));
+
+                result.add(
+                        new Week(
+                                c.getInt(c.getColumnIndex(COLUMN_WEEK)),
+                                c.getString(c.getColumnIndex(COLUMN_WEEK_LABEL)),
+                                weekStart
+                        )
+                );
+
+            } while (c.moveToNext());
+
+        } catch (SQLiteException e) {
+            Log.d("SQL Error", e.getMessage());
+
+        } catch (CursorIndexOutOfBoundsException ce) {
+            Log.d("ID not found", ce.getMessage());
+
+        } catch (ParseException e) {
+            Log.d("week date parse error", e.getMessage());
+            e.printStackTrace();
+        } finally {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
+
+
+        return result;
     }
 
 
