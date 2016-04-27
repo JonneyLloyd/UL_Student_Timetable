@@ -11,6 +11,24 @@
     tools:context=".AddStudentTimetableActivity">
 
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/progress_bar"
+        android:layout_alignStart="@+id/input_layout_id"
+        android:layout_marginTop="37dp">
+
+        <EditText
+            android:id="@+id/etStudentName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:hint="Name" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
         android:id="@+id/input_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

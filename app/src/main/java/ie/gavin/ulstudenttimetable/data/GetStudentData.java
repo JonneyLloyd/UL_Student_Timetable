@@ -7,7 +7,10 @@ import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +33,7 @@ public class GetStudentData {
     private HashMap<String, ArrayList<ArrayList<String>>> studentTimetables = new HashMap<>();
     private HashMap<String, ArrayList<ArrayList<String>>> moduleTimetables = new HashMap<>();
     private HashMap<String, ArrayList<ArrayList<String>>> moduleDetails = new HashMap<>();
+    private ArrayList<ArrayList<String>> weekDates = new ArrayList<>();
 
     MyDBHandler dbHandler;
     Module tempModule;
@@ -123,6 +127,7 @@ public class GetStudentData {
                         if (!checkTimetableDataResult(weekDatesData)) {
                             return;
                         }
+                        weekDates = super.getTimetableData();
                         processData();
                     }
                 };
@@ -164,6 +169,21 @@ public class GetStudentData {
 
             // SQL here, call function
 
+            for (ArrayList<String> weekDate : weekDates) {
+                int week = Integer.parseInt(weekDate.get(2));
+                String weekLabel = weekDate.get(1);
+
+                SimpleDateFormat inFormat = new SimpleDateFormat("dd MMM yyyy");
+                Date weekStart = null;
+                try {
+                    weekStart = inFormat.parse(weekDate.get(0));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return;
+                }
+
+                dbHandler.addToWeekTable(week, weekLabel, weekStart);
+            }
 
             //moduleDetails
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleDetails.entrySet()) {
