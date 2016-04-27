@@ -344,7 +344,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
             }
 
         }
-//TODO add remaining newModules to moduletable
+//TODO add remaining newModules to modultab
 
 
     }
