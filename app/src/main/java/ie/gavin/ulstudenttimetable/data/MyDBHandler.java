@@ -247,8 +247,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //Add a new row to the Module database
     //pass in week and handle weeks table entry at the same time
-    public void addToModuleTable(Module module, String weeks){
-        weeks = weeks.substring(weeks.indexOf(":") + 1);
+    public void addToModuleTable(Module module){
+
         SQLiteDatabase db = getWritableDatabase();
 
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
@@ -265,24 +265,13 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_MODULE, null, values);
         db.close();
-
-        if (weeks.contains(",")){
-            String[] splitArray = weeks.split(",");
-            for(int i = 0; i <splitArray.length; i++) {
-                String[] secondSplitArray;
-                if (splitArray[i].contains("-")) {
-                    secondSplitArray = splitArray[i].split("-");
-                } else {
-                    secondSplitArray = new String[] {splitArray[i],splitArray[i]};
-                }
-                addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
-            }
-
-        }
-
-        else {
-            String[] splitArray = weeks.split("-");
+        ArrayList<String> temp = new ArrayList<>();
+        temp = module.get_weeks();
+        for(int i = 0; i < temp.size(); i++){
+            String[] splitArray = temp.get(i).split("-");
             addToClassWeekTable(splitArray[0], splitArray[1], id);
+
+
         }
 
 
@@ -344,8 +333,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
             }
 
         }
-//TODO add remaining newModules to modultab
-
+//add remaining newModules to modultab
+for (int i=0; i< newModule.size(); i++){
+    addToModuleTable(newModule.get(i));
+}
 
     }
 

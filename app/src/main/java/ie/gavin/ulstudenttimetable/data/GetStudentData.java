@@ -243,10 +243,30 @@ public class GetStudentData {
                     lecturer =  moduleEvent.get(5);
                     room =  moduleEvent.get(6);
                     weeks =  moduleEvent.get(7);
-
-
                     tempModule = new Module(0, moduleCode, startTime , endTime, room, lecturer, day, group, type);
-                    dbHandler.addToModuleTable(tempModule, weeks);
+                    weeks = weeks.substring(weeks.indexOf(":") + 1);
+                    ArrayList<String> temp = new ArrayList<>();
+                    if (weeks.contains(",")){
+                        String[] splitArray = weeks.split(",");
+                        for(int i = 0; i <splitArray.length; i++) {
+                            String[] secondSplitArray;
+                            if (splitArray[i].contains("-")) {
+                                secondSplitArray = splitArray[i].split("-");
+                            } else {
+                                secondSplitArray = new String[] {splitArray[i],splitArray[i]};
+                            }
+                            temp.add(secondSplitArray[0] + "-" + secondSplitArray[1]);
+                        }
+
+                    }
+//
+                    else {
+                        String[] splitArray = weeks.split("-");
+                        temp.add(splitArray[0] + "-" + splitArray[1]);
+                    }
+                    tempModule.set_weeks(temp);
+
+                    dbHandler.addToModuleTable(tempModule);
 
                     //Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
                 }
