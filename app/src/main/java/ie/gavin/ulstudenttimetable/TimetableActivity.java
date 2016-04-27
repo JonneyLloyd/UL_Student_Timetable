@@ -45,7 +45,7 @@ public class TimetableActivity extends AppCompatActivity
     private Menu navMenu;
     private CalendarView cv;
     ArrayList<CalendarEvent> events = new ArrayList<>();
-    HashMap<String, String> users = new HashMap<>();
+    HashMap<Integer, String> users = new HashMap<>();
 
     // TODO load defaults from shared prefs
     private int userId;         // load primary user
@@ -147,8 +147,8 @@ public class TimetableActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (users.containsKey(Integer.toString(id))) {
-            String name = users.get(Integer.toString(id));
+        if (users.containsKey(id)) {
+            String name = users.get(id);
             Toast.makeText(TimetableActivity.this, name + "," + id, Toast.LENGTH_SHORT).show();
             setNavigationViewUser(id, name);
             loadTimetable();
@@ -193,10 +193,13 @@ public class TimetableActivity extends AppCompatActivity
 
         if(resultCode == REQUEST_CODE_ADD_TIMETABLE){
             String studentId = (String) data.getExtras().get("studentId");
-            Toast.makeText(TimetableActivity.this, studentId + " was added!", Toast.LENGTH_SHORT).show();
             userId = Integer.parseInt(studentId);
-            loadNavigationUsers();  // reload list
-            // TODO reload timetable
+            String studentName = (String) data.getExtras().getString("studentName", "New user");
+
+            Toast.makeText(TimetableActivity.this, studentId + " " + studentName + " was added!", Toast.LENGTH_SHORT).show();
+
+            navigationView.getMenu().add(R.id.nav_group_users, userId, Menu.NONE, studentName);
+            setNavigationViewUser(userId, studentName);
             loadTimetable();
         }
 
@@ -206,12 +209,13 @@ public class TimetableActivity extends AppCompatActivity
         // TODO populate from DB or shared prefs??
         String userName = "";
         navMenu = navigationView.getMenu();
+//        navMenu.r
         // TODO add users names DB
         dbHandler = MyDBHandler.getInstance(getApplicationContext());
         users = dbHandler.getUsers();
 
-        for (Map.Entry<String, String> user : users.entrySet()) {
-            int id = Integer.parseInt(user.getKey());
+        for (Map.Entry<Integer, String> user : users.entrySet()) {
+            int id = user.getKey();
             String name = user.getValue();
             navMenu.add(R.id.nav_group_users, id, Menu.NONE, name);
             if (id == userId) userName = name;

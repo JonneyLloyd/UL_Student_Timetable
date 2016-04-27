@@ -16,11 +16,13 @@ import android.widget.ProgressBar;
 
 import ie.gavin.ulstudenttimetable.data.Constants;
 import ie.gavin.ulstudenttimetable.data.GetStudentData;
+import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 
 public class AddStudentTimetableActivity extends AppCompatActivity {
 
     int resultCode;
     String studentId;
+    String studentName;
     private Snackbar snackbar;
     private ProgressBar mProgress;
 
@@ -56,9 +58,12 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
 
                     LocalBroadcastManager.getInstance(AddStudentTimetableActivity.this).unregisterReceiver(this);
 
+                    MyDBHandler.getInstance(getApplicationContext()).addToUsersTable(Integer.parseInt(studentId), studentName);
+
                     Intent i = new Intent();
                     // Sending key 'studentId' and value
                     i.putExtra("studentId", studentId);
+                    i.putExtra("studentName", studentName);
 
                     // Setting resultCode to 100 to identify on old activity
                     AddStudentTimetableActivity.this.setResult(resultCode, i);
@@ -73,12 +78,14 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         final EditText etStudentId = (EditText) findViewById(R.id.etStudentId);
+        final EditText etStudentName = (EditText) findViewById(R.id.etStudentName);
         Button bLogin = (Button) findViewById(R.id.bLogin);
 
         bLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 studentId = etStudentId.getText().toString();
+                studentName = etStudentName.getText().toString();
 
                 mProgress.setIndeterminate(true);
                 new Thread(new Runnable() {

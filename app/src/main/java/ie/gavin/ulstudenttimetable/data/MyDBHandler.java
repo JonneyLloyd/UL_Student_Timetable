@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
     public static final int ADD = 1;
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -27,6 +28,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final String TABLE_CLASS_WEEKS = "classWeeks";
     public static final String TABLE_UID = "uid";
     public static final String TABLE_MODULE_NAMES = "moduleNames";
+    public static final String TABLE_USERS = "users";
     //modules table
     public static final String COLUMN_ID_TABLE_POINTER = "idTablePointer";
     public static final String COLUMN_MODULE_CODE = "moduleCode";
@@ -54,6 +56,10 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //module name
     public static final String COLUMN_MODULE_NAME = "moduleName";
+
+    //users table
+    public static final String COLUMN_USER_ID = "userId";
+    public static final String COLUMN_USER_NAME = "userName";
 
     //uid
     public static final String COLUMN_ID = "id";
@@ -139,6 +145,11 @@ public class MyDBHandler extends SQLiteOpenHelper{
                         + " WHERE " + COLUMN_MODULE_POINTER + " = "
                         + "old." + COLUMN_ID_TABLE_POINTER + "; END;";
 
+        String query8 = "CREATE TABLE " + TABLE_USERS + "(" +
+                COLUMN_USER_ID + " INTEGER PRIMARY KEY ," +
+                COLUMN_USER_NAME + " VARCHAR(30) " +
+                ");";
+
         db.execSQL(query1);
         db.execSQL(query2);
         db.execSQL(query3);
@@ -146,6 +157,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.execSQL(query5);
         db.execSQL(query6);
         db.execSQL(query7);
+        db.execSQL(query8);
     }
 
     @Override
@@ -156,6 +168,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLASS_WEEKS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_UID);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODULE_NAMES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
 
     }
@@ -277,15 +290,15 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
 
     // addToWeekTable
-    public void addToWeekTable(int week, String weekLabel, Date weekStart){
+    public void addToWeekTable(int week, String weekLabel, Date weekCommencing){
+        SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String weekStart = outFormat.format( weekCommencing );
         SQLiteDatabase db = getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_WEEK, week);
-        values.put(COLUMN_WEEK_LABEL, weekLabel);
-        values.put(COLUMN_WEEK_START, String.valueOf(weekStart));
+        String sql="REPLACE INTO " + TABLE_WEEK + " (" + COLUMN_WEEK + ", " + COLUMN_WEEK_LABEL + ", " + COLUMN_WEEK_START + ") " +
+                "VALUES (" + week + ", '" + weekLabel + "', " + weekStart + ")";
 
-        db.insert(TABLE_WEEK, null, values);
+        db.execSQL(sql);
         db.close();
     }
 
@@ -712,13 +725,25 @@ public class MyDBHandler extends SQLiteOpenHelper{
         return result;
     }
 
-    //get all studentTimetable users
-    public HashMap<String, String> getUsers(){
-        HashMap<String, String> result = new HashMap<>();
+    // addToUsersTable
+    public void addToUsersTable(int studentId, String studentName){
+        SQLiteDatabase db = getWritableDatabase();
 
-        String query = "SELECT DISTINCT " + COLUMN_STUDENT_ID
-                + " FROM " + TABLE_STUDENT_TIMETABLE
-                +";";
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_ID, studentId);
+        values.put(COLUMN_USER_NAME, studentName);
+
+        db.insert(TABLE_USERS, null, values);
+        db.close();
+    }
+
+    //get all studentTimetable users
+    public HashMap<Integer, String> getUsers(){
+        HashMap<Integer, String> result = new HashMap<>();
+
+        String query = "SELECT * "
+                + " FROM " + TABLE_USERS
+                + ";";
 
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
@@ -727,7 +752,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
             c.moveToFirst();
             do
             {
-                result.put(c.getString(c.getColumnIndex("studentID")), "Blank Name");
+                result.put(c.getInt(c.getColumnIndex(COLUMN_USER_ID)), c.getString(c.getColumnIndex(COLUMN_USER_NAME)));
 
             } while (c.moveToNext());
 
