@@ -2,7 +2,9 @@ package ie.gavin.ulstudenttimetable;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -154,13 +156,16 @@ public class TimetableActivity extends AppCompatActivity
             Toast.makeText(TimetableActivity.this, "Add user", Toast.LENGTH_SHORT).show();
             addUser();  // TODO add to list after
         } else if (id == R.id.nav_one_day) {
-            cv.setVisibleDays(1);
+            daysVisible = 1;
+            cv.setVisibleDays(daysVisible);
             cv.updateCalendar();
         } else if (id == R.id.nav_three_day) {
-            cv.setVisibleDays(3);
+            daysVisible = 3;
+            cv.setVisibleDays(daysVisible);
             cv.updateCalendar();
         } else if (id == R.id.nav_five_day) {
-            cv.setVisibleDays(5);
+            daysVisible = 5;
+            cv.setVisibleDays(daysVisible);
             cv.updateCalendar();
         } else if (id == R.id.nav_manage) {
 
@@ -284,7 +289,7 @@ public class TimetableActivity extends AppCompatActivity
         }
     }
 
-    public void loadTimetable() {
+    public void loadTimetable() {   // TODO fix double load
         Toast.makeText(TimetableActivity.this, "loading: "+userId, Toast.LENGTH_SHORT).show();
         dbHandler = MyDBHandler.getInstance(this.getApplicationContext());
         ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable(userId, weekId);
@@ -325,10 +330,16 @@ public class TimetableActivity extends AppCompatActivity
             }
         });
 
-        navigationView.setCheckedItem(R.id.nav_five_day);
-        cv.setVisibleDays(5);
+        if (daysVisible == 5)
+            navigationView.setCheckedItem(R.id.nav_five_day);
+        else if (daysVisible == 3)
+            navigationView.setCheckedItem(R.id.nav_three_day);
+        else if (daysVisible == 1)
+            navigationView.setCheckedItem(R.id.nav_one_day);
+        cv.setVisibleDays(daysVisible);
         Calendar weekStart = Calendar.getInstance();
-        weekStart.set(2016, 4-1, 18);
+//        weekStart.set(2016, 4-1, 18);
+        weekStart.set(Calendar.DAY_OF_WEEK, weekStart.getFirstDayOfWeek());     // TODO take week No. into account
         cv.setweekStartDate(weekStart);
         cv.updateCalendar(events);
     }
@@ -383,15 +394,32 @@ public class TimetableActivity extends AppCompatActivity
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        savePreferences();
+        Toast.makeText(TimetableActivity.this, "saving data", Toast.LENGTH_SHORT).show();
+    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        loadPreferences();
+//    }
+
     public void loadPreferences() {
-        // TODO
-        userId = 0;
-//        userId = 14161044;
-        daysVisible = 3;
-        weekId = 11;    // DB
+        SharedPreferences sharedPref = getSharedPreferences("ie.gavin.ulstudenttimetable.SHARED_PREFS_KEY", Context.MODE_PRIVATE);
+//        int defaultValue = getResources().getInteger(R.string.saved_high_score_default);
+        daysVisible = sharedPref.getInt("daysVisible", 3);
+        userId = sharedPref.getInt("userId", 0);
+        weekId = 10;    // TODO DB
     }
 
     public void savePreferences() {
-
+        SharedPreferences sharedPref = getSharedPreferences("ie.gavin.ulstudenttimetable.SHARED_PREFS_KEY", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("daysVisible", daysVisible);
+        editor.putInt("userId", userId);
+        editor.apply();
     }
 }
