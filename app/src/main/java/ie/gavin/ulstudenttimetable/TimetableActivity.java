@@ -87,7 +87,7 @@ public class TimetableActivity extends AppCompatActivity
             }
         });
 
-        loadNavigationUsers();
+        loadNavigationViewUsers();
         loadActionbarWeeks();
         loadTimetable();
 
@@ -196,9 +196,9 @@ public class TimetableActivity extends AppCompatActivity
             userId = Integer.parseInt(studentId);
             String studentName = (String) data.getExtras().getString("studentName", "New user");
 
-            Toast.makeText(TimetableActivity.this, studentId + " " + studentName + " was added!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(TimetableActivity.this, studentName + " " + userId + " was added!", Toast.LENGTH_SHORT).show();
 
-            navigationView.getMenu().add(R.id.nav_group_users, userId, Menu.NONE, studentName);
+            addNavigationViewUser(userId, studentName);
             setNavigationViewUser(userId, studentName);
             loadTimetable();
             loadActionbarWeeks();
@@ -206,7 +206,7 @@ public class TimetableActivity extends AppCompatActivity
 
     }
 
-    public void loadNavigationUsers() {
+    public void loadNavigationViewUsers() {
         // TODO populate from DB or shared prefs??
         String userName = "";
         navMenu = navigationView.getMenu();
@@ -217,7 +217,7 @@ public class TimetableActivity extends AppCompatActivity
         for (Map.Entry<Integer, String> user : users.entrySet()) {
             int id = user.getKey();
             String name = user.getValue();
-            navMenu.add(R.id.nav_group_users, id, Menu.NONE, name);
+            addNavigationViewUser(id, name);
             if (id == userId) userName = name;
         }
 
@@ -226,6 +226,11 @@ public class TimetableActivity extends AppCompatActivity
         if (userId != 0) {
             setNavigationViewUser(userId, userName);
         }
+    }
+
+    public void addNavigationViewUser(int userId, String userName) {
+        navigationView.getMenu().add(R.id.nav_group_users, userId, Menu.NONE, userName)
+                                .setIcon(R.drawable.ic_account_circle);
     }
 
     public void setNavigationViewUser(int userId, String userName) {
