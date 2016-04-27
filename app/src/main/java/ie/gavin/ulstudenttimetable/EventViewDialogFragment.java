@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import ie.gavin.ulstudenttimetable.data.StudentTimetable;
 
-public class eventViewDialogFragment extends EventDialogFragment {
+public class EventViewDialogFragment extends EventDialogFragment {
 
     private StudentTimetable studentTimetable;
 

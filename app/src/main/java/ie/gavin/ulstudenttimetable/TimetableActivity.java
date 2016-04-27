@@ -362,7 +362,7 @@ public class TimetableActivity extends AppCompatActivity
         args.putInt("eventId", eventId);
 
         if (!editable) {
-            eventViewDialogFragment eventViewDialog = new eventViewDialogFragment();
+            EventViewDialogFragment eventViewDialog = new EventViewDialogFragment();
             eventViewDialog.setArguments(args);
             eventViewDialog.show(manager, tag);
         } else {
