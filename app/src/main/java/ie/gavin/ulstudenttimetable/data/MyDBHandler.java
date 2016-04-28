@@ -1467,6 +1467,7 @@ for (int i=0; i< newModule.size(); i++){
         db.close();
     }
 
+
     public void  deleteAllFromModule(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_MODULE + ";");
