@@ -2,7 +2,7 @@ package ie.gavin.ulstudenttimetable;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,15 +42,19 @@ public class EventViewDialogFragment extends EventDialogFragment {
         weeksTextView = (TextView) view.findViewById(R.id.weeksTextView);
         notesTextView = (TextView) view.findViewById(R.id.notesTextView);
 
+
         dateTimeTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[studentTimetable.get_day()-1] + " " + studentTimetable.get_start_time() + " - " + studentTimetable.get_endTime());
         moduleCodeTextView.setText(studentTimetable.get_moduleCode());
         titleTextView.setText(studentTimetable.get_title());
         typeTextView.setText(studentTimetable.get_type());
         locationTextView.setText(studentTimetable.get_room());
-        weeksTextView.setText(studentTimetable.get_weeks().toString());
+
+        String weeks = "Weeks: ";
+        for (Pair<Integer, Integer> week : studentTimetable.get_weeks()) weeks += week.first + "-" + week.second + " ";
+        weeksTextView.setText(weeks);
+
         notesTextView.setText(studentTimetable.get_notes());
 
-        //for (String week : studentTimetable.get_weeks()) Log.v("weektest", week);
 
 //        TextView tv = (TextView) view.findViewById(R.id.text);
 //        tv.setText("This is an instance of ActionBarDialog");
@@ -80,7 +84,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
                 return true;
             }
         });
-        toolbar.inflateMenu(R.menu.view_event);
+        toolbar.inflateMenu(R.menu.edit_delete);
         toolbar.setTitle(studentTimetable.get_moduleCode());
 
         return view;

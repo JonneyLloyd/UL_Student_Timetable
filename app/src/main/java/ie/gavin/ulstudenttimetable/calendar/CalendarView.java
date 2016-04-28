@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Vibrator;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -519,6 +520,8 @@ public class CalendarView extends LinearLayout {
                                     }
                                     editorEventClickListener.onEditorEventClick(eventId, eventView.isChecked());
                                 } else {
+                                    Vibrator vibe = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE) ;
+                                    vibe.vibrate(50); // 50 is time in ms
                                     eventClickListener.onEventClick(eventId);
                                 }
                             }
@@ -529,6 +532,8 @@ public class CalendarView extends LinearLayout {
                                 if (isInEditMode()) {
 
                                 } else {
+                                    Vibrator vibe = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE) ;
+                                    vibe.vibrate(100); // 50 is time in ms
                                     eventClickListener.onEventLongClick((int) v.getTag());
                                 }
                                 return true;

@@ -3,6 +3,7 @@ package ie.gavin.ulstudenttimetable;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -114,8 +116,22 @@ public class TimetableActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (cv.isInEditMode()) {
-            cv.setEditMode(false);
-            loadTimetable();
+            new AlertDialog.Builder(this)
+                    .setTitle("Module editor")
+                    .setMessage("Are you sure you want to exit?\nYour changes won't be saved")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue
+                            cv.setEditMode(false);
+                            loadTimetable();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .show();
         } else {
             super.onBackPressed();
         }
@@ -124,7 +140,11 @@ public class TimetableActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.timetable, menu);
+        if (cv == null || !cv.isInEditMode()) {
+            getMenuInflater().inflate(R.menu.timetable, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.save_cancel, menu);
+        }
         return true;
     }
 
@@ -140,6 +160,13 @@ public class TimetableActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_now) {
             cv.focusCalendar();
+            return true;
+        } else if (id == R.id.action_cancel) {
+            cv.setEditMode(false);
+            loadTimetable();
+            return true;
+        } else if (id == R.id.action_save) {
+            // TODO
             return true;
         }
 
@@ -238,6 +265,7 @@ public class TimetableActivity extends AppCompatActivity
     public void addNavigationViewUser(int userId, String userName) {
         navigationView.getMenu().add(R.id.nav_group_users, userId, Menu.NONE, userName)
                 .setIcon(R.drawable.ic_account_circle);
+        navigationView.getMenu().setGroupVisible(R.id.nav_group_users, false);
     }
 
     public void setNavigationViewUser(int userId, String userName) {
@@ -306,6 +334,7 @@ public class TimetableActivity extends AppCompatActivity
 
     public void loadTimetableModuleChooser(int eventId) {
         cv.setEditMode(true);
+        invalidateOptionsMenu();
         StudentTimetable studentTimetable = dbHandler.getStudentTimetableFromID(eventId);
         String moduleCode = studentTimetable.get_moduleCode();
         Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
@@ -383,6 +412,7 @@ public class TimetableActivity extends AppCompatActivity
 
         cv = ((CalendarView)findViewById(R.id.calendar_view));
         cv.setEditMode(false);
+        invalidateOptionsMenu();
 
         // Add callbacks
         cv.setEventClickListener(new CalendarView.EventClickListener() {
