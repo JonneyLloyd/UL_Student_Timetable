@@ -50,7 +50,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
         weeksTextView.setText(studentTimetable.get_weeks().toString());
         notesTextView.setText(studentTimetable.get_notes());
 
-        for (String week : studentTimetable.get_weeks()) Log.v("weektest", week);
+        //for (String week : studentTimetable.get_weeks()) Log.v("weektest", week);
 
 //        TextView tv = (TextView) view.findViewById(R.id.text);
 //        tv.setText("This is an instance of ActionBarDialog");

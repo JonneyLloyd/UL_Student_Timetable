@@ -22,7 +22,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
     public static final int ADD = 1;
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -152,6 +152,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 COLUMN_USER_NAME + " VARCHAR(30) " +
                 ");";
 
+        String query9 = "CREATE TRIGGER user_deleted AFTER DELETE ON " + TABLE_USERS
+                        + " FOR EACH ROW BEGIN"
+                        + " DELETE FROM " + TABLE_STUDENT_TIMETABLE
+                        + " WHERE " + COLUMN_STUDENT_ID + " = OLD." + COLUMN_USER_ID + ";"
+                        + "END";
+
         db.execSQL(query1);
         db.execSQL(query2);
         db.execSQL(query3);
@@ -160,6 +166,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.execSQL(query6);
         db.execSQL(query7);
         db.execSQL(query8);
+        db.execSQL(query9);
     }
 
     @Override
@@ -205,7 +212,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
             values2.put(COLUMN_DAY, module.get_day());
             id = db.update(TABLE_MODULE, values2, whereClause, null);
         }
-
+        updateClassWeeksForModule(module);
         db.close();
         if (id == 1)
             return true;
@@ -220,7 +227,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //update a module with UID
     public boolean updateModuleTable(int oldUID, Module module){
         SQLiteDatabase db = getWritableDatabase();
-        String whereClause = COLUMN_ID_TABLE_POINTER + " = '" + module.get_idTablePointer() + "'"
+        String whereClause = COLUMN_ID_TABLE_POINTER + " = '" + oldUID + "'"
                 + ";";
         ContentValues values = new ContentValues();
         values.put(COLUMN_ROOM, module.get_room());
@@ -231,9 +238,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
         values.put(COLUMN_END_TIME, module.get_endTime());
         values.put(COLUMN_DAY, module.get_day());
         int id = db.update(TABLE_MODULE, values, whereClause, null);
-
-
         db.close();
+        updateClassWeeksForModule(module);
         return id == 1;
 
     }
@@ -1374,7 +1380,13 @@ for (int i=0; i< newModule.size(); i++){
 
     //TODO test
     public boolean updateStudentTimetable(StudentTimetable entry){
+        StudentTimetable oldEntry;
+        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
+        if (oldEntry == null)
+            return false;
         SQLiteDatabase db = getWritableDatabase();
+
+
         String whereClause = COLUMN_ID_TABLE_POINTER + " = " + entry.get_idTablePointer();
         ContentValues values = new ContentValues();
         values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
@@ -1393,6 +1405,7 @@ for (int i=0; i< newModule.size(); i++){
 
         int id = db.update(TABLE_STUDENT_TIMETABLE, values, whereClause, null);
         db.close();
+        updateClassWeeksForStudent(entry);
         return id == 1;
 
     }
@@ -1404,7 +1417,6 @@ for (int i=0; i< newModule.size(); i++){
     */
 
 
-    //TODO TEST
     //take studentTimetable object
     // delete on UID
     public boolean deleteStudentTimetableEntry(StudentTimetable entry){
@@ -1412,11 +1424,18 @@ for (int i=0; i< newModule.size(); i++){
         String whereClause = COLUMN_ID_TABLE_POINTER + " = " + entry.get_idTablePointer();
         int id = db.delete(TABLE_STUDENT_TIMETABLE, whereClause, null);
         db.close();
+        Log.d("TEST", "STUDENT ENTRY DELETED: " + entry.get_idTablePointer() + "-" + entry.get_moduleCode() + "-" + entry.get_modulePointer());
         return id == 1;
     }
 
-    //TODO delete user from users table and all their entries on studentTimetable.
-    //take users from getUsers delete/Trigger
+    //delete a user. Trigger will delete all the studentTable entries
+    public void  deleteUser(int userID){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_USERS
+                + " WHERE " + COLUMN_USER_ID + " = " + userID
+                + ";");
+        db.close();
+    }
 
     //Delete a row from moduleTimetable
     public void  deleteModuleEntryFromID(int IDTablePointer){
@@ -1465,6 +1484,36 @@ for (int i=0; i< newModule.size(); i++){
         db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS + ";");
         db.close();
     }
+
+    public void  updateClassWeeksForStudent(StudentTimetable entry){
+        int UID = entry.get_idTablePointer();
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS
+                + "WHERE " + COLUMN_ID_TABLE_POINTER + " = " + UID
+                + ";");
+        db.close();
+        for(int i = 0; i < entry.get_weeks().size(); i++){
+            int first = entry.get_weeks().get(i).first;
+            int second = entry.get_weeks().get(i).second;
+            addToClassWeekTable(first, second, UID);
+        }
+    }
+
+
+    public void  updateClassWeeksForModule(Module entry){
+        int UID = entry.get_idTablePointer();
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS
+                + "WHERE " + COLUMN_ID_TABLE_POINTER + " = " + UID
+                + ";");
+        db.close();
+        for(int i = 0; i < entry.get_weeks().size(); i++){
+            int first = entry.get_weeks().get(i).first;
+            int second = entry.get_weeks().get(i).second;
+            addToClassWeekTable(first, second, UID);
+        }
+    }
+
 
     public void  deleteAllUIDs(){
         SQLiteDatabase db = getWritableDatabase();
