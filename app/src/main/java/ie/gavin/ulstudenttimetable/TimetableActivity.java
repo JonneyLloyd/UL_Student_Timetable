@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -13,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,7 +57,6 @@ public class TimetableActivity extends AppCompatActivity
 
     private final int REQUEST_CODE_ADD_TIMETABLE = 100;
     MyDBHandler dbHandler;
-    Module tempModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,13 +88,14 @@ public class TimetableActivity extends AppCompatActivity
             }
         });
 
-        loadNavigationViewUsers();
-        loadActionbarWeeks();
-        loadTimetable();
 
         if (userId == 0) {   // if no user set yet
             addUser();
         }
+
+        loadNavigationViewUsers();
+        loadActionbarWeeks();
+        loadTimetable();
 
         com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +113,9 @@ public class TimetableActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (cv.isInEditMode()) {
+            cv.setEditMode(false);
+            loadTimetable();
         } else {
             super.onBackPressed();
         }
@@ -196,12 +201,14 @@ public class TimetableActivity extends AppCompatActivity
             userId = Integer.parseInt(studentId);
             String studentName = (String) data.getExtras().getString("studentName", "New user");
 
-            Toast.makeText(TimetableActivity.this, studentName + " " + userId + " was added!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(TimetableActivity.this, studentName + " " + userId + " was added!", Toast.LENGTH_SHORT).show();
 
             addNavigationViewUser(userId, studentName);
             setNavigationViewUser(userId, studentName);
             loadTimetable();
             loadActionbarWeeks();
+        } else {
+            finish();       // close the app if the user does not add their timetable
         }
 
     }
@@ -230,7 +237,7 @@ public class TimetableActivity extends AppCompatActivity
 
     public void addNavigationViewUser(int userId, String userName) {
         navigationView.getMenu().add(R.id.nav_group_users, userId, Menu.NONE, userName)
-                                .setIcon(R.drawable.ic_account_circle);
+                .setIcon(R.drawable.ic_account_circle);
     }
 
     public void setNavigationViewUser(int userId, String userName) {
@@ -297,13 +304,63 @@ public class TimetableActivity extends AppCompatActivity
         }
     }
 
+    public void loadTimetableModuleChooser(int eventId) {
+        cv.setEditMode(true);
+        StudentTimetable studentTimetable = dbHandler.getStudentTimetableFromID(eventId);
+        String moduleCode = studentTimetable.get_moduleCode();
+        Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
+
+        ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode);
+        Log.v("match", ""+moduleTimetables.size());
+
+//        events.clear();
+        ArrayList<CalendarEvent> moduleEvents = new ArrayList<CalendarEvent>();
+        for (Module moduleTimetable : moduleTimetables) {
+
+            String [] startTime = moduleTimetable.get_startTime().split(":");
+            String [] endTime = moduleTimetable.get_endTime().split(":");
+            int day = moduleTimetable.get_day();
+            Calendar start = Calendar.getInstance();
+            Calendar end = Calendar.getInstance();
+            start.set(2016, 4-1, 18 + day - 1, Integer.parseInt(startTime[0]), Integer.parseInt(startTime[1]));
+            end.set(2016, 4 - 1, 18 + day - 1, Integer.parseInt(endTime[0]), Integer.parseInt(endTime[1]));
+
+            CalendarEvent moduleEvent = new CalendarEvent(
+                    start,
+                    end,
+                    formatEvent(moduleTimetable),
+//                    studentTimetable.get_color(),   // keep the original color
+                    Color.parseColor("#882222"),   // keep the original color
+                    0,
+                    moduleTimetable.get_idTablePointer()
+                );
+
+            if (events.contains(moduleEvent)) {
+                Log.v("match", moduleEvent.getTitle());
+                moduleEvent.setOriginallyAttending(true);
+            }
+
+            moduleEvents.add(moduleEvent);
+
+        }
+        // Add callbacks
+        cv.setEditorEventClickListener(new CalendarView.EditorEventClickListener() {
+            @Override
+            public void onEditorEventClick(int eventId, boolean checked) {
+                if (checked) Toast.makeText(TimetableActivity.this, "add/keep", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(TimetableActivity.this, "remove", Toast.LENGTH_SHORT).show();
+            }
+        });
+        cv.updateCalendar(moduleEvents);
+    }
+
     public void loadTimetable() {   // TODO fix double load
         Toast.makeText(TimetableActivity.this, "loading: "+userId, Toast.LENGTH_SHORT).show();
         dbHandler = MyDBHandler.getInstance(this.getApplicationContext());
-        ArrayList<StudentTimetable> StudentTimetables = dbHandler.getAllFromStudentTimetable(userId, weekId);
+        ArrayList<StudentTimetable> studentTimetables = dbHandler.getAllFromStudentTimetable(userId, weekId);
 
         events.clear();
-        for (StudentTimetable studentTimetable : StudentTimetables) {
+        for (StudentTimetable studentTimetable : studentTimetables) {
 
             String [] startTime = studentTimetable.get_start_time().split(":");
             String [] endTime = studentTimetable.get_endTime().split(":");
@@ -318,23 +375,26 @@ public class TimetableActivity extends AppCompatActivity
                     end,
                     formatEvent(studentTimetable),
                     studentTimetable.get_color(),
-                    studentTimetable.get_idTablePointer()
+                    studentTimetable.get_idTablePointer(),
+                    studentTimetable.get_modulePointer()
             ));
 
         }
 
         cv = ((CalendarView)findViewById(R.id.calendar_view));
+        cv.setEditMode(false);
+
         // Add callbacks
         cv.setEventClickListener(new CalendarView.EventClickListener() {
             @Override
             public void onEventClick(int eventId) {
                 openEventDialog(eventId, false);
-
             }
 
             @Override
             public void onEventLongClick(int eventId) {
                 Toast.makeText(TimetableActivity.this, "" + eventId, Toast.LENGTH_SHORT).show();
+                loadTimetableModuleChooser(eventId);
             }
         });
 
@@ -428,6 +488,6 @@ public class TimetableActivity extends AppCompatActivity
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt("daysVisible", daysVisible);
         editor.putInt("userId", userId);
-        editor.apply();
+        editor.commit();
     }
 }
