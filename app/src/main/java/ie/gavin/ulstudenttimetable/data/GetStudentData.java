@@ -233,6 +233,7 @@ public class GetStudentData {
 
                 // The data for ONE module
                 ArrayList<ArrayList<String>> moduleTimetable = entry.getValue();
+                ArrayList<Module> newModule = new ArrayList<>();
 
                 // go through all lecture/lab/tut for a module
                 for (ArrayList<String> moduleEvent : moduleTimetable) {
@@ -281,17 +282,21 @@ public class GetStudentData {
                     }
                     tempModule.set_weeks(weeksList);
                     //Log.v(LOG_TAG, "ModulesWeekTest: " + tempModule.get_weeks().get(0).first+ "-" + tempModule.get_weeks().get(0).second);
-
-                            dbHandler.addToModuleTable(tempModule);
+                    newModule.add(tempModule);
+                    //dbHandler.addToModuleTable(tempModule);
 
                     //Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
                 }
 
                 //testing module table
+                ArrayList<Module> oldModules = new ArrayList<>();
+                oldModules = dbHandler.getAllFromModuleTable(moduleCode);
+                dbHandler.compareModuleLists(oldModules, newModule);
                 ArrayList<Module> test = new ArrayList<>();
                 //testing method to add/remove modules on student table
 
                 test = dbHandler.getAllFromModuleTable(moduleCode);
+
                 for(int i = 0; i < test.size(); i++){
                     Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks().get(0).first+ "-" + test.get(i).get_weeks().get(0).second+ " - " + test.get(i).get_lecturer());
                     //dbHandler.updateModuleTable(test.get(i));
