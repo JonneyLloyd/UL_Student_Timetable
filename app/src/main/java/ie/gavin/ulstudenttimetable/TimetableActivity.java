@@ -167,15 +167,18 @@ public class TimetableActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_save) {
 
-            Log.v("choose add", "---------------");
-            for (Integer add : moduleChooserAdd)
-                Log.v("choose", ""+add);
+            dbHandler.addOrRemoveModuleFromStudentTimetable(moduleChooserAdd, userId, MyDBHandler.ADD);
+//            Log.v("choose add", "---------------");
+//            for (Integer add : moduleChooserAdd)
+//                Log.v("choose", ""+add);
 
-            Log.v("choose remove", "---------------");
-            for (Integer remove : moduleChooserRemove)
-                Log.v("choose", ""+remove);
+            dbHandler.addOrRemoveModuleFromStudentTimetable(moduleChooserRemove, userId, MyDBHandler.DELETE);
+//            Log.v("choose remove", "---------------");
+//            for (Integer remove : moduleChooserRemove)
+//                Log.v("choose", ""+remove);
 
-            // TODO
+            cv.setEditMode(false);
+            loadTimetable();
             return true;
         }
 
