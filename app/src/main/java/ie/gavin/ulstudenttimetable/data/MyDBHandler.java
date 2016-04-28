@@ -1379,6 +1379,7 @@ for (int i=0; i< newModule.size(); i++){
     }
 
     //TODO test
+    //updates an existing studentTable entry
     public boolean updateStudentTimetable(StudentTimetable entry){
         StudentTimetable oldEntry;
         oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
@@ -1405,7 +1406,7 @@ for (int i=0; i< newModule.size(); i++){
 
         int id = db.update(TABLE_STUDENT_TIMETABLE, values, whereClause, null);
         db.close();
-        updateClassWeeksForStudent(entry);
+        if(entry.get_modulePointer()!= 0)updateClassWeeksForStudent(entry);
         return id == 1;
 
     }
