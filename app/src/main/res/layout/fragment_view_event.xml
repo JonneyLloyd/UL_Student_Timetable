@@ -36,12 +36,25 @@
                 style="@style/AppTheme.EventDialogField">
 
                 <ImageView
-                    android:id="@+id/moduleCodeIcon"
-                    android:background="@drawable/ic_menu_share"
+                    android:id="@+id/dateTimeIcon"
+                    android:background="@drawable/ic_access_time"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <TextView
-                    android:text="New Text"
+                    android:id="@+id/dateTimeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/moduleCodeIcon"
+                    android:background="@drawable/ic_label"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
                     android:id="@+id/moduleCodeTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
@@ -52,11 +65,10 @@
 
                 <ImageView
                     android:id="@+id/titleIcon"
-                    android:background="@drawable/ic_menu_share"
+                    android:background="@drawable/ic_info"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <TextView
-                    android:text="New Text"
                     android:id="@+id/titleTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
@@ -66,12 +78,25 @@
                 style="@style/AppTheme.EventDialogField">
 
                 <ImageView
-                    android:id="@+id/locationIcon"
-                    android:background="@drawable/ic_menu_share"
+                    android:id="@+id/typeIcon"
+                    android:background="@drawable/ic_info"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <TextView
-                    android:text="New Text"
+                    android:id="@+id/typeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/locationIcon"
+                    android:background="@drawable/ic_location_on"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
                     android:id="@+id/locationTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
@@ -81,12 +106,27 @@
                 style="@style/AppTheme.EventDialogField">
 
                 <ImageView
-                    android:id="@+id/notesIcon"
-                    android:background="@drawable/ic_menu_share"
+                    android:id="@+id/weeksIcon"
+                    android:background="@drawable/ic_date_range"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <TextView
                     android:text="New Text"
+                    android:id="@+id/weeksTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/notesIcon"
+                    android:background="@drawable/ic_subject"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:text="Notes"
                     android:id="@+id/notesTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 

@@ -41,4 +41,13 @@ public class Week{
     public void set_weekStart(Date _weekStart) {
         this._weekStart = _weekStart;
     }
+
+    @Override
+    public String toString() {
+        String label = _weekLabel;
+
+        if (android.text.TextUtils.isDigitsOnly(label)) label = "Week " + label;
+
+        return label;
+    }
 }

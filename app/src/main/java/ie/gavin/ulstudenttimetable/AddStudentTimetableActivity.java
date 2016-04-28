@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -54,7 +55,8 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
                         })
                         .show();
 
-                if (message.equals("Success")) {
+                if (message.equals("Success") && studentId != null) {
+                    Log.v("testid123", studentId);
 
                     LocalBroadcastManager.getInstance(AddStudentTimetableActivity.this).unregisterReceiver(this);
 

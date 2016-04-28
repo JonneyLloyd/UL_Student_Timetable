@@ -2,11 +2,14 @@ package ie.gavin.ulstudenttimetable;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormatSymbols;
 
 import ie.gavin.ulstudenttimetable.data.StudentTimetable;
 
@@ -14,9 +17,12 @@ public class EventViewDialogFragment extends EventDialogFragment {
 
     private StudentTimetable studentTimetable;
 
+    private TextView dateTimeTextView;
     private TextView moduleCodeTextView;
     private TextView titleTextView;
+    private TextView typeTextView;
     private TextView locationTextView;
+    private TextView weeksTextView;
     private TextView notesTextView;
 
     @Override
@@ -28,15 +34,23 @@ public class EventViewDialogFragment extends EventDialogFragment {
 
         View view = inflater.inflate(R.layout.fragment_view_event, container, false);
 
+        dateTimeTextView = (TextView) view.findViewById(R.id.dateTimeTextView);
         moduleCodeTextView = (TextView) view.findViewById(R.id.moduleCodeTextView);
         titleTextView = (TextView) view.findViewById(R.id.titleTextView);
+        typeTextView = (TextView) view.findViewById(R.id.typeTextView);
         locationTextView = (TextView) view.findViewById(R.id.locationTextView);
+        weeksTextView = (TextView) view.findViewById(R.id.weeksTextView);
         notesTextView = (TextView) view.findViewById(R.id.notesTextView);
 
+        dateTimeTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[studentTimetable.get_day()-1] + " " + studentTimetable.get_start_time() + " - " + studentTimetable.get_endTime());
         moduleCodeTextView.setText(studentTimetable.get_moduleCode());
         titleTextView.setText(studentTimetable.get_title());
+        typeTextView.setText(studentTimetable.get_type());
         locationTextView.setText(studentTimetable.get_room());
+        weeksTextView.setText(studentTimetable.get_weeks().toString());
         notesTextView.setText(studentTimetable.get_notes());
+
+        for (String week : studentTimetable.get_weeks()) Log.v("weektest", week);
 
 //        TextView tv = (TextView) view.findViewById(R.id.text);
 //        tv.setText("This is an instance of ActionBarDialog");

@@ -11,7 +11,9 @@ import android.util.Pair;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -170,12 +172,14 @@ public class GetStudentData {
 
             // SQL here, call function
 
+            int week = 0;
+            Date weekStart = null;
             for (ArrayList<String> weekDate : weekDates) {
-                int week = Integer.parseInt(weekDate.get(2));
+                week = Integer.parseInt(weekDate.get(2));
                 String weekLabel = weekDate.get(1);
+                if (week == 14) weekLabel = "Study Week";
 
                 SimpleDateFormat inFormat = new SimpleDateFormat("dd MMM yyyy");
-                Date weekStart = null;
                 try {
                     weekStart = inFormat.parse(weekDate.get(0));
                 } catch (ParseException e) {
@@ -183,8 +187,12 @@ public class GetStudentData {
                     return;
                 }
 
-                dbHandler.addToWeekTable(week, weekLabel, weekStart);
+                dbHandler.addToWeekDetails(week, weekLabel, weekStart);
             }
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(weekStart);
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
+            dbHandler.addToWeekDetails(++week, "Exams", calendar.getTime());
 
             //moduleDetails
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleDetails.entrySet()) {

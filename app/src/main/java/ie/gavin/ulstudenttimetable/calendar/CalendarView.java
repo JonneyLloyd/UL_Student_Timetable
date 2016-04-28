@@ -1,13 +1,14 @@
 package ie.gavin.ulstudenttimetable.calendar;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -31,6 +32,8 @@ public class CalendarView extends LinearLayout {
     private final String LOG_TAG = this.getClass().getSimpleName();
 
     LayoutInflater inflater;
+
+    private boolean isInEditMode = false;
 
     private float SCREEN_DENSITY = getContext().getResources().getDisplayMetrics().density;
     private int CALENDAR_MIN_HEIGHT;
@@ -71,6 +74,18 @@ public class CalendarView extends LinearLayout {
 
     public void setEventClickListener(EventClickListener eventClickListener) {
         this.eventClickListener = eventClickListener;
+    }
+
+    // listener on events in editor mode - for callbacks
+    public interface EditorEventClickListener {
+        public void onEditorEventClick(int eventId, boolean checked);
+//        public void onEditorEventLongClick(int eventId);
+    }
+
+    private EditorEventClickListener editorEventClickListener;
+
+    public void setEditorEventClickListener(EditorEventClickListener eventEditorClickListener) {
+        this.editorEventClickListener = eventEditorClickListener;
     }
 
 
@@ -217,6 +232,12 @@ public class CalendarView extends LinearLayout {
      * Redraw calendar with different data set
      */
     public void updateCalendar(ArrayList<CalendarEvent> events) {
+        boolean focus = true;
+        int currentPage = 0;
+        if (this.events != null) {
+            focus = false;  // keep at the same position
+            currentPage = contentColumnViewPager.getCurrentItem();
+        }
         this.events = events;
 
         headerColumnViewPager.setAdapter(new CalendarDatePagerAdapter(getContext()));
@@ -251,7 +272,8 @@ public class CalendarView extends LinearLayout {
             }
 
             @Override
-            public void onPageSelected(final int position) { }
+            public void onPageSelected(final int position) {
+            }
 
             @Override
             public void onPageScrollStateChanged(final int state) {
@@ -286,7 +308,8 @@ public class CalendarView extends LinearLayout {
             }
         });
 
-        focusCalendar();
+        if (focus) focusCalendar();
+        else contentColumnViewPager.setCurrentItem(currentPage);
     }
 
     public void focusCalendar() {
@@ -365,7 +388,9 @@ public class CalendarView extends LinearLayout {
                 dayOfWeekViewText.setText(dayOfWeek);
 
                 TextView dateOfMonthViewText = (TextView) dayHeaderView.findViewById(R.id.headerDateOfMonthTextView);
-                dateOfMonthViewText.setText(dateOfMonth);
+                if (!isInEditMode()) {
+                    dateOfMonthViewText.setText(dateOfMonth);   // dates are not needed in edit mode
+                }
 
                 Calendar today = Calendar.getInstance();
 
@@ -450,6 +475,18 @@ public class CalendarView extends LinearLayout {
 
                         GradientDrawable bgShape = (GradientDrawable)eventView.getBackground();
                         bgShape.setColor(event.getColor());
+                        if (isInEditMode()) {
+                            if (!event.isOriginallyAttending()) {
+                                eventView.setChecked(false);
+                                bgShape.setColorFilter(Color.parseColor("#88ffffff"), PorterDuff.Mode.SRC_ATOP);
+                                eventView.setScaleX(0.9f);
+                                eventView.setScaleY(0.9f);
+                            } else {
+                                eventView.setChecked(true);
+                                eventView.setScaleX(1f);
+                                eventView.setScaleY(1f);
+                            }
+                        }
 
                         TextView eventViewText = (TextView) eventView.findViewById(R.id.eventTextView);
                         eventViewText.setText(event.getTitle());
@@ -465,14 +502,35 @@ public class CalendarView extends LinearLayout {
                         eventView.setOnClickListener(new OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Log.d("test", "" + v.getTag());
-                                eventClickListener.onEventClick((int) v.getTag());
+                                CalendarEventView eventView = (CalendarEventView) v;
+                                int eventId = (int) v.getTag();
+
+                                if (isInEditMode()) {
+                                    GradientDrawable bgShape = (GradientDrawable) eventView.getBackground();
+                                    eventView.setChecked(!eventView.isChecked());
+                                    if (eventView.isChecked()) {
+                                        bgShape.clearColorFilter();
+                                        eventView.setScaleX(1f);
+                                        eventView.setScaleY(1f);
+                                    } else {
+                                        bgShape.setColorFilter(Color.parseColor("#88ffffff"), PorterDuff.Mode.SRC_ATOP);
+                                        eventView.setScaleX(0.9f);
+                                        eventView.setScaleY(0.9f);
+                                    }
+                                    editorEventClickListener.onEditorEventClick(eventId, eventView.isChecked());
+                                } else {
+                                    eventClickListener.onEventClick(eventId);
+                                }
                             }
                         });
                         eventView.setOnLongClickListener(new OnLongClickListener() {
                             @Override
                             public boolean onLongClick(View v) {
-                                eventClickListener.onEventLongClick((int) v.getTag());
+                                if (isInEditMode()) {
+
+                                } else {
+                                    eventClickListener.onEventLongClick((int) v.getTag());
+                                }
                                 return true;
                             }
                         });
@@ -504,6 +562,14 @@ public class CalendarView extends LinearLayout {
             params.topMargin = timeToScreenPosition(Calendar.getInstance()) - timeIndicatorHeight / 2;    // half the indicators height
         }
 
+    }
+
+    public boolean isInEditMode() {
+        return isInEditMode;
+    }
+
+    public void setEditMode(boolean isInEditMode) {
+        this.isInEditMode = isInEditMode;
     }
 
 }
