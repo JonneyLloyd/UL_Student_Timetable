@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.util.Pair;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -245,7 +246,7 @@ public class GetStudentData {
                     weeks =  moduleEvent.get(7);
                     tempModule = new Module(0, moduleCode, startTime , endTime, room, lecturer, day, group, type);
                     weeks = weeks.substring(weeks.indexOf(":") + 1);
-                    ArrayList<String> temp = new ArrayList<>();
+                    ArrayList<Pair<Integer,Integer>> weeksList = new ArrayList<>();
                     if (weeks.contains(",")){
                         String[] splitArray = weeks.split(",");
                         for(int i = 0; i <splitArray.length; i++) {
@@ -255,18 +256,25 @@ public class GetStudentData {
                             } else {
                                 secondSplitArray = new String[] {splitArray[i],splitArray[i]};
                             }
-                            temp.add(secondSplitArray[0] + "-" + secondSplitArray[1]);
+                            Pair weeksToAdd;
+                            weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(secondSplitArray[0]),Integer.parseInt(secondSplitArray[1]));
+                            weeksList.add(weeksToAdd);
                         }
 
                     }
 //
                     else {
                         String[] splitArray = weeks.split("-");
-                        temp.add(splitArray[0] + "-" + splitArray[1]);
+                        Pair weeksToAdd;
+                        weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
+                        weeksList.add(weeksToAdd);
+//                        String[] splitArray = weeks.split("-");
+//                        temp.add(splitArray[0] + "-" + splitArray[1]);
                     }
-                    tempModule.set_weeks(temp);
+                    tempModule.set_weeks(weeksList);
+                    //Log.v(LOG_TAG, "ModulesWeekTest: " + tempModule.get_weeks().get(0).first+ "-" + tempModule.get_weeks().get(0).second);
 
-                    dbHandler.addToModuleTable(tempModule);
+                            dbHandler.addToModuleTable(tempModule);
 
                     //Log.v(LOG_TAG, "ADDED MODULE: " + dbHandler.getModuleName(moduleCode));
                 }
@@ -277,10 +285,12 @@ public class GetStudentData {
 
                 test = dbHandler.getAllFromModuleTable(moduleCode);
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks()+ " - " + test.get(i).get_lecturer());
+                    Log.v(LOG_TAG, "Modules: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime()  + " - " + test.get(i).get_endTime()+ " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks().get(0).first+ "-" + test.get(i).get_weeks().get(0).second+ " - " + test.get(i).get_lecturer());
                     //dbHandler.updateModuleTable(test.get(i));
                     //Log.v(LOG_TAG, "UpdatedMod: " + (test.get(i)).get_idTablePointer() + " - " + (test.get(i)).get_ModuleCode() + " - " + test.get(i).get_startTime() + " - " + test.get(i).get_endTime() + " - " + test.get(i).get_day() + " - " + test.get(i).get_type() + " - " + test.get(i).get_groupName() + " - " + test.get(i).get_weeks());
-
+                    if (test.get(i).get_weeks().size() > 1){
+                        Log.v(LOG_TAG, "Modules: " + "second Week: " + (test.get(i).get_weeks().get(1).first)+ "-" + (test.get(i).get_weeks().get(1).second));
+                    }
                 }
 
 
@@ -341,7 +351,7 @@ public class GetStudentData {
                     UID = dbHandler.getUIDForModuleEntry(moduleCode, day, startTime, endTime);
                    //tempStudent = new StudentTimetable(0, moduleCode, UID, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room, color);
                     tempStudent = new StudentTimetable(0, null, UID, null, 0, null, Integer.parseInt(studentID),  null, null, null, null, null,  null, color);
-                    dbHandler.addToStudentTimetable(tempStudent, "");
+                    dbHandler.addToStudentTimetable(tempStudent);
 
 
                 }
@@ -350,8 +360,17 @@ public class GetStudentData {
                 ArrayList<StudentTimetable> test = new ArrayList<>();
                 test = dbHandler.getAllFromStudentTimetable(14117495, 3);
                 for(int i = 0; i < test.size(); i++){
-                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_day())+ " - " + (test.get(i).get_modulePointer())+ " - " + (test.get(i).get_weeks())+ " - " + (test.get(i).get_title()));
-//                    if(test.get(i).get_moduleCode().equals("CS4014")){
+                    Log.v(LOG_TAG, "LOOP_STUDENTS: " + (test.get(i)).get_moduleCode() + " - " + (test.get(i).get_idTablePointer()) + " - " + (test.get(i).get_start_time())+ " - " + (test.get(i).get_endTime())+ " - " + (test.get(i).get_day())+ " - " + (test.get(i).get_modulePointer())+ " - " + (test.get(i).get_weeks().get(0).first)+ "-" + (test.get(i).get_weeks().get(0).second)+ " - " + (test.get(i).get_title()));
+                   if (test.get(i).get_weeks().size() > 1){
+                       Log.v(LOG_TAG, "LOOP_STUDENTS: " + "second Week: " + (test.get(i).get_weeks().get(1).first)+ "-" + (test.get(i).get_weeks().get(1).second));
+                   }
+                    //testing multiple weeks
+//                    StudentTimetable tempSTU = dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer());
+//                    Log.v(LOG_TAG, "tempSTU: " + tempSTU.get_moduleCode() + " - " + (tempSTU.get_idTablePointer()) + " - " + (tempSTU).get_start_time()+ " - " + (tempSTU.get_endTime())+ " - " + (tempSTU.get_day())+ " - " + (tempSTU.get_modulePointer())+ " - " + (tempSTU.get_weeks().get(0).first)+ "-" + (tempSTU.get_weeks().get(0).second)+ " - " + (tempSTU.get_title()));
+//                    if (tempSTU.get_weeks().size() > 1){
+//                        Log.v(LOG_TAG, "tempSTU: " + "second Week: " + (tempSTU.get_weeks().get(1).first)+ "-" + (tempSTU.get_weeks().get(1).second));
+//                    }
+//                      if(test.get(i).get_moduleCode().equals("CS4014")){
 //                        dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
 //                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());
 //                    }

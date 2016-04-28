@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.Pair;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -232,10 +233,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
 
         db.close();
-        if (id == 1)
-            return true;
-        else
-            return false;
+        return id == 1;
 
     }
 
@@ -248,7 +246,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //Add a new row to the Module database
     //pass in week and handle weeks table entry at the same time
     public void addToModuleTable(Module module){
-
+        //Log.v("TESTING", "weekPassed: " + module.get_weeks().get(0).first+ "-" + module.get_weeks().get(0).second);
+        //Log.v("TESTING", "weekPassed: " + module.get_ModuleCode() + "-" + module.get_lecturer());
         SQLiteDatabase db = getWritableDatabase();
 
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
@@ -265,11 +264,14 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         db.insert(TABLE_MODULE, null, values);
         db.close();
-        ArrayList<String> temp = new ArrayList<>();
+        ArrayList<Pair<Integer,Integer>> temp = new ArrayList<>();
         temp = module.get_weeks();
         for(int i = 0; i < temp.size(); i++){
-            String[] splitArray = temp.get(i).split("-");
-            addToClassWeekTable(splitArray[0], splitArray[1], id);
+
+            int start = temp.get(i).first;
+            int end = temp.get(i).second;
+            //Log.v("TESTING", "weekPassed: " + start + "-" + end);
+            addToClassWeekTable(start, end, id);
 
 
         }
@@ -342,7 +344,7 @@ for (int i=0; i< newModule.size(); i++){
 
 
     // addToClassWeeksTable
-    public void addToClassWeekTable(String startWeek, String endWeek, long idPointer){
+    public void addToClassWeekTable(int startWeek, int endWeek, long idPointer){
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -379,7 +381,7 @@ for (int i=0; i< newModule.size(); i++){
         try {
             c = db.rawQuery(query, null);
             c.moveToFirst();
-            result = c.getString(c.getColumnIndex("moduleName"));
+            result = c.getString(c.getColumnIndex(COLUMN_MODULE_NAME));
         }
         catch (SQLiteException e)
         {
@@ -405,12 +407,10 @@ for (int i=0; i< newModule.size(); i++){
 
 
     //add row to studentTimetable table
-    //pass in week and handle weeks table entry at the same time?
-    public void addToStudentTimetable(StudentTimetable entry, String weeks) {
+    public void addToStudentTimetable(StudentTimetable entry) {
         SQLiteDatabase db = getWritableDatabase();
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
         ContentValues values = new ContentValues();
-        if (!weeks.isEmpty()) weeks = weeks.substring(weeks.indexOf(":") + 1);
         values.put(COLUMN_ID_TABLE_POINTER, id);
         values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
         values.put(COLUMN_MODULE_CODE, entry.get_moduleCode());
@@ -428,20 +428,12 @@ for (int i=0; i< newModule.size(); i++){
 
         db.insert(TABLE_STUDENT_TIMETABLE, null, values);
         db.close();
-        if (!weeks.isEmpty()){
-            if (weeks.contains(",")) {
-                String[] splitArray = weeks.split(",");
-                for (int i = 0; i < splitArray.length; i++) {
-                    String[] secondSplitArray = splitArray[i].split("-");
-                    addToClassWeekTable(secondSplitArray[0], secondSplitArray[1], id);
-                }
+        if(entry.get_weeks() !=null){
+            for (int i = 0; i < entry.get_weeks().size(); i++){
+                addToClassWeekTable(entry.get_weeks().get(i).first, entry.get_weeks().get(i).second, id);
+            }
 
-            } else {
-                String[] splitArray = weeks.split("-");
-                addToClassWeekTable(splitArray[0], splitArray[1], id);
-                //Log.v("Testing WEEKS " , "s: " + splitArray[0] + "e: " + splitArray[1]);
-            }
-            }
+        }
     }
 
     //add or remove a module on studentTable
@@ -454,7 +446,8 @@ for (int i=0; i< newModule.size(); i++){
             for (int i = 0; i < module.size(); i++) {
                 UID = module.get(i).get_idTablePointer();
                 tempStudent = new StudentTimetable(0, null, UID, null, 0, null, studentID, null, null, null, null, null, null, color);
-                addToStudentTimetable(tempStudent, "");
+                tempStudent.set_weeks(module.get(i).get_weeks());
+                addToStudentTimetable(tempStudent);
             }
         }
         else {
@@ -485,15 +478,15 @@ for (int i=0; i< newModule.size(); i++){
             c = db.rawQuery(query, null);
             c.moveToFirst();
             result = new Module(
-                    Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                    c.getString(c.getColumnIndex("moduleCode")),
-                    c.getString(c.getColumnIndex("startTime")),
-                    c.getString(c.getColumnIndex("endTime")),
-                    c.getString(c.getColumnIndex("room")),
-                    c.getString(c.getColumnIndex("lecturer")),
-                    Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                    c.getString(c.getColumnIndex("groupName")),
-                    c.getString(c.getColumnIndex("type"))
+                    Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                    c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                    c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                    c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                    c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                    c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                    Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                    c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                    c.getString(c.getColumnIndex(COLUMN_TYPE))
             );
         }
             catch (SQLiteException e)
@@ -540,57 +533,67 @@ for (int i=0; i< newModule.size(); i++){
                 + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + id
                 +";";
         SQLiteDatabase db = getWritableDatabase();
+        ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
         Cursor c = null;
         try {
             c = db.rawQuery(query, null);
             c.moveToFirst();
-
-            if (c.getString(c.getColumnIndex("modulePointer")).equals("0")){
+            do {
+            if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")){
                 //if (true){
                 result = new StudentTimetable(
-                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                        c.getString(c.getColumnIndex("moduleCode")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                        c.getString(c.getColumnIndex("startTime")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                        c.getString(c.getColumnIndex("endTime")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                        c.getString(c.getColumnIndex("notes")),
-                        c.getString(c.getColumnIndex("groupName")),
-                        c.getString(c.getColumnIndex("type")),
-                        c.getString(c.getColumnIndex("title")),
-                        c.getString(c.getColumnIndex("lecturer")),
-                        c.getString(c.getColumnIndex("room")),
-                        c.getInt(c.getColumnIndex("color"))
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                        c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
+                        c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                        c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                        c.getString(c.getColumnIndex(COLUMN_NOTES)),
+                        c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                        c.getString(c.getColumnIndex(COLUMN_TYPE)),
+                        c.getString(c.getColumnIndex(COLUMN_TITLE)),
+                        c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                        c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                        c.getInt(c.getColumnIndex(COLUMN_COLOR))
                 );
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                result.set_weeks(weeks);
+
+                Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                weeks.add(weeksToAdd);
+
+//                weeks.add(c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK)));
+//                result.set_weeks(weeks);
             }
 
             else{
                 result = new StudentTimetable(
-                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                         c.getString(c.getColumnIndex("modCode")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
                         c.getString(c.getColumnIndex("modStrt")),
                         Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
                         c.getString(c.getColumnIndex("modEnd")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                        c.getString(c.getColumnIndex("notes")),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                        c.getString(c.getColumnIndex(COLUMN_NOTES)),
                         c.getString(c.getColumnIndex("modGroup")),
                         c.getString(c.getColumnIndex("modType")),
                         c.getString(c.getColumnIndex("modTitle")),
                         c.getString(c.getColumnIndex("modLec")),
                         c.getString(c.getColumnIndex("modRoom")),
-                        c.getInt(c.getColumnIndex("color"))
+                        c.getInt(c.getColumnIndex(COLUMN_COLOR))
                 );
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
-                result.set_weeks(weeks);
+//                ArrayList<String> weeks = new ArrayList<>();
+//                weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+//                result.set_weeks(weeks);
+
+                Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                weeks.add(weeksToAdd);
+               // result.set_weeks(weeks);
             }
 
-
+            }
+            while (c.moveToNext());
+            result.set_weeks(weeks);
         }
         catch (SQLiteException e)
         {
@@ -645,49 +648,87 @@ for (int i=0; i< newModule.size(); i++){
             c.moveToFirst();
             do
             {
-                if (c.getString(c.getColumnIndex("modulePointer")).equals("0")){
+                if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")){
                 //if (true){
                     result.add(new StudentTimetable(
-                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                            c.getString(c.getColumnIndex("moduleCode")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                            c.getString(c.getColumnIndex("startTime")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                            c.getString(c.getColumnIndex("endTime")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                            c.getString(c.getColumnIndex("notes")),
-                            c.getString(c.getColumnIndex("groupName")),
-                            c.getString(c.getColumnIndex("type")),
-                            c.getString(c.getColumnIndex("title")),
-                            c.getString(c.getColumnIndex("lecturer")),
-                            c.getString(c.getColumnIndex("room")),
-                            c.getInt(c.getColumnIndex("color"))
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                            c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                            c.getString(c.getColumnIndex(COLUMN_NOTES)),
+                            c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                            c.getString(c.getColumnIndex(COLUMN_TYPE)),
+                            c.getString(c.getColumnIndex(COLUMN_TITLE)),
+                            c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                            c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                            c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-                    ArrayList<String> weeks = new ArrayList<>();
-                    weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                    result.get(result.size()-1).set_weeks(weeks);
+
+                    ArrayList < Pair < Integer, Integer >> weeks = new ArrayList<>();
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                    if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                        weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                        weeks.add(weeksToAdd);
+                        result.get(result.size()-2).set_weeks(weeks);
+                        result.remove(result.size()-1);
+
+                    }
+                    else {
+                        weeks.add(weeksToAdd);
+                        result.get(result.size() - 1).set_weeks(weeks);
+                    }
+
+
+
+//                    weeks.add(weeksToAdd);
+//                    result.get(result.size()-1).set_weeks(weeks);
+
+//                    ArrayList<String> weeks = new ArrayList<>();
+//                    weeks.add(c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK)));
+//                    result.get(result.size()-1).set_weeks(weeks);
                 }
 
                 else{
                     result.add(new StudentTimetable(
-                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                             c.getString(c.getColumnIndex("modCode")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
                             c.getString(c.getColumnIndex("modStrt")),
                             Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
                             c.getString(c.getColumnIndex("modEnd")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                            c.getString(c.getColumnIndex("notes")),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                            c.getString(c.getColumnIndex(COLUMN_NOTES)),
                             c.getString(c.getColumnIndex("modGroup")),
                             c.getString(c.getColumnIndex("modType")),
                             c.getString(c.getColumnIndex("modTitle")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
-                            c.getInt(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-                    ArrayList<String> weeks = new ArrayList<>();
-                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
-                    result.get(result.size()-1).set_weeks(weeks);
+
+                    ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                    if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                        weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                        weeks.add(weeksToAdd);
+                        result.get(result.size()-2).set_weeks(weeks);
+                        result.remove(result.size()-1);
+
+                    }
+                    else {
+                        weeks.add(weeksToAdd);
+                        result.get(result.size() - 1).set_weeks(weeks);
+                    }
+
+//                    weeks.add(weeksToAdd);
+//                    result.get(result.size()-1).set_weeks(weeks);
+//
+//                    ArrayList<String> weeks = new ArrayList<>();
+//                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+//                    result.get(result.size()-1).set_weeks(weeks);
                 }
 
             }
@@ -800,48 +841,85 @@ for (int i=0; i< newModule.size(); i++){
             c.moveToFirst();
             do
             {
-                if (c.getString(c.getColumnIndex("modulePointer")).equals("0")){
+                if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")){
                     result.add(new StudentTimetable(
-                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                            c.getString(c.getColumnIndex("moduleCode")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                            c.getString(c.getColumnIndex("startTime")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                            c.getString(c.getColumnIndex("endTime")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                            c.getString(c.getColumnIndex("notes")),
-                            c.getString(c.getColumnIndex("groupName")),
-                            c.getString(c.getColumnIndex("type")),
-                            c.getString(c.getColumnIndex("title")),
-                            c.getString(c.getColumnIndex("lecturer")),
-                            c.getString(c.getColumnIndex("room")),
-                            c.getInt(c.getColumnIndex("color"))
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                            c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                            c.getString(c.getColumnIndex(COLUMN_NOTES)),
+                            c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                            c.getString(c.getColumnIndex(COLUMN_TYPE)),
+                            c.getString(c.getColumnIndex(COLUMN_TITLE)),
+                            c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                            c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                            c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-                    ArrayList<String> weeks = new ArrayList<>();
-                    weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                    result.get(result.size()-1).set_weeks(weeks);
+
+                    ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                    if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                        weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                        weeks.add(weeksToAdd);
+                        result.get(result.size()-2).set_weeks(weeks);
+                        result.remove(result.size()-1);
+
+                    }
+                    else {
+                        weeks.add(weeksToAdd);
+                        result.get(result.size() - 1).set_weeks(weeks);
+                    }
+
+//                    weeks.add(weeksToAdd);
+//                    result.get(result.size()-1).set_weeks(weeks);
+
+
+//                    ArrayList<String> weeks = new ArrayList<>();
+//                    weeks.add(c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK)));
+//                    result.get(result.size()-1).set_weeks(weeks);
                 }
 
                 else{
                     result.add(new StudentTimetable(
-                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                             c.getString(c.getColumnIndex("modCode")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
                             c.getString(c.getColumnIndex("modStrt")),
                             Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
                             c.getString(c.getColumnIndex("modEnd")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                            c.getString(c.getColumnIndex("notes")),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                            c.getString(c.getColumnIndex(COLUMN_NOTES)),
                             c.getString(c.getColumnIndex("modGroup")),
                             c.getString(c.getColumnIndex("modType")),
                             c.getString(c.getColumnIndex("modTitle")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
-                            c.getInt(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-                    ArrayList<String> weeks = new ArrayList<>();
-                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
-                    result.get(result.size()-1).set_weeks(weeks);
+                    ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                    if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                        weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                        weeks.add(weeksToAdd);
+                        result.get(result.size()-2).set_weeks(weeks);
+                        result.remove(result.size()-1);
+
+                    }
+                    else {
+                        weeks.add(weeksToAdd);
+                        result.get(result.size() - 1).set_weeks(weeks);
+                    }
+
+//                    weeks.add(weeksToAdd);
+//                    result.get(result.size()-1).set_weeks(weeks);
+
+//
+//                    ArrayList<String> weeks = new ArrayList<>();
+//                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+//                    result.get(result.size()-1).set_weeks(weeks);
                 }
 
             }
@@ -905,52 +983,89 @@ for (int i=0; i< newModule.size(); i++){
             c.moveToFirst();
             do
             {
-                if (c.getString(c.getColumnIndex("modulePointer")).equals("0")
-                        && week >= Integer.parseInt(c.getString(c.getColumnIndex("startWeek")))
-                        && week <= Integer.parseInt(c.getString(c.getColumnIndex("endWeek")))){
+                if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")
+                        && week >= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_WEEK_START)))
+                        && week <= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK)))){
                     result.add(new StudentTimetable(
-                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                            c.getString(c.getColumnIndex("moduleCode")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
-                            c.getString(c.getColumnIndex("startTime")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                            c.getString(c.getColumnIndex("endTime")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                            c.getString(c.getColumnIndex("notes")),
-                            c.getString(c.getColumnIndex("groupName")),
-                            c.getString(c.getColumnIndex("type")),
-                            c.getString(c.getColumnIndex("title")),
-                            c.getString(c.getColumnIndex("lecturer")),
-                            c.getString(c.getColumnIndex("room")),
-                            c.getInt(c.getColumnIndex("color"))
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                            c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                            c.getString(c.getColumnIndex(COLUMN_NOTES)),
+                            c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                            c.getString(c.getColumnIndex(COLUMN_TYPE)),
+                            c.getString(c.getColumnIndex(COLUMN_TITLE)),
+                            c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                            c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                            c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-                    ArrayList<String> weeks = new ArrayList<>();
-                    weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                    result.get(result.size()-1).set_weeks(weeks);
+
+
+                    ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                    if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                        weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                        weeks.add(weeksToAdd);
+                        result.get(result.size()-2).set_weeks(weeks);
+                        result.remove(result.size()-1);
+
+                    }
+                    else {
+                        weeks.add(weeksToAdd);
+                        result.get(result.size() - 1).set_weeks(weeks);
+                    }
+
+//                    weeks.add(weeksToAdd);
+//                    result.get(result.size()-1).set_weeks(weeks);
+//
+//                    ArrayList<String> weeks = new ArrayList<>();
+//                    weeks.add(c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK)));
+//                    result.get(result.size()-1).set_weeks(weeks);
                 }
 
                 else if (week >= Integer.parseInt(c.getString(c.getColumnIndex("sWeek")))
-                    && week <= Integer.parseInt(c.getString(c.getColumnIndex("eWeek")))){
+                    && week <= Integer.parseInt(c.getString(c.getColumnIndex("eWeek")))) {
 
                     result.add(new StudentTimetable(
-                            Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                             c.getString(c.getColumnIndex("modCode")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("modulePointer"))),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
                             c.getString(c.getColumnIndex("modStrt")),
                             Integer.parseInt(c.getString(c.getColumnIndex("modDay"))),
                             c.getString(c.getColumnIndex("modEnd")),
-                            Integer.parseInt(c.getString(c.getColumnIndex("studentID"))),
-                            c.getString(c.getColumnIndex("notes")),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
+                            c.getString(c.getColumnIndex(COLUMN_NOTES)),
                             c.getString(c.getColumnIndex("modGroup")),
                             c.getString(c.getColumnIndex("modType")),
                             c.getString(c.getColumnIndex("modTitle")),
                             c.getString(c.getColumnIndex("modLec")),
                             c.getString(c.getColumnIndex("modRoom")),
-                            c.getInt(c.getColumnIndex("color"))
+                            c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-                    ArrayList<String> weeks = new ArrayList<>();
-                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
-                    result.get(result.size()-1).set_weeks(weeks);
+                    //Log.d("WEEKS CHECK: ", "" + (c.getColumnIndex("sWeek") + " - " + c.getColumnIndex("eWeek")));
+                    ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                    if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                        weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                        weeks.add(weeksToAdd);
+                        result.get(result.size()-2).set_weeks(weeks);
+                        result.remove(result.size()-1);
+
+                    }
+                    else {
+                        weeks.add(weeksToAdd);
+                        result.get(result.size() - 1).set_weeks(weeks);
+                    }
+
+//                    weeks.add(weeksToAdd);
+//                    result.get(result.size()-1).set_weeks(weeks);
+
+//                    ArrayList<String> weeks = new ArrayList<>();
+//                    weeks.add(c.getString(c.getColumnIndex("sWeek")) + "-" + c.getString(c.getColumnIndex("eWeek")));
+//                    result.get(result.size()-1).set_weeks(weeks);
                     //Log.v("TESTING 2 PARAM ", "sWk: " + (c.getString(c.getColumnIndex("sWeek")))+ "-" + c.getString(c.getColumnIndex("eWeek")));
                 }
 
@@ -994,19 +1109,34 @@ for (int i=0; i< newModule.size(); i++){
             do
             {
                 result.add(new Module(
-                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                        c.getString(c.getColumnIndex("moduleCode")),
-                        c.getString(c.getColumnIndex("startTime")),
-                        c.getString(c.getColumnIndex("endTime")),
-                        c.getString(c.getColumnIndex("room")),
-                        c.getString(c.getColumnIndex("lecturer")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                        c.getString(c.getColumnIndex("groupName")),
-                        c.getString(c.getColumnIndex("type"))
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                        c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                        c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                        c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                        c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                        c.getString(c.getColumnIndex(COLUMN_TYPE))
                 ));
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                result.get(result.size()-1).set_weeks(weeks);
+                ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                Pair weeksToAdd;
+                weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                    weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                    weeks.add(weeksToAdd);
+                    result.get(result.size()-2).set_weeks(weeks);
+                    result.remove(result.size()-1);
+
+                }
+                else {
+                    weeks.add(weeksToAdd);
+                    result.get(result.size() - 1).set_weeks(weeks);
+                }
+
+
+//                weeks.add(weeksToAdd);
+//                result.get(result.size()-1).set_weeks(weeks);
             }
             while (c.moveToNext());
         }
@@ -1051,21 +1181,39 @@ for (int i=0; i< newModule.size(); i++){
             do
             {
                 result.add(new Module(
-                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                        c.getString(c.getColumnIndex("moduleCode")),
-                        c.getString(c.getColumnIndex("startTime")),
-                        c.getString(c.getColumnIndex("endTime")),
-                        c.getString(c.getColumnIndex("room")),
-                        c.getString(c.getColumnIndex("lecturer")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                        c.getString(c.getColumnIndex("groupName")),
-                        c.getString(c.getColumnIndex("type"))
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                        c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                        c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                        c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                        c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                        c.getString(c.getColumnIndex(COLUMN_TYPE))
                 ));
 
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                result.get(result.size()-1).set_weeks(weeks);
-                //Log.v("TESTING WEEKS: ", " " + (c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek"))));
+                ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+                Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                    weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                    weeks.add(weeksToAdd);
+                    result.get(result.size()-2).set_weeks(weeks);
+                    result.remove(result.size()-1);
+
+                }
+                else {
+                    weeks.add(weeksToAdd);
+                    result.get(result.size() - 1).set_weeks(weeks);
+                }
+
+
+//                weeks.add(weeksToAdd);
+//                result.get(result.size()-1).set_weeks(weeks);
+
+//                ArrayList<String> weeks = new ArrayList<>();
+//                weeks.add(c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK)));
+//                result.get(result.size()-1).set_weeks(weeks);
+                //Log.v("TESTING WEEKS: ", " " + (c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
 
             }
             while (c.moveToNext());
@@ -1095,6 +1243,7 @@ for (int i=0; i< newModule.size(); i++){
 
     //get all from Module Table
     public ArrayList<Module> getAllFromModuleTable(String moduleCode){
+
         ArrayList<Module> result = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_MODULE + " JOIN " + TABLE_CLASS_WEEKS
                 + " USING (" + COLUMN_ID_TABLE_POINTER + ")"
@@ -1105,22 +1254,41 @@ for (int i=0; i< newModule.size(); i++){
         try {
             c = db.rawQuery(query, null);
             c.moveToFirst();
-            do
-            {
-                result.add(new Module(
-                        Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer"))),
-                        c.getString(c.getColumnIndex("moduleCode")),
-                        c.getString(c.getColumnIndex("startTime")),
-                        c.getString(c.getColumnIndex("endTime")),
-                        c.getString(c.getColumnIndex("room")),
-                        c.getString(c.getColumnIndex("lecturer")),
-                        Integer.parseInt(c.getString(c.getColumnIndex("day"))),
-                        c.getString(c.getColumnIndex("groupName")),
-                        c.getString(c.getColumnIndex("type"))
-                ));
-                ArrayList<String> weeks = new ArrayList<>();
-                weeks.add(c.getString(c.getColumnIndex("startWeek")) + "-" + c.getString(c.getColumnIndex("endWeek")));
-                result.get(result.size()-1).set_weeks(weeks);
+            do {
+
+                    result.add(new Module(
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                            c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                            c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                            c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                            c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                            c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                            Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                            c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                            c.getString(c.getColumnIndex(COLUMN_TYPE))
+                    ));
+
+                ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+               //Log.d("TESING Module read: ", (c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)) + "-" + c.getString(c.getColumnIndex(COLUMN_LECTURER))));
+
+                Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+
+                if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
+                    weeks.add(result.get(result.size()-2).get_weeks().get(0));
+                    weeks.add(weeksToAdd);
+                    result.get(result.size()-2).set_weeks(weeks);
+                    result.remove(result.size()-1);
+
+                }
+                else {
+                    weeks.add(weeksToAdd);
+                    result.get(result.size() - 1).set_weeks(weeks);
+                }
+                //Log.d("TESING Module object: ", (result.get(result.size() - 1).get_ModuleCode()) + ": " + (result.get(result.size() - 1).get_startTime()) + "-" + (result.get(result.size() - 1).get_endTime()));
+//
+//                ArrayList<String> weeks = new ArrayList<>();
+//                weeks.add(c.getString(c.getColumnIndex(COLUMN_WEEK_START)) + "-" + c.getString(c.getColumnIndex(COLUMN_END_WEEK)));
+//                result.get(result.size()-1).set_weeks(weeks);
             }
             while (c.moveToNext());
         }
@@ -1154,7 +1322,51 @@ for (int i=0; i< newModule.size(); i++){
         db.close();
     }
 
+    //TODO test
+    public boolean updateStudentTimetable(StudentTimetable entry){
+        SQLiteDatabase db = getWritableDatabase();
+        String whereClause = COLUMN_ID_TABLE_POINTER + " = " + entry.get_idTablePointer();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
+        values.put(COLUMN_MODULE_CODE, entry.get_modulePointer());
+        values.put(COLUMN_START_TIME, entry.get_modulePointer());
+        values.put(COLUMN_DAY, entry.get_modulePointer());
+        values.put(COLUMN_END_TIME, entry.get_modulePointer());
+        values.put(COLUMN_STUDENT_ID, entry.get_modulePointer());
+        values.put(COLUMN_NOTES, entry.get_modulePointer());
+        values.put(COLUMN_GROUP_NAME, entry.get_modulePointer());
+        values.put(COLUMN_TYPE, entry.get_modulePointer());
+        values.put(COLUMN_TITLE, entry.get_modulePointer());
+        values.put(COLUMN_LECTURER, entry.get_modulePointer());
+        values.put(COLUMN_ROOM, entry.get_modulePointer());
+        values.put(COLUMN_COLOR, entry.get_modulePointer());
 
+        int id = db.update(TABLE_STUDENT_TIMETABLE, values, whereClause, null);
+        db.close();
+        return id == 1;
+
+    }
+    /*
+    take studentTimetable object
+    update previous entry on UID
+    if atribs other than color/note changed then remove module pointer
+     if only color/note changed then just change those fields
+    */
+
+
+    //TODO TEST
+    //take studentTimetable object
+    // delete on UID
+    public boolean deleteStudentTimetableEntry(StudentTimetable entry){
+        SQLiteDatabase db = getWritableDatabase();
+        String whereClause = COLUMN_ID_TABLE_POINTER + " = " + entry.get_idTablePointer();
+        int id = db.delete(TABLE_STUDENT_TIMETABLE, whereClause, null);
+        db.close();
+        return id == 1;
+    }
+
+    //TODO delete user from users table and all their entries on studentTimetable.
+    //take users from getUsers delete/Trigger
 
     //Delete a row from moduleTimetable
     public void  deleteModuleEntryFromID(int IDTablePointer){
@@ -1224,7 +1436,7 @@ for (int i=0; i< newModule.size(); i++){
         try {
             c = db.rawQuery(query, null);
             c.moveToFirst();
-            result = Integer.parseInt(c.getString(c.getColumnIndex("idTablePointer")));
+            result = Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER)));
         }
         catch (SQLiteException e)
         {

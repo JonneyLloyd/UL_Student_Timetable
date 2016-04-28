@@ -1,5 +1,7 @@
 package ie.gavin.ulstudenttimetable.data;
 
+import android.util.Pair;
+
 import java.util.ArrayList;
 
 public class StudentTimetable {
@@ -17,7 +19,7 @@ public class StudentTimetable {
     private String _lecturer;
     private String _room;
     private int _color;
-    private ArrayList<String> _weeks;
+    private ArrayList<Pair<Integer,Integer>> _weeks;
 
     public StudentTimetable() {
     }
@@ -99,7 +101,7 @@ public class StudentTimetable {
         return _color;
     }
 
-    public ArrayList<String> get_weeks() {
+    public ArrayList<Pair<Integer,Integer>> get_weeks() {
         return _weeks;
     }
 
@@ -159,7 +161,7 @@ public class StudentTimetable {
         this._color = _color;
     }
 
-    public void set_weeks(ArrayList<String> _weeks) {
+    public void set_weeks(ArrayList<Pair<Integer,Integer>> _weeks) {
         this._weeks = _weeks;
     }
 }

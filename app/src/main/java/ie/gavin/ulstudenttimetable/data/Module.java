@@ -1,5 +1,7 @@
 package ie.gavin.ulstudenttimetable.data;
 
+import android.util.Pair;
+
 import java.util.ArrayList;
 
 public class Module implements Comparable <Module> {
@@ -13,7 +15,7 @@ public class Module implements Comparable <Module> {
     private int _day;//int 0-6
     private String _groupName;
     private String _type;
-    private ArrayList<String> _weeks;
+    private ArrayList<Pair<Integer,Integer>> _weeks;
 
     public Module() {
 
@@ -31,7 +33,7 @@ public class Module implements Comparable <Module> {
         this._type = _type;
     }
 
-    public ArrayList<String> get_weeks() {
+    public ArrayList<Pair<Integer, Integer>> get_weeks() {
         return _weeks;
     }
 
@@ -107,7 +109,7 @@ public class Module implements Comparable <Module> {
         this._type = _type;
     }
 
-    public void set_weeks(ArrayList<String> _weeks) {
+    public void set_weeks(ArrayList<Pair<Integer,Integer>> _weeks) {
         this._weeks = _weeks;
     }
 
