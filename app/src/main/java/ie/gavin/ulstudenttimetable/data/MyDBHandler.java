@@ -493,22 +493,26 @@ for (int i=0; i< newModule.size(); i++){
     }
 
     //add or remove a module on studentTable
-    public void addOrRemoveModuleFromTimetable(ArrayList<Module> module, int studentID, int flag){
+    public void addOrRemoveModuleFromStudentTimetable(ArrayList<Integer> moduleId, int studentID, int flag){
         int UID = 0;
         int modulePointer = 0;
-        int color = Color.parseColor("#FF0000");
+        int color = Color.parseColor("#FF0000");    // TODO - load same?
         StudentTimetable tempStudent;
         if (flag == ADD) {
-            for (int i = 0; i < module.size(); i++) {
-                UID = module.get(i).get_idTablePointer();
+            for (int i = 0; i < moduleId.size(); i++) {
+                UID = moduleId.get(i);
                 tempStudent = new StudentTimetable(0, null, UID, null, 0, null, studentID, null, null, null, null, null, null, color);
-                tempStudent.set_weeks(module.get(i).get_weeks());
+
+//                Module moduleEvent = getModuleFromID(UID);
+//                tempStudent.set_weeks(moduleEvent.get_weeks()); // needed? should inherit?
+
+//                tempStudent.set_weeks(moduleId.get(i).get_weeks()); // needed? should inherit?
                 addToStudentTimetable(tempStudent);
             }
         }
-        else {
-            for (int i = 0; i < module.size(); i++) {
-                modulePointer = module.get(i).get_idTablePointer();
+        else if (flag == DELETE) {
+            for (int i = 0; i < moduleId.size(); i++) {
+                modulePointer = moduleId.get(i);
                 deleteModuleFromStudentTimetable(modulePointer, studentID);
             }
         }
