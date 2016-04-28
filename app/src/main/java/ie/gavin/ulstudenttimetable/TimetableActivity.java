@@ -29,8 +29,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ie.gavin.ulstudenttimetable.calendar.CalendarEvent;
@@ -50,12 +50,16 @@ public class TimetableActivity extends AppCompatActivity
     private CalendarView cv;
     ArrayList<CalendarEvent> events = new ArrayList<>();
     HashMap<Integer, String> users = new HashMap<>();
+    private ArrayList<Week> weekDetails = new ArrayList<>();
 
     // TODO load defaults from shared prefs
     private int userId;         // load primary user
-    private int puid;           // stores previous id
-    private int weekId;         // load the curent week
     private int daysVisible;    // load previous number of days visible
+
+    private int puid;           // stores previous id
+    private int weekId;         // the viewed week
+    private int currentWeekId;  // the current week
+    private Date weekStartDate;
 
     private final int REQUEST_CODE_ADD_TIMETABLE = 100;
     MyDBHandler dbHandler;
@@ -67,6 +71,7 @@ public class TimetableActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        dbHandler = MyDBHandler.getInstance(getApplicationContext());
         loadPreferences();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -95,9 +100,11 @@ public class TimetableActivity extends AppCompatActivity
             addUser();
         }
 
+        initCalendarView();
         loadNavigationViewUsers();
         loadActionbarWeeks();
-        loadTimetable();
+//        loadTimetable();
+        cv.focusCalendar();
 
         com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -116,22 +123,28 @@ public class TimetableActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (cv.isInEditMode()) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Module editor")
-                    .setMessage("Are you sure you want to exit?\nYour changes won't be saved")
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue
-                            cv.setEditMode(false);
-                            loadTimetable();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // do nothing
-                        }
-                    })
-                    .show();
+            if (!moduleChooserAdd.isEmpty() || !moduleChooserRemove.isEmpty()) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Module editor")
+                        .setMessage("Are you sure you want to exit?\nYour changes won't be saved")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // continue
+                                cv.setEditMode(false);
+                                loadTimetable();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                                return;
+                            }
+                        })
+                        .show();
+            } else {
+                cv.setEditMode(false);
+                loadTimetable();
+            }
         } else {
             super.onBackPressed();
         }
@@ -159,6 +172,7 @@ public class TimetableActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_now) {
+            weekSpinner.setSelection(currentWeekId - 1);    // returns to the current week if on a different week
             cv.focusCalendar();
             return true;
         } else if (id == R.id.action_cancel) {
@@ -257,7 +271,6 @@ public class TimetableActivity extends AppCompatActivity
         String userName = "";
         navMenu = navigationView.getMenu();
 
-        dbHandler = MyDBHandler.getInstance(getApplicationContext());
         users = dbHandler.getUsers();
 
         for (Map.Entry<Integer, String> user : users.entrySet()) {
@@ -296,18 +309,24 @@ public class TimetableActivity extends AppCompatActivity
         // Spinner click listener
         weekSpinner.setOnItemSelectedListener(this);
 
-        // TODO load from DB
-        List<Week> weekDetails =  MyDBHandler.getInstance(getApplicationContext()).getWeekDetails();
-        // Spinner Drop down elements
-//        List<String> categories = new ArrayList<String>();
-//        categories.add("Week 1"); categories.add("Week 2"); categories.add("Week 3"); categories.add("Week 4"); categories.add("Week 5"); categories.add("Week 6"); categories.add("Week 7"); categories.add("Week 8"); categories.add("Easter"); categories.add("Week 9"); categories.add("Week 10"); categories.add("Week 11"); categories.add("Week 12"); categories.add("Study Week"); categories.add("Exam Week");
+        weekDetails =  dbHandler.getWeekDetails();
+
+        // Get the current weekId
+        for (int i = weekDetails.size()-1; i >= 0; i--) {
+            // Get the first date before the current week start date
+            if (weekStartDate.compareTo(weekDetails.get(i).get_weekStart()) >= 0) {
+                weekId = weekDetails.get(i).get_week();
+                currentWeekId = weekId;
+                break;
+            }
+        }
 
         // Creating adapter for spinner
         ArrayAdapter<Week> dataAdapter = new ArrayAdapter<Week>(this, R.layout.toolbar_spinner_item_actionbar, weekDetails);
         // Drop down layout style
         dataAdapter.setDropDownViewResource(R.layout.toolbar_spinner_item_dropdown);
         weekSpinner.setAdapter(dataAdapter);
-        weekSpinner.setSelection(weekId);
+        weekSpinner.setSelection(weekId - 1);
 
     }
 
@@ -317,6 +336,7 @@ public class TimetableActivity extends AppCompatActivity
         Week item = (Week) parent.getItemAtPosition(position);
 
         weekId = item.get_week();
+        weekStartDate = item.get_weekStart();
 
         // Showing selected spinner item
         Toast.makeText(parent.getContext(), "Selected: " + item + ": " + item.get_weekStart() + " -> " + weekId, Toast.LENGTH_LONG).show();
@@ -344,6 +364,16 @@ public class TimetableActivity extends AppCompatActivity
         }
     }
 
+    // day 1-7
+    public Calendar getEventDateTime(Date firstDayOfWeek, int dayOfWeek, int hour, int minute) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(firstDayOfWeek);
+        cal.set(Calendar.DAY_OF_WEEK, cal.get(Calendar.DAY_OF_WEEK) + dayOfWeek - 1);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+        return cal;
+    }
+
     private ArrayList<Integer> moduleChooserRemove = new ArrayList<>();
     private ArrayList<Integer> moduleChooserAdd = new ArrayList<>();
 
@@ -355,21 +385,22 @@ public class TimetableActivity extends AppCompatActivity
         Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
 
         ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode);
-        Log.v("match", ""+moduleTimetables.size());
+//        ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode, weekId);
+//        Log.v("match", ""+moduleTimetables.size());
 
         moduleChooserRemove.clear();
         moduleChooserAdd.clear();
 //        events.clear();
         ArrayList<CalendarEvent> moduleEvents = new ArrayList<CalendarEvent>();
         for (Module moduleTimetable : moduleTimetables) {
+//            Log.v("strange", moduleTimetable.get_ModuleCode()+" "+moduleTimetable.get_startTime()+" "+moduleTimetable.get_endTime()+" "+moduleTimetable.get_groupName());
 
             String [] startTime = moduleTimetable.get_startTime().split(":");
             String [] endTime = moduleTimetable.get_endTime().split(":");
             int day = moduleTimetable.get_day();
-            Calendar start = Calendar.getInstance();
-            Calendar end = Calendar.getInstance();
-            start.set(2016, 4-1, 18 + day - 1, Integer.parseInt(startTime[0]), Integer.parseInt(startTime[1]));
-            end.set(2016, 4 - 1, 18 + day - 1, Integer.parseInt(endTime[0]), Integer.parseInt(endTime[1]));
+
+            Calendar start = getEventDateTime(weekStartDate, day, Integer.parseInt(startTime[0]), Integer.parseInt(startTime[1]));
+            Calendar end = getEventDateTime(weekStartDate, day, Integer.parseInt(endTime[0]), Integer.parseInt(endTime[1]));
 
             CalendarEvent moduleEvent = new CalendarEvent(
                     start,
@@ -421,8 +452,9 @@ public class TimetableActivity extends AppCompatActivity
     }
 
     public void loadTimetable() {   // TODO fix double load
+        cv.setEditMode(false);
+        invalidateOptionsMenu();
         Toast.makeText(TimetableActivity.this, "loading: "+userId, Toast.LENGTH_SHORT).show();
-        dbHandler = MyDBHandler.getInstance(this.getApplicationContext());
         ArrayList<StudentTimetable> studentTimetables = dbHandler.getAllFromStudentTimetable(userId, weekId);
 
         events.clear();
@@ -430,11 +462,10 @@ public class TimetableActivity extends AppCompatActivity
 
             String [] startTime = studentTimetable.get_start_time().split(":");
             String [] endTime = studentTimetable.get_endTime().split(":");
-            int day = studentTimetable.get_day();
-            Calendar start = Calendar.getInstance();
-            Calendar end = Calendar.getInstance();
-            start.set(2016, 4-1, 18 + day - 1, Integer.parseInt(startTime[0]), Integer.parseInt(startTime[1]));
-            end.set(2016, 4 - 1, 18 + day - 1, Integer.parseInt(endTime[0]), Integer.parseInt(endTime[1]));
+            int day = studentTimetable.get_day();   // 1-7
+
+            Calendar start = getEventDateTime(weekStartDate, day, Integer.parseInt(startTime[0]), Integer.parseInt(startTime[1]));
+            Calendar end = getEventDateTime(weekStartDate, day, Integer.parseInt(endTime[0]), Integer.parseInt(endTime[1]));
 
             events.add(new CalendarEvent(
                     start,
@@ -446,10 +477,6 @@ public class TimetableActivity extends AppCompatActivity
             ));
 
         }
-
-        cv = ((CalendarView)findViewById(R.id.calendar_view));
-        cv.setEditMode(false);
-        invalidateOptionsMenu();
 
         // Add callbacks
         cv.setEventClickListener(new CalendarView.EventClickListener() {
@@ -465,6 +492,16 @@ public class TimetableActivity extends AppCompatActivity
             }
         });
 
+        Calendar weekStart = Calendar.getInstance();
+        weekStart.setTime(weekStartDate);
+        cv.setweekStartDate(weekStart);
+        cv.updateCalendar(events);
+    }
+
+    public void initCalendarView() {
+
+        cv = ((CalendarView)findViewById(R.id.calendar_view));
+
         if (daysVisible == 5)
             navigationView.setCheckedItem(R.id.nav_five_day);
         else if (daysVisible == 3)
@@ -472,11 +509,13 @@ public class TimetableActivity extends AppCompatActivity
         else if (daysVisible == 1)
             navigationView.setCheckedItem(R.id.nav_one_day);
         cv.setVisibleDays(daysVisible);
+
         Calendar weekStart = Calendar.getInstance();
-//        weekStart.set(2016, 4-1, 18);
-        weekStart.set(Calendar.DAY_OF_WEEK, weekStart.getFirstDayOfWeek());     // TODO take week No. into account
+        weekStart.set(Calendar.DAY_OF_WEEK, weekStart.getFirstDayOfWeek());     // Default to start of current week
         cv.setweekStartDate(weekStart);
-        cv.updateCalendar(events);
+
+        weekStartDate = weekStart.getTime();
+
     }
 
     public void openEventDialog(int eventId, boolean editable) {
@@ -547,7 +586,6 @@ public class TimetableActivity extends AppCompatActivity
 //        int defaultValue = getResources().getInteger(R.string.saved_high_score_default);
         daysVisible = sharedPref.getInt("daysVisible", 3);
         userId = sharedPref.getInt("userId", 0);
-        weekId = 10;    // TODO DB
     }
 
     public void savePreferences() {

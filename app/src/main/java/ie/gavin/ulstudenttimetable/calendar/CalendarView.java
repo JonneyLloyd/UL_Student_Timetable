@@ -236,7 +236,7 @@ public class CalendarView extends LinearLayout {
         boolean focus = true;
         int currentPage = 0;
         if (this.events != null) {
-            focus = false;  // keep at the same position
+            focus = false;  // keep at the same position (avoids flick if user changes week or enters edit mode) i.e. focus only at first run
             currentPage = contentColumnViewPager.getCurrentItem();
         }
         this.events = events;
@@ -310,7 +310,10 @@ public class CalendarView extends LinearLayout {
         });
 
         if (focus) focusCalendar();
-        else contentColumnViewPager.setCurrentItem(currentPage);
+        else {
+            headerColumnViewPager.setCurrentItem(currentPage);
+            contentColumnViewPager.setCurrentItem(currentPage);
+        }
     }
 
     public void focusCalendar() {
