@@ -361,7 +361,6 @@ public class GetStudentData {
                     tempStudent = new StudentTimetable(0, null, UID, null, 0, null, Integer.parseInt(studentID),  null, null, null, null, null,  null, color);
                     dbHandler.addToStudentTimetable(tempStudent);
 
-
                 }
 
                 //testing Student database contents
@@ -384,6 +383,7 @@ public class GetStudentData {
 //                    }
 
                 }
+
 
             }
 
