@@ -166,6 +166,15 @@ public class TimetableActivity extends AppCompatActivity
             loadTimetable();
             return true;
         } else if (id == R.id.action_save) {
+
+            Log.v("choose add", "---------------");
+            for (Integer add : moduleChooserAdd)
+                Log.v("choose", ""+add);
+
+            Log.v("choose remove", "---------------");
+            for (Integer remove : moduleChooserRemove)
+                Log.v("choose", ""+remove);
+
             // TODO
             return true;
         }
@@ -332,6 +341,9 @@ public class TimetableActivity extends AppCompatActivity
         }
     }
 
+    private ArrayList<Integer> moduleChooserRemove = new ArrayList<>();
+    private ArrayList<Integer> moduleChooserAdd = new ArrayList<>();
+
     public void loadTimetableModuleChooser(int eventId) {
         cv.setEditMode(true);
         invalidateOptionsMenu();
@@ -342,6 +354,8 @@ public class TimetableActivity extends AppCompatActivity
         ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode);
         Log.v("match", ""+moduleTimetables.size());
 
+        moduleChooserRemove.clear();
+        moduleChooserAdd.clear();
 //        events.clear();
         ArrayList<CalendarEvent> moduleEvents = new ArrayList<CalendarEvent>();
         for (Module moduleTimetable : moduleTimetables) {
@@ -359,9 +373,9 @@ public class TimetableActivity extends AppCompatActivity
                     end,
                     formatEvent(moduleTimetable),
 //                    studentTimetable.get_color(),   // keep the original color
-                    Color.parseColor("#882222"),   // keep the original color
-                    0,
-                    moduleTimetable.get_idTablePointer()
+                    Color.parseColor("#882222"),   // TODO just for testing
+                    moduleTimetable.get_idTablePointer(),
+                    moduleTimetable.get_idTablePointer()    // modules don't have a parent, just for comparing with children
                 );
 
             if (events.contains(moduleEvent)) {
@@ -376,8 +390,28 @@ public class TimetableActivity extends AppCompatActivity
         cv.setEditorEventClickListener(new CalendarView.EditorEventClickListener() {
             @Override
             public void onEditorEventClick(int eventId, boolean checked) {
-                if (checked) Toast.makeText(TimetableActivity.this, "add/keep", Toast.LENGTH_SHORT).show();
-                else Toast.makeText(TimetableActivity.this, "remove", Toast.LENGTH_SHORT).show();
+                // Toggles whether we are taking the class or not. Stores the changes in a list
+                // but if the user reverts the change, the change is no longer part of either list
+                if (checked) {
+                    if (moduleChooserRemove.contains(eventId) /*in remove list*/) {
+                        // remove from remove list
+                        moduleChooserRemove.remove(new Integer(eventId));
+                    } else {
+                        // add to add list
+                        moduleChooserAdd.add(eventId);
+                    }
+
+                } else {
+                    if (moduleChooserAdd.contains(eventId) /*in add list*/) {
+                        // remove from add list
+                        moduleChooserAdd.remove(new Integer(eventId));
+                    } else {
+                        // add to remove list
+                        moduleChooserRemove.add(eventId);
+                    }
+
+                }
+
             }
         });
         cv.updateCalendar(moduleEvents);
