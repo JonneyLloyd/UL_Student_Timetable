@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="130dp"
+    android:layout_width="wrap_content"
+    android:minWidth="130dp"
     android:layout_height="match_parent"
     android:drawableRight="@drawable/ic_expand_more"
     android:paddingLeft="16dp"
