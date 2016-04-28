@@ -50,7 +50,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
                 return true;
             }
         });
-        toolbar.inflateMenu(R.menu.edit_event);
+        toolbar.inflateMenu(R.menu.save_cancel);
         toolbar.setTitle(studentTimetable.get_moduleCode());
 
         return view;
