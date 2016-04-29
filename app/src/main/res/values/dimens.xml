@@ -11,4 +11,7 @@
     <dimen name="event_margin_right">2dp</dimen>
 
     <dimen name="time_indicator_height">12dp</dimen>
+
+
+    <bool name="large_layout">false</bool>
 </resources>
