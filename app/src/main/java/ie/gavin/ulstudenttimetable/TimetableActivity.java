@@ -175,16 +175,9 @@ public class TimetableActivity extends AppCompatActivity
             cv.focusCalendar();
             return true;
         } else if (id == R.id.action_delete) {
-            dbHandler.deleteUser(userId);
-            if (users.size() > 0) {
-                Map.Entry<Integer, String> entry = users.entrySet().iterator().next();
-                userId = entry.getKey();
-                loadTimetable();
-            } else {
-                userId = 0;
-                addUser();
-            }
+            removeUser();
             return true;
+
         } else if (id == R.id.action_cancel) {
             cv.setEditMode(false);
             loadTimetable();
@@ -248,6 +241,23 @@ public class TimetableActivity extends AppCompatActivity
         return true;
     }
 
+    public void removeUser() {
+        dbHandler.deleteUser(userId);
+        users.remove(userId);
+        navigationView.getMenu().removeItem(userId);
+        if (users.size() > 0) {
+            // default to next user
+            Map.Entry<Integer, String> entry = users.entrySet().iterator().next();
+            userId = entry.getKey();
+            setNavigationViewUser(userId, entry.getValue());
+            loadTimetable();
+        } else {
+            userId = 0;
+            addUser();
+        }
+        savePreferences();
+    }
+
     public void addUser() {
         Intent intent = new Intent(getApplicationContext(), AddStudentTimetableActivity.class);
         intent.putExtra("resultCode", REQUEST_CODE_ADD_TIMETABLE);
@@ -259,18 +269,20 @@ public class TimetableActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == REQUEST_CODE_ADD_TIMETABLE){
+        if (resultCode == REQUEST_CODE_ADD_TIMETABLE) {
             String studentId = (String) data.getExtras().get("studentId");
             userId = Integer.parseInt(studentId);
             String studentName = (String) data.getExtras().getString("studentName", "New user");
 
 //            Toast.makeText(TimetableActivity.this, studentName + " " + userId + " was added!", Toast.LENGTH_SHORT).show();
 
+            users.put(userId, studentName);
             addNavigationViewUser(userId, studentName);
             setNavigationViewUser(userId, studentName);
             loadTimetable();
             loadActionbarWeeks();
-        } else {
+            savePreferences();
+        } else if (users.size() == 0) {
             finish();       // close the app if the user does not add their timetable
         }
 
@@ -305,7 +317,8 @@ public class TimetableActivity extends AppCompatActivity
 
     public void setNavigationViewUser(int userId, String userName) {
         this.userId = userId;
-        navMenu.findItem(puid).setChecked(false);
+        if (navMenu.findItem(puid) != null)
+            navMenu.findItem(puid).setChecked(false);
         navMenu.findItem(userId).setChecked(true);
         ((TextView) navHeader.findViewById(R.id.user_name)).setText(userName);
         ((TextView) navHeader.findViewById(R.id.user_id)).setText("" + userId);
@@ -568,6 +581,7 @@ public class TimetableActivity extends AppCompatActivity
 
             case EventDialogFragment.SAVE_ACTION:
                 Toast.makeText(this, "s, " + studentTimetable.get_moduleCode(), Toast.LENGTH_SHORT).show();
+                loadTimetable();
                 // TODO save to DB
                 break;
 
