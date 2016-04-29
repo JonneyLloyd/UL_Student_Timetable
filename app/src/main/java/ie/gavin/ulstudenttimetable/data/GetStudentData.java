@@ -2,7 +2,6 @@ package ie.gavin.ulstudenttimetable.data;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -16,6 +15,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import ie.gavin.ulstudenttimetable.R;
 
 /**
  * Created by Oliver on 05/03/2016.
@@ -157,6 +158,8 @@ public class GetStudentData {
 
     public void processData() {
 
+        int[] colors = context.getResources().getIntArray(R.array.pickerColors);
+        HashMap<String, Integer> moduleColors = new HashMap<String, Integer>();
 
 
         Module module;
@@ -234,6 +237,7 @@ public class GetStudentData {
             for (Map.Entry<String, ArrayList<ArrayList<String>>> entry : moduleTimetables.entrySet()) {
                 String moduleCode = entry.getKey();
 
+                moduleColors.put(moduleCode, colors[(moduleColors.size())]);
 
                 // The data for ONE module
                 ArrayList<ArrayList<String>> moduleTimetable = entry.getValue();
@@ -354,7 +358,7 @@ public class GetStudentData {
                     group =  moduleEvent.get(5);
                     room =  moduleEvent.get(6);
                     weeks =  moduleEvent.get(7);
-                    color = Color.parseColor("#888888");
+                    color = moduleColors.get(moduleCode);
                     lecturer = null;
                     notes = null;
                     //Log.v(LOG_TAG, "day: " + day);
