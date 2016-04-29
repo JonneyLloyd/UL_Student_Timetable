@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -86,6 +87,8 @@ public class EventEditDialogFragment extends EventDialogFragment {
             public void onColorSelected(int color) {
                 colorPickerPalette.drawPalette(colors, color);
                 toolbar.setBackgroundColor(color);
+                studentTimetable.set_color(color);
+
             }
         });
         colorPickerPalette.drawPalette(colors, colors[0]);
@@ -94,7 +97,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
         c.addView(colorPickerPalette);
 
         /* Populate days spinner */
-        ArrayAdapter<String> dayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" });
+        final ArrayAdapter<String> dayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" });
         dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         daySpinner.setAdapter(dayAdapter);
         daySpinner.setSelection(studentTimetable.get_day() - 1);
@@ -110,6 +113,10 @@ public class EventEditDialogFragment extends EventDialogFragment {
         startTimeTextView.setText(studentTimetable.get_start_time());
         endTimeTextView.setText(studentTimetable.get_endTime());
         weekTextView.setText("Weeks: " + studentTimetable.get_weeksFormattedList());
+        Log.v("TESTING sTIMES", ":" + studentTimetable.get_start_time());
+        Log.v("TESTING eTIMES", ":" +studentTimetable.get_endTime());
+
+
 
         /* Load text values */
         moduleCodeEditTextView.setText(studentTimetable.get_moduleCode());
@@ -140,6 +147,27 @@ public class EventEditDialogFragment extends EventDialogFragment {
                     // Return to activity
                     closeEventDialogListener activity = (closeEventDialogListener) getActivity();
                     activity.onCloseEventDialog(SAVE_ACTION, studentTimetable);
+                    if(!studentTimetable.get_moduleCode().equals(moduleCodeEditTextView.getText().toString()) || !studentTimetable.get_start_time().equals(startTimeTextView.getText().toString())
+                            || !studentTimetable.get_endTime().equals(endTimeTextView.toString()) || studentTimetable.get_day() != daySpinner.getSelectedItemPosition()+1
+                            || !studentTimetable.get_type().equals(typeSpinner.toString()) || !studentTimetable.get_title().equals(titleEditTextView.getText().toString())
+                            || !studentTimetable.get_room().equals(locationEditTextView.getText().toString())){
+                        studentTimetable.set_modulePointer(0);
+                    }
+
+
+                    studentTimetable.set_start_time(startTimeTextView.getText().toString());
+                    studentTimetable.set_endTime(endTimeTextView.getText().toString());
+                    studentTimetable.set_moduleCode(moduleCodeEditTextView.getText().toString());
+                    studentTimetable.set_title(titleEditTextView.getText().toString());
+                    studentTimetable.set_type(typeSpinner.getSelectedItem().toString());
+                    //lecturer
+                    studentTimetable.set_room(locationEditTextView.getText().toString());
+                    studentTimetable.set_notes(notesEditTextView.getText().toString());
+
+//                    Log.v("Testing edit: ", "" + moduleCodeEditTextView.getText().toString());
+//                    Log.v("Testing edit: ", "" + startTimeTextView.getText().toString());
+//                    Log.v("Testing edit: ", "" + endTimeTextView.getText().toString());
+//                    Log.v("Testing edit: ", "" + typeSpinner.toString());
                     MyDBHandler dbHandler;
                     dbHandler = MyDBHandler.getInstance(getActivity());
                     dbHandler.updateStudentTimetable(studentTimetable);
@@ -207,6 +235,8 @@ public class EventEditDialogFragment extends EventDialogFragment {
                 String [] timeParts = time.split(":");
                 hour = Integer.parseInt(timeParts[0]);
                 minute = Integer.parseInt(timeParts[1]);
+//                Log.v("TESTING hTIMES", ":" +hour);
+//                Log.v("TESTING mTIMES", ":" +minute);
             }
 
             TimePickerDialog mTimePicker;

@@ -269,7 +269,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     // addToWeekDetails
     public void addToWeekDetails(int week, String weekLabel, Date weekCommencing){
         SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String weekStart = outFormat.format( weekCommencing );
+        String weekStart = outFormat.format(weekCommencing);
         Log.v("Datetestin", weekStart);
         SQLiteDatabase db = getWritableDatabase();
 
@@ -569,7 +569,7 @@ for (int i=0; i< newModule.size(); i++){
                         Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                         c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
                         Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER))),
-                        c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_START_TIME)),
                         Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
                         c.getString(c.getColumnIndex(COLUMN_END_TIME)),
                         Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_STUDENT_ID))),
@@ -993,7 +993,8 @@ for (int i=0; i< newModule.size(); i++){
                     }
                 }
 
-                else if (week >= Integer.parseInt(c.getString(c.getColumnIndex("sWeek")))
+                else if (!c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")
+                        && week >= Integer.parseInt(c.getString(c.getColumnIndex("sWeek")))
                     && week <= Integer.parseInt(c.getString(c.getColumnIndex("eWeek")))) {
 
                     result.add(new StudentTimetable(
@@ -1260,28 +1261,39 @@ for (int i=0; i< newModule.size(); i++){
         oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
         if (oldEntry == null)
             return false;
-        SQLiteDatabase db = getWritableDatabase();
 
+        SQLiteDatabase db = getWritableDatabase();
+        Log.v("Testing notes", "-" +entry.get_notes());
 
         String whereClause = COLUMN_ID_TABLE_POINTER + " = " + entry.get_idTablePointer();
         ContentValues values = new ContentValues();
         values.put(COLUMN_MODULE_POINTER, entry.get_modulePointer());
-        values.put(COLUMN_MODULE_CODE, entry.get_modulePointer());
-        values.put(COLUMN_START_TIME, entry.get_modulePointer());
-        values.put(COLUMN_DAY, entry.get_modulePointer());
-        values.put(COLUMN_END_TIME, entry.get_modulePointer());
-        values.put(COLUMN_STUDENT_ID, entry.get_modulePointer());
-        values.put(COLUMN_NOTES, entry.get_modulePointer());
-        values.put(COLUMN_GROUP_NAME, entry.get_modulePointer());
-        values.put(COLUMN_TYPE, entry.get_modulePointer());
-        values.put(COLUMN_TITLE, entry.get_modulePointer());
-        values.put(COLUMN_LECTURER, entry.get_modulePointer());
-        values.put(COLUMN_ROOM, entry.get_modulePointer());
-        values.put(COLUMN_COLOR, entry.get_modulePointer());
+        values.put(COLUMN_MODULE_CODE, entry.get_moduleCode());
+        values.put(COLUMN_START_TIME, entry.get_start_time());
+        values.put(COLUMN_DAY, entry.get_day());
+        values.put(COLUMN_END_TIME, entry.get_endTime());
+        values.put(COLUMN_STUDENT_ID, entry.get_studentID());
+        values.put(COLUMN_NOTES, entry.get_notes());
+        values.put(COLUMN_GROUP_NAME, entry.get_groupName());
+        values.put(COLUMN_TYPE, entry.get_type());
+        values.put(COLUMN_TITLE, entry.get_title());
+        values.put(COLUMN_LECTURER, entry.get_lecturer());
+        values.put(COLUMN_ROOM, entry.get_room());
+        values.put(COLUMN_COLOR, entry.get_color());
+
+        String query = "";
 
         int id = db.update(TABLE_STUDENT_TIMETABLE, values, whereClause, null);
         db.close();
         if(entry.get_modulePointer()!= 0)updateClassWeeksForStudent(entry);
+        else{
+            deleteAllClassWeeksOnUID(entry.get_idTablePointer());
+            for(int i = 0; i < entry.get_weeks().size(); i++){
+                int first = entry.get_weeks().get(i).first;
+                int second = entry.get_weeks().get(i).second;
+                addToClassWeekTable(first, second, entry.get_idTablePointer());
+            }
+        }
         return id == 1;
 
     }
@@ -1353,6 +1365,14 @@ for (int i=0; i< newModule.size(); i++){
     public void  deleteAllClassWeeks(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS + ";");
+        db.close();
+    }
+
+    public void  deleteAllClassWeeksOnUID(int UID){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS
+                + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + UID
+                + ";");
         db.close();
     }
 

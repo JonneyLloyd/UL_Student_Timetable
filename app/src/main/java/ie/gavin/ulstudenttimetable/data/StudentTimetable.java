@@ -193,7 +193,7 @@ public class StudentTimetable {
                     i++;
                     }
                 end = i;
-                Pair weeksToAdd = new Pair<Integer,Integer>(start,end);
+                Pair weeksToAdd = new Pair<Integer,Integer>(start+1,end);
                 weeks.add(weeksToAdd);
             }
             }
