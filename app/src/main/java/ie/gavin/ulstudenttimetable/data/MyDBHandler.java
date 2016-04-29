@@ -22,7 +22,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
     public static final int ADD = 1;
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     private static final String DATABASE_NAME = "ULtimetable.db";
     public static final String TABLE_MODULE = "module";
     public static final String TABLE_WEEK = "date";
@@ -89,13 +89,13 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         String query1 = "CREATE TABLE " + TABLE_MODULE + "(" +
                 COLUMN_ID_TABLE_POINTER + " INTEGER PRIMARY KEY, " +
-                COLUMN_MODULE_CODE + " VARCHAR(10), " +
+                COLUMN_MODULE_CODE + " VARCHAR(45), " +
                 COLUMN_START_TIME + " TIME, " +
                 COLUMN_END_TIME + " TIME, " +
-                COLUMN_ROOM + " VARCHAR(10), " +
-                COLUMN_LECTURER + " VARCHAR(10), " +
+                COLUMN_ROOM + " VARCHAR(45), " +
+                COLUMN_LECTURER + " VARCHAR(45), " +
                 COLUMN_DAY + " INT, " +
-                COLUMN_GROUP_NAME + " VARCHAR(5), " +
+                COLUMN_GROUP_NAME + " VARCHAR(45), " +
                 COLUMN_TYPE + " VARCHAR(45) " +
                 ");";
 
@@ -108,17 +108,17 @@ public class MyDBHandler extends SQLiteOpenHelper{
         String query3 = "CREATE TABLE " + TABLE_STUDENT_TIMETABLE + "(" +
                 COLUMN_ID_TABLE_POINTER + " INTEGER PRIMARY KEY, " +
                 COLUMN_MODULE_POINTER + " INTEGER, " +
-                COLUMN_MODULE_CODE + " VARCHAR(10), " +
+                COLUMN_MODULE_CODE + " VARCHAR(45), " +
                 COLUMN_START_TIME + " TIME, " +
                 COLUMN_DAY + " INTEGER, " +
                 COLUMN_END_TIME + " TIME, " +
                 COLUMN_STUDENT_ID + " INTEGER, " +
                 COLUMN_NOTES + " TEXT, " +
-                COLUMN_GROUP_NAME + " VARCHAR(5), " +
+                COLUMN_GROUP_NAME + " VARCHAR(45), " +
                 COLUMN_TYPE + " VARCHAR(45), " +
                 COLUMN_TITLE + " VARCHAR(45), " +
                 COLUMN_LECTURER + " VARCHAR(45), " +
-                COLUMN_ROOM + " VARCHAR(10), " +
+                COLUMN_ROOM + " VARCHAR(45), " +
                 COLUMN_COLOR + " INTEGER " +
                 ");";
 
@@ -134,7 +134,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 ");";
 
         String query6 = "CREATE TABLE " + TABLE_MODULE_NAMES + "(" +
-                COLUMN_MODULE_CODE + " VARCHAR(10) PRIMARY KEY, " +
+                COLUMN_MODULE_CODE + " VARCHAR(45) PRIMARY KEY, " +
                 COLUMN_MODULE_NAME + " VARCHAR(45) " +
                 ");";
 
