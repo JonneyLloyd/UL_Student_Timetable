@@ -15,6 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 import com.android.colorpicker.ColorPickerPalette;
 import com.android.colorpicker.ColorPickerSwatch;
 
@@ -146,6 +147,10 @@ public class EventEditDialogFragment extends EventDialogFragment {
                     // Return to activity
                     closeEventDialogListener activity = (closeEventDialogListener) getActivity();
                     activity.onCloseEventDialog(SAVE_ACTION, studentTimetable);
+                    MyDBHandler dbHandler;
+                    dbHandler = MyDBHandler.getInstance(getActivity());
+                    dbHandler.updateStudentTimetable(studentTimetable);
+
                     dismiss();
                     return true;
                 }

@@ -39,6 +39,7 @@ public class GetStudentData {
     private ArrayList<ArrayList<String>> weekDates = new ArrayList<>();
 
     MyDBHandler dbHandler;
+
     Module tempModule;
 
 
@@ -64,6 +65,13 @@ public class GetStudentData {
             // retry
             return;
         }
+        dbHandler = MyDBHandler.getInstance(this.context);
+        if (dbHandler.userExists(Integer.parseInt(studentId))){
+            broadcastStatus("Student ID already exists");
+            // retry
+            return;
+        }
+
 
         // TODO check if already exists
 
@@ -148,11 +156,7 @@ public class GetStudentData {
     }
 
     public void processData() {
-        dbHandler = MyDBHandler.getInstance(this.context);
-        dbHandler.deleteAllClassWeeks();
-        dbHandler.deleteAllUIDs();
-        dbHandler.deleteAllFromModule();
-        dbHandler.deleteAllFromStudent();
+
 
 
         Module module;

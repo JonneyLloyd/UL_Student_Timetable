@@ -829,6 +829,14 @@ for (int i=0; i< newModule.size(); i++){
         db.close();
     }
 
+    //user already exists?
+    public boolean userExists(int studentID){
+        HashMap<Integer, String> currentUsers = getUsers();
+        return currentUsers.containsKey(studentID);
+    }
+
+
+
     //get all studentTimetable users
     public HashMap<Integer, String> getUsers(){
         HashMap<Integer, String> result = new HashMap<>();
@@ -1495,7 +1503,7 @@ for (int i=0; i< newModule.size(); i++){
         int UID = entry.get_idTablePointer();
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_CLASS_WEEKS
-                + "WHERE " + COLUMN_ID_TABLE_POINTER + " = " + UID
+                + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + UID
                 + ";");
         db.close();
         for(int i = 0; i < entry.get_weeks().size(); i++){
