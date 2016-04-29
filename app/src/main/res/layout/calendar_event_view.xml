@@ -15,7 +15,9 @@
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="3dp"
-        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        android:ellipsize="end"
+        android:maxLines="2"
         android:textColor="@android:color/white"/>
 
 </ie.gavin.ulstudenttimetable.calendar.CalendarEventView>

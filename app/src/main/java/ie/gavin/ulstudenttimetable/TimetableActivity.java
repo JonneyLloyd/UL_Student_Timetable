@@ -374,10 +374,10 @@ public class TimetableActivity extends AppCompatActivity
     public String formatEvent(Object obj) {
         // TODO more + sortable
         if (obj instanceof StudentTimetable) {
-            return ((StudentTimetable) obj).get_moduleCode()
-                    + " " + ((StudentTimetable) obj).get_type()
+            return ((StudentTimetable) obj).get_type()
                     + " " + ((StudentTimetable) obj).get_groupName()
-                    + " " + ((StudentTimetable) obj).get_room();
+                    + " " + ((StudentTimetable) obj).get_room()
+                    + "\n" + ((StudentTimetable) obj).get_title();
         } else if (obj instanceof Module) {
             return ((Module) obj).get_type()
                     + " " + ((Module) obj).get_groupName()
