@@ -5,21 +5,22 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.HorizontalScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.android.colorpicker.ColorPickerPalette;
 import com.android.colorpicker.ColorPickerSwatch;
 
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import ie.gavin.ulstudenttimetable.data.MyDBHandler;
@@ -34,24 +35,35 @@ public class EventEditDialogFragment extends EventDialogFragment {
     private ArrayList<Week> weekDetails = new ArrayList<>();
     private String[] weeks;
     private boolean[] seletedWeeks;
-//    private EditText mEditText;
 
-    private TextView dayEditTextView;
+    private Spinner daySpinner;
     private TextView startTimeTextView;
     private TextView endTimeTextView;
-    private TextView weekEditTextView;
-//    private TextView moduleCodeTextView;
-//    private TextView titleTextView;
-//    private TextView typeTextView;
-//    private TextView locationTextView;
-//    private TextView weeksTextView;
-//    private TextView notesTextView;
+    private TextView weekTextView;
+    private TextView moduleCodeEditTextView;
+    private TextView titleEditTextView;
+    private Spinner typeSpinner;
+    private TextView locationEditTextView;
+    private TextView notesEditTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         studentTimetable = super.getStudentTimetable();
 
+        View view = inflater.inflate(R.layout.fragment_edit_event, container, false);
+
+        daySpinner = (Spinner) view.findViewById(R.id.daySpinner);
+        startTimeTextView = (TextView) view.findViewById(R.id.startTimeTextView);
+        endTimeTextView = (TextView) view.findViewById(R.id.endTimeTextView);
+        weekTextView = (TextView) view.findViewById(R.id.weekTextView);
+        moduleCodeEditTextView = (TextView) view.findViewById(R.id.moduleCodeEditTextView);
+        titleEditTextView = (TextView) view.findViewById(R.id.titleEditTextView);
+        typeSpinner = (Spinner) view.findViewById(R.id.typeSpinner);
+        locationEditTextView = (TextView) view.findViewById(R.id.locationEditTextView);
+        notesEditTextView = (TextView) view.findViewById(R.id.notesEditTextView);
+
+        /* Get data for week picker (labels/values) */
         weekDetails = MyDBHandler.getInstance(getActivity()).getWeekDetails();
         weeks = new String[weekDetails.size()];
         for (int i = 0; i < weekDetails.size(); i++)
@@ -63,11 +75,8 @@ public class EventEditDialogFragment extends EventDialogFragment {
                 seletedWeeks[i] = true;
         }
 
-        for (int i = 0; i < weekDetails.size(); i++)
-            Log.v("bool", ""+seletedWeeks[i]);
 
-        View view = inflater.inflate(R.layout.fragment_edit_event, container, false);
-
+        /* Create color picker */
         LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
         final ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater
                 .inflate(R.layout.color_picker, null);
@@ -84,49 +93,34 @@ public class EventEditDialogFragment extends EventDialogFragment {
         HorizontalScrollView c = (HorizontalScrollView) view.findViewById(R.id.paletteScrollView);
         c.addView(colorPickerPalette);
 
+        /* Populate days spinner */
+        ArrayAdapter<String> dayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" });
+        dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        daySpinner.setAdapter(dayAdapter);
+        daySpinner.setSelection(studentTimetable.get_day() - 1);
 
-//        int[] colors = getResources().getIntArray(R.array.myColors);
-//        ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
-//        colorPickerDialog.initialize(
-//                R.string.color_picker_default_title, colors, colors[0], 4, colors.length);
-//        colorPickerDialog.show(getFragmentManager(), "colorpicker");
+        /* Populate type spinner */
+        ArrayList<String> types = new ArrayList<String>(Arrays.asList(new String[]{"LEC", "LAB", "TUT", "Meeting", "Memo", "EXAM"}));
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, types);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
+        typeSpinner.setSelection(types.indexOf(studentTimetable.get_type()));
 
-
-        dayEditTextView = (TextView) view.findViewById(R.id.dayEditTextView);
-        startTimeTextView = (TextView) view.findViewById(R.id.startTimeTextView);
-        endTimeTextView = (TextView) view.findViewById(R.id.endTimeTextView);
-        weekEditTextView = (TextView) view.findViewById(R.id.weekEditTextView);
-//        moduleCodeTextView = (TextView) view.findViewById(R.id.moduleCodeTextView);
-//        titleTextView = (TextView) view.findViewById(R.id.titleTextView);
-//        typeTextView = (TextView) view.findViewById(R.id.typeTextView);
-//        locationTextView = (TextView) view.findViewById(R.id.locationTextView);
-//        weeksTextView = (TextView) view.findViewById(R.id.weeksTextView);
-//        notesTextView = (TextView) view.findViewById(R.id.notesTextView);
-
-
-        dayEditTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[studentTimetable.get_day() + 1]);
+        /* Load time/week text values */
         startTimeTextView.setText(studentTimetable.get_start_time());
         endTimeTextView.setText(studentTimetable.get_endTime());
-        weekEditTextView.setText("Weeks: " + studentTimetable.get_weeksFormattedList());
-//        moduleCodeTextView.setText(studentTimetable.get_moduleCode());
-//        titleTextView.setText(studentTimetable.get_title());
-//        typeTextView.setText(studentTimetable.get_type());
-//        locationTextView.setText(studentTimetable.get_room());
-//
-//        String weeks = "Weeks: ";
-//        for (Pair<Integer, Integer> week : studentTimetable.get_weeks()) weeks += week.first + "-" + week.second + " ";
-//        weeksTextView.setText(weeks);
-//
-//        notesTextView.setText(studentTimetable.get_notes());
+        weekTextView.setText("Weeks: " + studentTimetable.get_weeksFormattedList());
 
-//        TextView tv = (TextView) view.findViewById(R.id.text);
-//        tv.setText("This is an instance of ActionBarDialog edit");
+        /* Load text values */
+        moduleCodeEditTextView.setText(studentTimetable.get_moduleCode());
+        titleEditTextView.setText(studentTimetable.get_title());
+        locationEditTextView.setText(studentTimetable.get_room());
+        notesEditTextView.setText(studentTimetable.get_notes());
 
-//        mEditText = (EditText) view.findViewById(R.id.username);
-
+        /* Set up click listeners for pickers */
         startTimeTextView.setOnClickListener(new timeOnClickListener());
         endTimeTextView.setOnClickListener(new timeOnClickListener());
-        weekEditTextView.setOnClickListener(new weekOnClickListener());
+        weekTextView.setOnClickListener(new weekOnClickListener());
 
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(studentTimetable.get_color());
@@ -200,6 +194,14 @@ public class EventEditDialogFragment extends EventDialogFragment {
             Calendar mcurrentTime = Calendar.getInstance();
             int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
             int minute = mcurrentTime.get(Calendar.MINUTE);
+
+            String time = ((TextView) v).getText().toString();
+            if (!time.equals("")) {
+                String [] timeParts = time.split(":");
+                hour = Integer.parseInt(timeParts[0]);
+                minute = Integer.parseInt(timeParts[1]);
+            }
+
             TimePickerDialog mTimePicker;
             mTimePicker = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                 @Override

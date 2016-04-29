@@ -40,8 +40,14 @@
                     android:background="@drawable/ic_access_time"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
-                <TextView
-                    android:id="@+id/dayEditTextView"
+                <!--<TextView-->
+                    <!--android:id="@+id/dayEditTextView"-->
+                    <!--style="@style/AppTheme.EventDialogFieldContent"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:layout_width="0dp" />-->
+
+                <Spinner
+                    android:id="@+id/daySpinner"
                     style="@style/AppTheme.EventDialogFieldContent"
                     android:layout_weight="1"
                     android:layout_width="0dp" />
@@ -75,7 +81,7 @@
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <TextView
-                    android:id="@+id/weekEditTextView"
+                    android:id="@+id/weekTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
             </LinearLayout>
@@ -91,7 +97,7 @@
                 <EditText
                     android:hint="Module Code"
                     android:imeOptions="actionNext"
-                    android:inputType="text"
+                    android:inputType="textCapCharacters"
                     android:id="@+id/moduleCodeEditTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
@@ -122,9 +128,15 @@
                     android:background="@drawable/ic_info"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
-                <TextView
-                    android:id="@+id/typeEditTextView"
-                    style="@style/AppTheme.EventDialogFieldContent" />
+                <!--<TextView-->
+                    <!--android:id="@+id/typeEditTextView"-->
+                    <!--style="@style/AppTheme.EventDialogFieldContent" />-->
+
+                <Spinner
+                    android:id="@+id/typeSpinner"
+                    style="@style/AppTheme.EventDialogFieldContent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
 
             </LinearLayout>
 
@@ -174,7 +186,7 @@
                 <EditText
                     android:hint="Notes"
                     android:imeOptions="actionDone"
-                    android:inputType="text"
+                    android:inputType="textImeMultiLine"
                     android:id="@+id/notesEditTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
