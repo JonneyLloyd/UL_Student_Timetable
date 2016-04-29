@@ -174,6 +174,17 @@ public class TimetableActivity extends AppCompatActivity
             weekSpinner.setSelection(currentWeekId - 1);    // returns to the current week if on a different week
             cv.focusCalendar();
             return true;
+        } else if (id == R.id.action_delete) {
+            dbHandler.deleteUser(userId);
+            if (users.size() > 0) {
+                Map.Entry<Integer, String> entry = users.entrySet().iterator().next();
+                userId = entry.getKey();
+                loadTimetable();
+            } else {
+                userId = 0;
+                addUser();
+            }
+            return true;
         } else if (id == R.id.action_cancel) {
             cv.setEditMode(false);
             loadTimetable();
