@@ -552,6 +552,7 @@ public class TimetableActivity extends AppCompatActivity
 
             case EventDialogFragment.EDIT_ACTION:
                 openEventDialog(studentTimetable.get_idTablePointer(), true);
+                loadTimetable();
                 break;
 
             case EventDialogFragment.SAVE_ACTION:
@@ -561,6 +562,7 @@ public class TimetableActivity extends AppCompatActivity
 
             case EventDialogFragment.DELETE_ACTION:
                 Toast.makeText(this, "d, " + studentTimetable.get_moduleCode(), Toast.LENGTH_SHORT).show();
+                loadTimetable();
                 // TODO
                 break;
 
