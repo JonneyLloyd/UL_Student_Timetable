@@ -91,7 +91,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
 
             }
         });
-        colorPickerPalette.drawPalette(colors, colors[0]);
+        colorPickerPalette.drawPalette(colors, studentTimetable.get_color());
 
         HorizontalScrollView c = (HorizontalScrollView) view.findViewById(R.id.paletteScrollView);
         c.addView(colorPickerPalette);
