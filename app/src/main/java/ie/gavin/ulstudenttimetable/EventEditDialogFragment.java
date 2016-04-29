@@ -16,7 +16,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 import com.android.colorpicker.ColorPickerPalette;
 import com.android.colorpicker.ColorPickerSwatch;
 
@@ -163,6 +162,8 @@ public class EventEditDialogFragment extends EventDialogFragment {
         @Override
         public void onClick(final View v) {
 
+            final boolean [] seletedWeeksBackup = seletedWeeks.clone();
+
             AlertDialog dialog = new AlertDialog.Builder(getActivity())
                     .setTitle("Select weeks")
                     .setMultiChoiceItems(weeks, seletedWeeks, new DialogInterface.OnMultiChoiceClickListener() {
@@ -180,12 +181,13 @@ public class EventEditDialogFragment extends EventDialogFragment {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             //  Your code when user clicked on OK
-                            //  You can write the code  to save the selected item here
+                            studentTimetable.set_weeks(seletedWeeks);
                         }
                     }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             //  Your code when user clicked on Cancel
+                            seletedWeeks = seletedWeeksBackup.clone();
                         }
                     }).create();
             dialog.show();

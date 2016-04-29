@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import java.text.DateFormatSymbols;
 
-import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 import ie.gavin.ulstudenttimetable.data.StudentTimetable;
 
 public class EventViewDialogFragment extends EventDialogFragment {
@@ -71,9 +70,6 @@ public class EventViewDialogFragment extends EventDialogFragment {
                 if (id == R.id.action_delete) {
                     // Return to activity
                     closeEventDialogListener activity = (closeEventDialogListener) getActivity();
-                    MyDBHandler dbHandler;
-                    dbHandler = MyDBHandler.getInstance(getActivity());
-                    dbHandler.deleteStudentTimetableEntry(studentTimetable);
                     activity.onCloseEventDialog(DELETE_ACTION, studentTimetable);
                     dismiss();
                     return true;
