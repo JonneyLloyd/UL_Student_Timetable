@@ -2,7 +2,10 @@ package ie.gavin.ulstudenttimetable;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -57,6 +60,24 @@ public class EventDialogFragment extends DialogFragment {
         // Forces content above the keyboard so that the user can scroll to the bottom with the keyboard up
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return dialog;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+
+
+        boolean mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
+
+        if (dialog != null && !mIsLargeLayout)
+        {
+            int width = ViewGroup.LayoutParams.MATCH_PARENT;
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+            dialog.getWindow().setLayout(width, height);
+            dialog.getWindow().setBackgroundDrawable(null);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        }
     }
 
 }

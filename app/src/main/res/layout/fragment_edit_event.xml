@@ -185,8 +185,10 @@
 
                 <EditText
                     android:hint="Notes"
-                    android:imeOptions="actionDone"
-                    android:inputType="textImeMultiLine"
+                    android:singleLine="false"
+                    android:inputType="textMultiLine"
+                    android:lines="20"
+                    android:minLines="1"
                     android:id="@+id/notesEditTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 

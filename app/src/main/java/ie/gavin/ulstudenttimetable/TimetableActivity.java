@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -406,8 +405,8 @@ public class TimetableActivity extends AppCompatActivity
                     start,
                     end,
                     formatEvent(moduleTimetable),
-//                    studentTimetable.get_color(),   // keep the original color
-                    Color.parseColor("#882222"),   // TODO just for testing
+                    studentTimetable.get_color(),   // keep the original color
+//                    Color.parseColor("#882222"),   // TODO just for testing
                     moduleTimetable.get_idTablePointer(),
                     moduleTimetable.get_idTablePointer()    // modules don't have a parent, just for comparing with children
                 );
@@ -532,15 +531,16 @@ public class TimetableActivity extends AppCompatActivity
         Bundle args = new Bundle();
         args.putInt("eventId", eventId);
 
+        EventDialogFragment eventDialogFragment;
+
         if (!editable) {
-            EventViewDialogFragment eventViewDialog = new EventViewDialogFragment();
-            eventViewDialog.setArguments(args);
-            eventViewDialog.show(manager, tag);
+            eventDialogFragment = new EventViewDialogFragment();
         } else {
-            EventEditDialogFragment eventEditDialog = new EventEditDialogFragment();
-            eventEditDialog.setArguments(args);
-            eventEditDialog.show(manager, tag);
+            eventDialogFragment = new EventEditDialogFragment();
         }
+
+        eventDialogFragment.setArguments(args);
+        eventDialogFragment.show(manager, tag);
     }
 
     @Override
