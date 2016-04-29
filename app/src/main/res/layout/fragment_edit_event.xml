@@ -31,51 +31,151 @@
             android:paddingTop="20dp"
             android:paddingBottom="30dp">
 
+
             <LinearLayout
                 style="@style/AppTheme.EventDialogField">
 
                 <ImageView
-                    android:id="@+id/imageView"
-                    android:background="@drawable/ic_menu_share"
+                    android:id="@+id/dayIcon"
+                    android:background="@drawable/ic_access_time"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
-                <EditText
-                    android:text="New Text"
-                    android:id="@+id/editTextView"
-                    android:imeOptions="actionDone"
-                    android:inputType="text"
+                <TextView
+                    android:id="@+id/dayEditTextView"
+                    style="@style/AppTheme.EventDialogFieldContent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
+
+                <TextView
+                    android:id="@+id/startTimeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="10dp" />
+
+                <ImageView
+                    android:id="@+id/timeSeparatorIcon"
+                    android:background="@drawable/ic_arrow_forward"
+                    style="@style/AppTheme.EventDialogFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="10dp"/>
+
+                <TextView
+                    android:id="@+id/endTimeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent"
+                    android:layout_width="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/weekIcon"
+                    android:background="@drawable/ic_assignment"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:id="@+id/weekEditTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
             </LinearLayout>
+
             <LinearLayout
                 style="@style/AppTheme.EventDialogField">
 
                 <ImageView
-                    android:id="@+id/imageView2"
-                    android:background="@drawable/ic_menu_share"
+                    android:id="@+id/moduleCodeIcon"
+                    android:background="@drawable/ic_label"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <EditText
-                    android:text="New Text"
-                    android:id="@+id/editTextView2"
-                    android:imeOptions="actionDone"
+                    android:hint="Module Code"
+                    android:imeOptions="actionNext"
                     android:inputType="text"
+                    android:id="@+id/moduleCodeEditTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
             </LinearLayout>
+
             <LinearLayout
                 style="@style/AppTheme.EventDialogField">
 
                 <ImageView
-                    android:id="@+id/imageView3"
-                    android:background="@drawable/ic_menu_share"
+                    android:id="@+id/titleIcon"
+                    android:background="@drawable/ic_info"
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <EditText
-                    android:text="New Text"
-                    android:id="@+id/editTextView3"
+                    android:hint="Title"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:id="@+id/titleEditTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/typeIcon"
+                    android:background="@drawable/ic_info"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <TextView
+                    android:id="@+id/typeEditTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/locationIcon"
+                    android:background="@drawable/ic_location_on"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <EditText
+                    android:hint="Location"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:id="@+id/locationEditTextView"
+                    style="@style/AppTheme.EventDialogFieldContent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/colorIcon"
+                    android:background="@drawable/ic_palette"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:id="@+id/paletteScrollView" >
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.EventDialogField">
+
+                <ImageView
+                    android:id="@+id/notesIcon"
+                    android:background="@drawable/ic_subject"
+                    style="@style/AppTheme.EventDialogFieldIcon" />
+
+                <EditText
+                    android:hint="Notes"
                     android:imeOptions="actionDone"
                     android:inputType="text"
+                    android:id="@+id/notesEditTextView"
                     style="@style/AppTheme.EventDialogFieldContent" />
 
             </LinearLayout>
