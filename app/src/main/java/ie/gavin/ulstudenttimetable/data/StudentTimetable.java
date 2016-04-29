@@ -105,6 +105,21 @@ public class StudentTimetable {
         return _weeks;
     }
 
+    public String get_weeksFormattedList() {    // TODO names, correct numbers
+        String weeks = "";
+        for (Pair<Integer, Integer> week : _weeks) {
+            weeks += week.first;
+
+            if (week.first != week.second)
+                weeks += "-" + week.second;
+
+            weeks += " ";
+
+        }
+
+        return weeks;
+    }
+
     public void set_idTablePointer(int _idTablePointer) {
         this._idTablePointer = _idTablePointer;
     }
