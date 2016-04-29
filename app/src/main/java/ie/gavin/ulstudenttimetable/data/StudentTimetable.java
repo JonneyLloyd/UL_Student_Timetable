@@ -179,4 +179,27 @@ public class StudentTimetable {
     public void set_weeks(ArrayList<Pair<Integer,Integer>> _weeks) {
         this._weeks = _weeks;
     }
+
+    public void set_weeks(boolean[] boolWeeks){
+        ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
+        int start = 0;
+        int end = 0;
+        boolean found = false;
+        for(int i =0; i < boolWeeks.length; i++){
+            if (boolWeeks[i] == true){
+                start = i;
+                i++;
+                while(i < boolWeeks.length && boolWeeks[i] == true){
+                    i++;
+                    }
+                end = i;
+                Pair weeksToAdd = new Pair<Integer,Integer>(start,end);
+                weeks.add(weeksToAdd);
+            }
+            }
+        set_weeks(weeks);
+        }
+
+
+
 }
