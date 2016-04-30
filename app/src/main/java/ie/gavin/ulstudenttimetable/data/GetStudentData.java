@@ -372,6 +372,34 @@ public class GetStudentData {
                     UID = dbHandler.getUIDForModuleEntry(moduleCode, day, startTime, endTime);
                    //tempStudent = new StudentTimetable(0, moduleCode, UID, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room, color);
                     tempStudent = new StudentTimetable(0, null, UID, null, 0, null, Integer.parseInt(studentID),  null, null, null, null, null,  null, color);
+
+                    weeks = weeks.substring(weeks.indexOf(":") + 1);
+                    ArrayList<Pair<Integer,Integer>> weeksList = new ArrayList<>();
+                    if (weeks.contains(",")){
+                        String[] splitArray = weeks.split(",");
+                        for(int i = 0; i <splitArray.length; i++) {
+                            String[] secondSplitArray;
+                            if (splitArray[i].contains("-")) {
+                                secondSplitArray = splitArray[i].split("-");
+                            } else {
+                                secondSplitArray = new String[] {splitArray[i],splitArray[i]};
+                            }
+                            Pair weeksToAdd;
+                            weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(secondSplitArray[0]),Integer.parseInt(secondSplitArray[1]));
+                            weeksList.add(weeksToAdd);
+                        }
+
+                    }
+//
+                    else {
+                        String[] splitArray = weeks.split("-");
+                        Pair weeksToAdd;
+                        weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
+                        weeksList.add(weeksToAdd);
+//                        String[] splitArray = weeks.split("-");
+//                        temp.add(splitArray[0] + "-" + splitArray[1]);
+                    }
+                    tempStudent.set_weeks(weeksList);
                     dbHandler.addToStudentTimetable(tempStudent);
 
                 }

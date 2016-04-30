@@ -548,10 +548,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + " sWeek, "
-                + COLUMN_END_WEEK + " eWeek FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle "
+                //+ COLUMN_START_WEEK + " sWeek, "
+               // + COLUMN_END_WEEK + " eWeek  "
+                + " FROM " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -604,7 +604,7 @@ for (int i=0; i< newModule.size(); i++){
                         c.getInt(c.getColumnIndex(COLUMN_COLOR))
                 );
 
-                Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                 weeks.add(weeksToAdd);
             }
 
@@ -649,10 +649,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + " sWeek, "
-                + COLUMN_END_WEEK + " eWeek FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle "
+                //+ COLUMN_START_WEEK + " sWeek, "
+                //+ COLUMN_END_WEEK + " eWeek
+                + " FROM " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -717,7 +717,7 @@ for (int i=0; i< newModule.size(); i++){
                     ));
 
                     ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
-                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
                         weeks.add(result.get(result.size()-2).get_weeks().get(0));
                         weeks.add(weeksToAdd);
@@ -823,10 +823,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + " sWeek, "
-                + COLUMN_END_WEEK + " eWeek FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle "
+                //+ COLUMN_START_WEEK + " sWeek, "
+                //+ COLUMN_END_WEEK + " eWeek
+                +  " FROM  " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ") JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -890,7 +890,7 @@ for (int i=0; i< newModule.size(); i++){
                             c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
                     ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
-                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
                         weeks.add(result.get(result.size()-2).get_weeks().get(0));
                         weeks.add(weeksToAdd);
@@ -942,10 +942,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + " sWeek, "
-                + COLUMN_END_WEEK + " eWeek FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle "
+                //+ COLUMN_START_WEEK + " sWeek, "
+                //+ COLUMN_END_WEEK + " eWeek
+                +  " FROM " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -994,8 +994,8 @@ for (int i=0; i< newModule.size(); i++){
                 }
 
                 else if (!c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")
-                        && week >= Integer.parseInt(c.getString(c.getColumnIndex("sWeek")))
-                    && week <= Integer.parseInt(c.getString(c.getColumnIndex("eWeek")))) {
+                        && week >= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK)))
+                    && week <= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK)))) {
 
                     result.add(new StudentTimetable(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
@@ -1014,7 +1014,7 @@ for (int i=0; i< newModule.size(); i++){
                             c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
                     ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
-                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex("sWeek"))),Integer.parseInt(c.getString(c.getColumnIndex("eWeek"))));
+                    Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
                         weeks.add(result.get(result.size()-2).get_weeks().get(0));
                         weeks.add(weeksToAdd);
