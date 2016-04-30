@@ -537,8 +537,6 @@ for (int i=0; i< newModule.size(); i++){
     public StudentTimetable getStudentTimetableFromID(int id){
         StudentTimetable result = null;
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
-                + " LEFT JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
                 + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
                 + COLUMN_MODULE_CODE + " modCode, "
                 + COLUMN_START_TIME + " modStrt, "
@@ -548,10 +546,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle "
-                //+ COLUMN_START_WEEK + " sWeek, "
-               // + COLUMN_END_WEEK + " eWeek  "
-                + " FROM " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle, "
+                + COLUMN_START_WEEK + ", "
+                + COLUMN_END_WEEK + " FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -638,8 +636,6 @@ for (int i=0; i< newModule.size(); i++){
         ArrayList<StudentTimetable> result = new ArrayList<>();
 
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
-                + " LEFT JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
                 + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
                 + COLUMN_MODULE_CODE + " modCode, "
                 + COLUMN_START_TIME + " modStrt, "
@@ -649,10 +645,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle "
-                //+ COLUMN_START_WEEK + " sWeek, "
-                //+ COLUMN_END_WEEK + " eWeek
-                + " FROM " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle, "
+                + COLUMN_START_WEEK + ", "
+                + COLUMN_END_WEEK + " FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -812,8 +808,6 @@ for (int i=0; i< newModule.size(); i++){
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID){
         ArrayList<StudentTimetable> result = new ArrayList<>();
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
-                + " LEFT JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
                 + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
                 + COLUMN_MODULE_CODE + " modCode, "
                 + COLUMN_START_TIME + " modStrt, "
@@ -823,10 +817,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle "
-                //+ COLUMN_START_WEEK + " sWeek, "
-                //+ COLUMN_END_WEEK + " eWeek
-                +  " FROM  " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle, "
+                + COLUMN_START_WEEK + ", "
+                + COLUMN_END_WEEK + " FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ") JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -931,8 +925,6 @@ for (int i=0; i< newModule.size(); i++){
         ArrayList<StudentTimetable> result = new ArrayList<>();
 
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
-                + " LEFT JOIN " + TABLE_CLASS_WEEKS
-                + " USING (" +COLUMN_ID_TABLE_POINTER +")"
                 + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
                 + COLUMN_MODULE_CODE + " modCode, "
                 + COLUMN_START_TIME + " modStrt, "
@@ -942,10 +934,10 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle "
-                //+ COLUMN_START_WEEK + " sWeek, "
-                //+ COLUMN_END_WEEK + " eWeek
-                +  " FROM " + TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + COLUMN_MODULE_NAME + " modTitle, "
+                + COLUMN_START_WEEK + ", "
+                + COLUMN_END_WEEK + " FROM "
+                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
@@ -960,7 +952,7 @@ for (int i=0; i< newModule.size(); i++){
             do
             {
                 if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")
-                        && week >= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_WEEK_START)))
+                        && week >= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK)))
                         && week <= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK)))){
                     result.add(new StudentTimetable(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
