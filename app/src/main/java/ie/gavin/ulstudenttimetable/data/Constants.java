@@ -1,8 +1,5 @@
 package ie.gavin.ulstudenttimetable.data;
 
-/**
- * Created by Oliver on 29/03/2016.
- */
 public class Constants {
     // Defines custom Intent action
     public static final String BROADCAST_ACTION =

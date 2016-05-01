@@ -9,9 +9,6 @@ import org.jsoup.nodes.Element;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by Oliver on 29/02/2016.
- */
 public class GetModuleDetailsData extends GetTimetableData {
 
     private String LOG_TAG = GetModuleDetailsData.class.getSimpleName();

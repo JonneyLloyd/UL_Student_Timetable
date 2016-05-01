@@ -121,7 +121,6 @@ public class CalendarView extends LinearLayout {
         calculateDisplaySettings(context);
 
         assignUiElements();
-        assignClickHandlers();
 
         drawUiElements();
         updateCalendar();
@@ -186,42 +185,6 @@ public class CalendarView extends LinearLayout {
         }
     }
 
-    private void assignClickHandlers() {
-//        // add one month and refresh UI
-//        btnNext.setOnClickListener(new OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                currentDate.add(Calendar.MONTH, 1);
-//                updateCalendar();
-//            }
-//        });
-//
-//        // subtract one month and refresh UI
-//        btnPrev.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                currentDate.add(Calendar.MONTH, -1);
-//                updateCalendar();
-//            }
-//        });
-//
-//        // long-pressing a day
-//        grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-//
-//            @Override
-//            public boolean onItemLongClick(AdapterView<?> view, View cell, int position, long id) {
-//                // handle long-press
-//                if (eventHandler == null)
-//                    return false;
-//
-//                eventHandler.onDayLongPress((Date) view.getItemAtPosition(position));
-//                return true;
-//            }
-//        });
-    }
-
     /**
      * Redraw calendar with same data set
      */
@@ -242,23 +205,7 @@ public class CalendarView extends LinearLayout {
         this.events = events;
 
         headerColumnViewPager.setAdapter(new CalendarDatePagerAdapter(getContext()));
-        contentColumnViewPager.setAdapter(new CalendarPagerAdapter(getContext()/*, events*/));
-
-        // Synchronise both ViewPagers
-//        headerColumnViewPager.setOnTouchListener(new OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                contentColumnViewPager.onTouchEvent(event);
-//                return false;
-//            }
-//        });
-//        contentColumnViewPager.setOnTouchListener(new OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                headerColumnViewPager.onTouchEvent(event);
-//                return false;
-//            }
-//        });
+        contentColumnViewPager.setAdapter(new CalendarPagerAdapter(getContext()));
 
         headerColumnViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -352,9 +299,8 @@ public class CalendarView extends LinearLayout {
 
     class CalendarDatePagerAdapter extends PagerAdapter {
 
-        public CalendarDatePagerAdapter(Context context/*, ArrayList<CalendarEvent> events*/) {
-//            super(context, R.layout.control_calendar_day, days);
-//            super.events = events;
+        public CalendarDatePagerAdapter(Context context) {
+
         }
 
         @Override
@@ -427,9 +373,8 @@ public class CalendarView extends LinearLayout {
 
     class CalendarPagerAdapter extends PagerAdapter {
 
-        public CalendarPagerAdapter(Context context/*, ArrayList<CalendarEvent> events*/) {
-//            super(context, R.layout.control_calendar_day, days);
-//            super.events = events;
+        public CalendarPagerAdapter(Context context) {
+
         }
 
         @Override

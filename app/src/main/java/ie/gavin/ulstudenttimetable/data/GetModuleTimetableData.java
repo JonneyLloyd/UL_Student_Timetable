@@ -10,9 +10,6 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by Oliver on 29/02/2016.
- */
 public class GetModuleTimetableData extends GetTimetableData {
 
     private ArrayList<ArrayList<String>> data = new ArrayList<>();
@@ -30,14 +27,6 @@ public class GetModuleTimetableData extends GetTimetableData {
 
         // 16:00|17:00|LEC|&nbsp;|RYAN CONOR PROFESSOR|S205|Wks:1-5|
         // 14:00|15:00|LAB|2A|RYAN CONOR PROFESSOR|CS2044|Wks:1-5|
-
-//        Document doc = Jsoup.parse(html);
-//        Elements els = doc.select("tbody tr:gt(0) td p font b");
-//        for (Element el : els) {
-//            String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
-//            data.add(new ArrayList<String>(Arrays.asList(row)));
-//
-//        }
 
         int dayOfWeek = 1;
         Document doc = Jsoup.parse(html);

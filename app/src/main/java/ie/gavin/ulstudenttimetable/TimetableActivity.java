@@ -58,7 +58,6 @@ public class TimetableActivity extends AppCompatActivity
     HashMap<Integer, String> users = new HashMap<>();
     private ArrayList<Week> weekDetails = new ArrayList<>();
 
-    // TODO load defaults from shared prefs
     private int userId;         // load primary user
     private int daysVisible;    // load previous number of days visible
 
@@ -109,7 +108,6 @@ public class TimetableActivity extends AppCompatActivity
         initCalendarView();
         loadNavigationViewUsers();
         loadActionbarWeeks();
-//        loadTimetable();
         cv.focusCalendar();
 
         com.github.clans.fab.FloatingActionMenu fabMenu = (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.floating_menu);
@@ -642,15 +640,8 @@ public class TimetableActivity extends AppCompatActivity
         Toast.makeText(TimetableActivity.this, "saving data", Toast.LENGTH_SHORT).show();
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        loadPreferences();
-//    }
-
     public void loadPreferences() {
         SharedPreferences sharedPref = getSharedPreferences("ie.gavin.ulstudenttimetable.SHARED_PREFS_KEY", Context.MODE_PRIVATE);
-//        int defaultValue = getResources().getInteger(R.string.saved_high_score_default);
         daysVisible = sharedPref.getInt("daysVisible", 3);
         userId = sharedPref.getInt("userId", 0);
     }

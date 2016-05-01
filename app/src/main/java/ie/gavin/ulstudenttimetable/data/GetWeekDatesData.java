@@ -10,9 +10,6 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by Oliver on 29/02/2016.
- */
 public class GetWeekDatesData extends GetTimetableData {
 
     private String LOG_TAG = GetWeekDatesData.class.getSimpleName();

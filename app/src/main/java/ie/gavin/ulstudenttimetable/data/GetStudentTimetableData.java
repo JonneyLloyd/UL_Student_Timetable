@@ -31,13 +31,6 @@ public class GetStudentTimetableData extends GetTimetableData {
 //        15:00 <font> - </font> 16:00 <br> CS4004 <font> - </font>LEC <font>- </font> &nbsp; <br> CSG001 <br> Wks:1-8,10-13
 //        10:00 <font> - </font> 11:00 <br> EE4013 <font> - </font>TUT <font>- </font> 3B <br> A2011 <br> Wks:1-8,10-13
 
-//        Document doc = Jsoup.parse(html);
-//        Elements els = doc.select("tbody tr:gt(0) td p font b");
-//        for (Element el : els) {
-//            String [] row = el.html().trim().split("( )*<font>( )*-( )*</font>( )*|( )*<br>( )*");
-//            data.add(new ArrayList<String>(Arrays.asList(row)));
-//
-//        }
 
         int dayOfWeek = 1;
         Document doc = Jsoup.parse(html);

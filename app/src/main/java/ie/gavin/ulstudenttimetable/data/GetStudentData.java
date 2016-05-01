@@ -18,9 +18,6 @@ import java.util.Map;
 
 import ie.gavin.ulstudenttimetable.R;
 
-/**
- * Created by Oliver on 05/03/2016.
- */
 public class GetStudentData {
     private String LOG_TAG = GetStudentData.class.getSimpleName();
 
@@ -72,10 +69,6 @@ public class GetStudentData {
             // retry
             return;
         }
-
-
-        // TODO check if already exists
-
 
         //        Student Timetable
         studentTimetableData = new GetStudentTimetableData(studentId) {
@@ -279,14 +272,12 @@ public class GetStudentData {
                         }
 
                     }
-//
+
                     else {
                         String[] splitArray = weeks.split("-");
                         Pair weeksToAdd;
                         weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
                         weeksList.add(weeksToAdd);
-//                        String[] splitArray = weeks.split("-");
-//                        temp.add(splitArray[0] + "-" + splitArray[1]);
                     }
                     tempModule.set_weeks(weeksList);
                     //Log.v(LOG_TAG, "ModulesWeekTest: " + tempModule.get_weeks().get(0).first+ "-" + tempModule.get_weeks().get(0).second);
@@ -313,15 +304,6 @@ public class GetStudentData {
                         Log.v(LOG_TAG, "Modules: " + "second Week: " + (test.get(i).get_weeks().get(1).first)+ "-" + (test.get(i).get_weeks().get(1).second));
                     }
                 }
-
-
-
-                //dbHandler.addOrRemoveModuleFromTimetable(test, 11111111, 1);
-
-                //Code snippet testing updateModuleTable()
-//                tempModule = new Module(0, "CS4416", "10:00" , "11:00", "HSG037", "NIKOLOV NIKOLA DR", 2, "", "LEC");
-//                boolean ok = dbHandler.updateModuleTable(tempModule);
-//                Log.v(LOG_TAG, "UpdatedSuccess: " + ok);
 
             }
 
@@ -361,16 +343,7 @@ public class GetStudentData {
                     color = moduleColors.get(moduleCode);
                     lecturer = null;
                     notes = null;
-                    //Log.v(LOG_TAG, "day: " + day);
-                    //Log.v(LOG_TAG, "startTime: " + startTime);
-                    //Log.v(LOG_TAG, "endTime: " + endTime);
-//                    Log.v(LOG_TAG, "moduleCode: " + moduleCode);
-//                    Log.v(LOG_TAG, "type: " + type);
-//                    Log.v(LOG_TAG, "group: " + group);
-//                    Log.v(LOG_TAG, "room: " + room);
-//                    Log.v(LOG_TAG, "weeks: " + weeks);
                     UID = dbHandler.getUIDForModuleEntry(moduleCode, day, startTime, endTime);
-                   //tempStudent = new StudentTimetable(0, moduleCode, UID, startTime, day, endTime, Integer.parseInt(studentID),  notes, group, type, null, lecturer,  room, color);
                     tempStudent = new StudentTimetable(0, null, UID, null, 0, null, Integer.parseInt(studentID),  null, null, null, null, null,  null, color);
 
                     weeks = weeks.substring(weeks.indexOf(":") + 1);
@@ -412,16 +385,6 @@ public class GetStudentData {
                    if (test.get(i).get_weeks().size() > 1){
                        Log.v(LOG_TAG, "LOOP_STUDENTS: " + "second Week: " + (test.get(i).get_weeks().get(1).first)+ "-" + (test.get(i).get_weeks().get(1).second));
                    }
-                    //testing multiple weeks
-//                    StudentTimetable tempSTU = dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer());
-//                    Log.v(LOG_TAG, "tempSTU: " + tempSTU.get_moduleCode() + " - " + (tempSTU.get_idTablePointer()) + " - " + (tempSTU).get_start_time()+ " - " + (tempSTU.get_endTime())+ " - " + (tempSTU.get_day())+ " - " + (tempSTU.get_modulePointer())+ " - " + (tempSTU.get_weeks().get(0).first)+ "-" + (tempSTU.get_weeks().get(0).second)+ " - " + (tempSTU.get_title()));
-//                    if (tempSTU.get_weeks().size() > 1){
-//                        Log.v(LOG_TAG, "tempSTU: " + "second Week: " + (tempSTU.get_weeks().get(1).first)+ "-" + (tempSTU.get_weeks().get(1).second));
-//                    }
-//                      if(test.get(i).get_moduleCode().equals("CS4014")){
-//                        dbHandler.insertNoteOnTimetableEntry(test.get(i).get_idTablePointer(), "Note For CS4014");
-//                        Log.v(LOG_TAG, "NOTE ADDED TO STUD" + dbHandler.getStudentTimetableFromID(test.get(i).get_idTablePointer()).get_notes());
-//                    }
 
                 }
 
