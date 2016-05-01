@@ -1280,33 +1280,12 @@ for (int i=0; i< newModule.size(); i++){
         oldEntry.set_weeks(oldSeletedWeeks);
         entry.set_weeks(newSeletedWeeks);
 
-
-//        for(int i =0; i < oldWeeks.size(); i++){
-//            for(int j =0; j < newWeeks.size(); j++){
-//                if (oldWeeks.get(i).first >= (oldWeeks.get(i).first) && (oldWeeks.get(i).first <= (oldWeeks.get(i).second))){
-//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first +1, oldWeeks.get(i).second);
-//                    oldWeeks.set(i,weeksToAdd);
-//                }
-//                else if (oldWeeks.get(i).second.equals(oldWeeks.get(i).first)){
-//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first, oldWeeks.get(i).second - 1);
-//                    oldWeeks.set(i,weeksToAdd);
-//                }
-//                else if (oldWeeks.get(i).first.equals(oldWeeks.get(i).second)){
-//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first + 1, oldWeeks.get(i).second);
-//                    oldWeeks.set(i,weeksToAdd);
-//                }
-//                else if (oldWeeks.get(i).second.equals(oldWeeks.get(i).second)){
-//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first, oldWeeks.get(i).second - 1);
-//                    oldWeeks.set(i,weeksToAdd);
-//                }
-//            }
-//        }
         addToStudentTimetable(entry);
         deleteAllClassWeeksOnUID(oldEntry.get_idTablePointer());
         for(int i = 0; i < oldEntry.get_weeks().size(); i++){
             int first = oldEntry.get_weeks().get(i).first;
             int second = oldEntry.get_weeks().get(i).second;
-           // Log.v("TESTING OLD stud", "" + first + "-" + second +"-"+oldEntry.get_idTablePointer());
+            // Log.v("TESTING OLD stud", "" + first + "-" + second +"-"+oldEntry.get_idTablePointer());
             addToClassWeekTable(first, second, oldEntry.get_idTablePointer());
         }
         return true;
@@ -1372,6 +1351,53 @@ for (int i=0; i< newModule.size(); i++){
         }
         return id == 1;
 
+    }
+
+
+    //delete a single existing studentTable entry
+    public boolean deleteSingleStudentTimetable(StudentTimetable entry){
+        StudentTimetable oldEntry;
+        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
+        if (oldEntry == null)
+            return false;
+        ArrayList<Pair<Integer,Integer>> oldWeeks = oldEntry.get_weeks();
+        ArrayList<Pair<Integer,Integer>> newWeeks = entry.get_weeks();
+        Pair<Integer,Integer> change;
+        boolean[] oldSeletedWeeks;
+        boolean[] newSeletedWeeks;
+        ArrayList<Week> weekDetails = new ArrayList<>();
+        weekDetails = getWeekDetails();
+        //weeks = new String[weekDetails.size()];
+        //seletedWeeks = new boolean[weekDetails.size()]
+
+        oldSeletedWeeks = new boolean[weekDetails.size()];
+        for (Pair<Integer, Integer> weekPair : oldWeeks) {
+            for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
+                oldSeletedWeeks[i] = true;
+        }
+        newSeletedWeeks = new boolean[weekDetails.size()];
+        for (Pair<Integer, Integer> weekPair : newWeeks) {
+            for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
+                newSeletedWeeks[i] = true;
+        }
+
+        for(int i = 0;i <oldSeletedWeeks.length; i++){
+            if (oldSeletedWeeks[i] ==true && (newSeletedWeeks[i] ==true)){
+                oldSeletedWeeks[i] = false;
+            }
+        }
+
+        oldEntry.set_weeks(oldSeletedWeeks);
+        entry.set_weeks(newSeletedWeeks);
+
+        deleteAllClassWeeksOnUID(oldEntry.get_idTablePointer());
+        for(int i = 0; i < oldEntry.get_weeks().size(); i++){
+            int first = oldEntry.get_weeks().get(i).first;
+            int second = oldEntry.get_weeks().get(i).second;
+            // Log.v("TESTING OLD stud", "" + first + "-" + second +"-"+oldEntry.get_idTablePointer());
+            addToClassWeekTable(first, second, oldEntry.get_idTablePointer());
+        }
+        return true;
     }
 
 
