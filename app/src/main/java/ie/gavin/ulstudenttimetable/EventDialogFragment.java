@@ -32,14 +32,29 @@ public class EventDialogFragment extends DialogFragment {
     }
 
     private StudentTimetable studentTimetable;
+    private int studentId;
+    private int weekNumber;
+    private String eventType;
+
+    public StudentTimetable getStudentTimetable() {
+        return studentTimetable;
+    }
+
+    public int getStudentId() {
+        return studentId;
+    }
+
+    public int getWeekNumber() {
+        return weekNumber;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
 
     // Empty constructor required for DialogFragment
     public EventDialogFragment() {
 
-    }
-
-    public StudentTimetable getStudentTimetable() {
-        return studentTimetable;
     }
 
     @Override
@@ -48,6 +63,14 @@ public class EventDialogFragment extends DialogFragment {
 
         Bundle args = getArguments();
         int eventId = args.getInt("eventId");
+        studentId = args.getInt("studentId");
+        weekNumber = args.getInt("weekNumber");
+
+        if (eventId == 0) {
+            eventType = args.getString("eventType");
+            return;
+        }
+
         MyDBHandler dbHandler = MyDBHandler.getInstance(this.getActivity());
         studentTimetable = dbHandler.getStudentTimetableFromID(eventId);
     }
@@ -70,8 +93,8 @@ public class EventDialogFragment extends DialogFragment {
 
         boolean mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
 
-        if (dialog != null && !mIsLargeLayout)
-        {
+        if (dialog != null && !mIsLargeLayout) {
+            // load fullscreen on smaller devices
             int width = ViewGroup.LayoutParams.MATCH_PARENT;
             int height = ViewGroup.LayoutParams.MATCH_PARENT;
             dialog.getWindow().setLayout(width, height);

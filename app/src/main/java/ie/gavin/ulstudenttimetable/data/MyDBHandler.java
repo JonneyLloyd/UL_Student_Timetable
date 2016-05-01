@@ -1255,12 +1255,50 @@ for (int i=0; i< newModule.size(); i++){
         db.close();
     }
 
+
+//    public void addToModuleTable(Module module){
+//        SQLiteDatabase db = getWritableDatabase();
+//
+//        long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
+//        ContentValues values = new ContentValues();
+//        values.put(COLUMN_ID_TABLE_POINTER, id);//id taken from UID table
+//        values.put(COLUMN_MODULE_CODE, module.get_ModuleCode());
+//        values.put(COLUMN_START_TIME, module.get_startTime());
+//        values.put(COLUMN_END_TIME, module.get_endTime());
+//        values.put(COLUMN_ROOM, module.get_room());
+//        values.put(COLUMN_LECTURER, module.get_lecturer());
+//        values.put(COLUMN_DAY, String.valueOf(module.get_day()));
+//        values.put(COLUMN_GROUP_NAME, module.get_groupName());
+//        values.put(COLUMN_TYPE, module.get_type());
+//
+//        db.insert(TABLE_MODULE, null, values);
+//        db.close();
+//        ArrayList<Pair<Integer,Integer>> temp = new ArrayList<>();
+//        temp = module.get_weeks();
+//        for(int i = 0; i < temp.size(); i++){
+//
+//            int start = temp.get(i).first;
+//            int end = temp.get(i).second;
+//            addToClassWeekTable(start, end, id);
+//        }
+//    }
+
     //updates an existing studentTable entry
-    public boolean updateStudentTimetable(StudentTimetable entry){
+    public boolean updateOrAddStudentTimetable(StudentTimetable entry){
+        Log.v("add", "start");
+        boolean creating = false;
+
         StudentTimetable oldEntry;
-        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
-        if (oldEntry == null)
-            return false;
+//        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
+        if (entry.get_idTablePointer() == 0) {
+            // Does not exist
+            creating = true;
+            SQLiteDatabase db = getWritableDatabase();
+            long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
+            entry.set_idTablePointer((int) id);
+            Log.v("add uid", "" + id);
+//            return false;
+        }
 
         SQLiteDatabase db = getWritableDatabase();
         Log.v("Testing notes", "-" +entry.get_notes());
@@ -1283,7 +1321,14 @@ for (int i=0; i< newModule.size(); i++){
 
         String query = "";
 
-        int id = db.update(TABLE_STUDENT_TIMETABLE, values, whereClause, null);
+        int id;
+        if (creating) {
+            values.put(COLUMN_ID_TABLE_POINTER, entry.get_idTablePointer());
+            id = (int) db.insert(TABLE_STUDENT_TIMETABLE, null, values);
+            Log.v("add sid", ""+id);
+        } else {
+            id = db.update(TABLE_STUDENT_TIMETABLE, values, whereClause, null);
+        }
         db.close();
         if(entry.get_modulePointer()!= 0)updateClassWeeksForStudent(entry);
         else{
@@ -1294,6 +1339,7 @@ for (int i=0; i< newModule.size(); i++){
                 addToClassWeekTable(first, second, entry.get_idTablePointer());
             }
         }
+        Log.v("add", "end");
         return id == 1;
 
     }

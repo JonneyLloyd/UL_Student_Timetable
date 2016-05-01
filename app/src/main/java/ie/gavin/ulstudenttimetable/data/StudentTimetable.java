@@ -19,7 +19,7 @@ public class StudentTimetable {
     private String _lecturer;
     private String _room;
     private int _color;
-    private ArrayList<Pair<Integer,Integer>> _weeks;
+    private ArrayList<Pair<Integer,Integer>> _weeks = new  ArrayList<Pair<Integer,Integer>>();
 
     public StudentTimetable() {
     }

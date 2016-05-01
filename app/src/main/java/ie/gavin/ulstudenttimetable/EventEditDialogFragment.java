@@ -20,6 +20,7 @@ import android.widget.TimePicker;
 import com.android.colorpicker.ColorPickerPalette;
 import com.android.colorpicker.ColorPickerSwatch;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -37,6 +38,8 @@ public class EventEditDialogFragment extends EventDialogFragment {
     private String[] weeks;
     private boolean[] seletedWeeks;
 
+    private boolean creating = false;
+
     private Spinner daySpinner;
     private TextView startTimeTextView;
     private TextView endTimeTextView;
@@ -49,8 +52,26 @@ public class EventEditDialogFragment extends EventDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final int[] colors = getResources().getIntArray(R.array.pickerColors);
 
         studentTimetable = super.getStudentTimetable();
+        if (studentTimetable == null) {
+            // Create event
+            creating = true;
+            // default to current week/time
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.HOUR, 1);
+            String start = sdf.format(calendar.getTime());
+            int day = (calendar.get(Calendar.DAY_OF_WEEK) + 7 - 2)%7;
+            calendar.add(Calendar.HOUR, 1);
+            String end = sdf.format(calendar.getTime());
+
+            studentTimetable = new StudentTimetable(0, null, 0, start, day, end, super.getStudentId(), "", "", super.getEventType(), "", "", "", colors[(int) (Math.random()*colors.length)]);
+            boolean defaultWeeks [] = new boolean[super.getWeekNumber()];
+            defaultWeeks[super.getWeekNumber()-1] = true;
+            studentTimetable.set_weeks(defaultWeeks);
+        }
 
         View view = inflater.inflate(R.layout.fragment_edit_event, container, false);
 
@@ -81,7 +102,6 @@ public class EventEditDialogFragment extends EventDialogFragment {
         LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
         final ColorPickerPalette colorPickerPalette = (ColorPickerPalette) layoutInflater
                 .inflate(R.layout.color_picker, null);
-        final int[] colors = getResources().getIntArray(R.array.pickerColors);
         colorPickerPalette.init(colors.length, 20, new ColorPickerSwatch.OnColorSelectedListener() {
             @Override
             public void onColorSelected(int color) {
@@ -92,7 +112,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
             }
         });
         colorPickerPalette.drawPalette(colors, studentTimetable.get_color());
-
+        // add the picker
         HorizontalScrollView c = (HorizontalScrollView) view.findViewById(R.id.paletteScrollView);
         c.addView(colorPickerPalette);
 
@@ -101,6 +121,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
         dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         daySpinner.setAdapter(dayAdapter);
         daySpinner.setSelection(studentTimetable.get_day() - 1);
+        Log.v("daytest", ""+studentTimetable.get_day());
 
         /* Populate type spinner */
         ArrayList<String> types = new ArrayList<String>(Arrays.asList(new String[]{"LEC", "LAB", "TUT", "Meeting", "Memo", "EXAM"}));
@@ -147,16 +168,19 @@ public class EventEditDialogFragment extends EventDialogFragment {
                     // Return to activity
                     closeEventDialogListener activity = (closeEventDialogListener) getActivity();
                     activity.onCloseEventDialog(SAVE_ACTION, studentTimetable);
-                    if(!studentTimetable.get_moduleCode().equals(moduleCodeEditTextView.getText().toString()) || !studentTimetable.get_start_time().equals(startTimeTextView.getText().toString())
-                            || !studentTimetable.get_endTime().equals(endTimeTextView.toString()) || studentTimetable.get_day() != daySpinner.getSelectedItemPosition()+1
-                            || !studentTimetable.get_type().equals(typeSpinner.toString()) || !studentTimetable.get_title().equals(titleEditTextView.getText().toString())
-                            || !studentTimetable.get_room().equals(locationEditTextView.getText().toString())){
-                        studentTimetable.set_modulePointer(0);
-                    }
+                    if (!creating)
+                        if(!studentTimetable.get_moduleCode().equals(moduleCodeEditTextView.getText().toString()) || !studentTimetable.get_start_time().equals(startTimeTextView.getText().toString())
+                                || !studentTimetable.get_endTime().equals(endTimeTextView.toString()) || studentTimetable.get_day() != daySpinner.getSelectedItemPosition()+1
+                                || !studentTimetable.get_type().equals(typeSpinner.toString()) || !studentTimetable.get_title().equals(titleEditTextView.getText().toString())
+                                || !studentTimetable.get_room().equals(locationEditTextView.getText().toString())) {
+
+                            studentTimetable.set_modulePointer(0);
+                        }
 
 
                     studentTimetable.set_start_time(startTimeTextView.getText().toString());
                     studentTimetable.set_endTime(endTimeTextView.getText().toString());
+                    studentTimetable.set_day(daySpinner.getSelectedItemPosition()+1);
                     studentTimetable.set_moduleCode(moduleCodeEditTextView.getText().toString());
                     studentTimetable.set_title(titleEditTextView.getText().toString());
                     studentTimetable.set_type(typeSpinner.getSelectedItem().toString());
@@ -170,7 +194,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
 //                    Log.v("Testing edit: ", "" + typeSpinner.toString());
                     MyDBHandler dbHandler;
                     dbHandler = MyDBHandler.getInstance(getActivity());
-                    dbHandler.updateStudentTimetable(studentTimetable);
+                    dbHandler.updateOrAddStudentTimetable(studentTimetable);
 
                     dismiss();
                     return true;

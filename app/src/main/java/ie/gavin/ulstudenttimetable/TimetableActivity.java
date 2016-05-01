@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -26,6 +25,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,6 +42,11 @@ import ie.gavin.ulstudenttimetable.data.Week;
 
 public class TimetableActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener, EventDialogFragment.closeEventDialogListener {
+
+    FloatingActionButton fabMenu;
+    FloatingActionButton fabClass;
+    FloatingActionButton fabMemo;
+    FloatingActionButton fabMeeting;
 
     private Spinner weekSpinner;
     private NavigationView navigationView;
@@ -105,15 +111,35 @@ public class TimetableActivity extends AppCompatActivity
 //        loadTimetable();
         cv.focusCalendar();
 
-        com.github.clans.fab.FloatingActionButton fab = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.menu_item_class);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                // TODO remove
+        com.github.clans.fab.FloatingActionMenu fabMenu = (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.floating_menu);
+        FloatingActionButton fabClass       = (FloatingActionButton) findViewById(R.id.menu_item_class);
+        FloatingActionButton fabMemo        = (FloatingActionButton) findViewById(R.id.menu_item_memo);
+        FloatingActionButton fabMeeting     = (FloatingActionButton) findViewById(R.id.menu_item_meeting);
+        fabMenu.setClosedOnTouchOutside(false);
+        fabClass.setOnClickListener(new FloatingActionButtonClickListener());
+        fabMemo.setOnClickListener(new FloatingActionButtonClickListener());
+        fabMeeting.setOnClickListener(new FloatingActionButtonClickListener());
+
+    }
+
+    public class FloatingActionButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+
+            switch (v.getId()) {
+                case R.id.menu_item_class:
+                    openCreateEventDialog("LEC");
+                    break;
+
+                case R.id.menu_item_memo:
+                    openCreateEventDialog("Memo");
+                    break;
+
+                case R.id.menu_item_meeting:
+                    openCreateEventDialog("Meeting");
+                    break;
             }
-        });
+        }
     }
 
     @Override
@@ -196,6 +222,7 @@ public class TimetableActivity extends AppCompatActivity
 
             cv.setEditMode(false);
             loadTimetable();
+            updateReminderService();
             return true;
         }
 
@@ -210,7 +237,6 @@ public class TimetableActivity extends AppCompatActivity
 
         if (users.containsKey(id)) {
             String name = users.get(id);
-            Toast.makeText(TimetableActivity.this, name + "," + id, Toast.LENGTH_SHORT).show();
             setNavigationViewUser(id, name);
             loadTimetable();
         } else if (id == R.id.users_add) {
@@ -272,7 +298,7 @@ public class TimetableActivity extends AppCompatActivity
         if (resultCode == REQUEST_CODE_ADD_TIMETABLE) {
             String studentId = (String) data.getExtras().get("studentId");
             userId = Integer.parseInt(studentId);
-            String studentName = (String) data.getExtras().getString("studentName", "New user");
+            String studentName = data.getExtras().getString("studentName", "New user");
 
 //            Toast.makeText(TimetableActivity.this, studentName + " " + userId + " was added!", Toast.LENGTH_SHORT).show();
 
@@ -282,6 +308,7 @@ public class TimetableActivity extends AppCompatActivity
             loadTimetable();
             loadActionbarWeeks();
             savePreferences();
+            updateReminderService();
         } else if (users.size() == 0) {
             finish();       // close the app if the user does not add their timetable
         }
@@ -402,12 +429,13 @@ public class TimetableActivity extends AppCompatActivity
 
     public void loadTimetableModuleChooser(int eventId) {
         cv.setEditMode(true);
-        invalidateOptionsMenu();
+        invalidateOptionsMenu();    // changing contents
         StudentTimetable studentTimetable = dbHandler.getStudentTimetableFromID(eventId);
         String moduleCode = studentTimetable.get_moduleCode();
         Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
 
         ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode);
+        // TODO
 //        ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode, weekId);
 //        Log.v("match", ""+moduleTimetables.size());
 
@@ -430,7 +458,6 @@ public class TimetableActivity extends AppCompatActivity
                     end,
                     formatEvent(moduleTimetable),
                     studentTimetable.get_color(),   // keep the original color
-//                    Color.parseColor("#882222"),   // TODO just for testing
                     moduleTimetable.get_idTablePointer(),
                     moduleTimetable.get_idTablePointer()    // modules don't have a parent, just for comparing with children
                 );
@@ -510,7 +537,7 @@ public class TimetableActivity extends AppCompatActivity
 
             @Override
             public void onEventLongClick(int eventId) {
-                Toast.makeText(TimetableActivity.this, "" + eventId, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(TimetableActivity.this, "" + eventId, Toast.LENGTH_SHORT).show();
                 loadTimetableModuleChooser(eventId);
             }
         });
@@ -541,7 +568,15 @@ public class TimetableActivity extends AppCompatActivity
 
     }
 
+    public void openCreateEventDialog(String eventType) {
+        openEventDialog(0, true, eventType);
+    }
+
     public void openEventDialog(int eventId, boolean editable) {
+        openEventDialog(eventId, editable, null);
+    }
+
+    public void openEventDialog(int eventId, boolean editable, String eventType) {
         String tag = "fragment_view_event";
         if (editable) tag = "fragment_edit_event";
 
@@ -554,6 +589,12 @@ public class TimetableActivity extends AppCompatActivity
 
         Bundle args = new Bundle();
         args.putInt("eventId", eventId);
+
+        args.putInt("studentId", userId);
+        args.putInt("weekNumber", weekId);
+
+        if (eventType != null)
+            args.putString("eventType", eventType);
 
         EventDialogFragment eventDialogFragment;
 
@@ -580,13 +621,11 @@ public class TimetableActivity extends AppCompatActivity
                 break;
 
             case EventDialogFragment.SAVE_ACTION:
-                Toast.makeText(this, "s, " + studentTimetable.get_moduleCode(), Toast.LENGTH_SHORT).show();
                 loadTimetable();
-                // TODO save to DB
+                updateReminderService();
                 break;
 
             case EventDialogFragment.DELETE_ACTION:
-                Toast.makeText(this, "d, " + studentTimetable.get_moduleCode(), Toast.LENGTH_SHORT).show();
                 loadTimetable();
                 // TODO
                 break;
@@ -621,5 +660,13 @@ public class TimetableActivity extends AppCompatActivity
         editor.putInt("daysVisible", daysVisible);
         editor.putInt("userId", userId);
         editor.commit();
+    }
+
+    public void updateReminderService() {
+        Intent myIntent = new Intent(this , EventReminderService.class);
+        Log.v("updateReminderService", "ACTIVITY");
+        myIntent.setAction("RELOAD");
+        startService(myIntent);
+
     }
 }
