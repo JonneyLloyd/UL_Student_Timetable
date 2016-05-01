@@ -546,13 +546,14 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + ", "
-                + COLUMN_END_WEEK + " FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
+                + COLUMN_MODULE_NAME + " modTitle "
+
+                + " FROM "
+                +  TABLE_MODULE + " JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
+                + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")"
                 + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + id
                 +";";
         SQLiteDatabase db = getWritableDatabase();
@@ -645,13 +646,12 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + ", "
-                + COLUMN_END_WEEK + " FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
-                + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
+                + COLUMN_MODULE_NAME + " modTitle "
+                + " FROM "
+                +  TABLE_MODULE + ") as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
+                + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")"
                 +";";
 
         SQLiteDatabase db = getWritableDatabase();
@@ -816,14 +816,12 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_LECTURER + " modLec, "
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
-                + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + ", "
-                + COLUMN_END_WEEK + " FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ") JOIN " +TABLE_MODULE_NAMES
-                + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
+                + COLUMN_TYPE + " modType "
+                + " FROM "
+                +  TABLE_MODULE + ") as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
+                + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")"
                 + " WHERE " +  COLUMN_STUDENT_ID + " = "+ studentID
                 +";";
         SQLiteDatabase db = getWritableDatabase();
@@ -934,14 +932,17 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_DAY + " modDay, "
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
-                + COLUMN_MODULE_NAME + " modTitle, "
-                + COLUMN_START_WEEK + ", "
-                + COLUMN_END_WEEK + " FROM "
-                +  TABLE_MODULE + " LEFT JOIN " +TABLE_CLASS_WEEKS
-                + " USING(" + COLUMN_ID_TABLE_POINTER + ")JOIN " +TABLE_MODULE_NAMES
+                + COLUMN_MODULE_NAME + " modTitle "
+
+                + " FROM "
+                +  TABLE_MODULE + " JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
                 + " ON idPoint" + " = " + COLUMN_MODULE_POINTER
+                + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")"
                 + " WHERE " +  COLUMN_STUDENT_ID + " = "+ studentID
+                + " AND " +  COLUMN_START_WEEK + " <= "+ week
+                + " AND " +  COLUMN_END_WEEK + " >= "+ week
                 +";";
 
         SQLiteDatabase db = getWritableDatabase();
@@ -951,9 +952,7 @@ for (int i=0; i< newModule.size(); i++){
             c.moveToFirst();
             do
             {
-                if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")
-                        && week >= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK)))
-                        && week <= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK)))){
+                if (c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")){
                     result.add(new StudentTimetable(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                             c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
@@ -985,9 +984,7 @@ for (int i=0; i< newModule.size(); i++){
                     }
                 }
 
-                else if (!c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")
-                        && week >= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK)))
-                    && week <= Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK)))) {
+                else if (!c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")) {
 
                     result.add(new StudentTimetable(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
@@ -1253,6 +1250,76 @@ for (int i=0; i< newModule.size(); i++){
         oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
         if (oldEntry == null)
             return false;
+        ArrayList<Pair<Integer,Integer>> oldWeeks = oldEntry.get_weeks();
+        ArrayList<Pair<Integer,Integer>> newWeeks = entry.get_weeks();
+        Pair<Integer,Integer> change;
+        boolean[] oldSeletedWeeks;
+        boolean[] newSeletedWeeks;
+        ArrayList<Week> weekDetails = new ArrayList<>();
+        weekDetails = getWeekDetails();
+        //weeks = new String[weekDetails.size()];
+        //seletedWeeks = new boolean[weekDetails.size()]
+
+        oldSeletedWeeks = new boolean[weekDetails.size()];
+        for (Pair<Integer, Integer> weekPair : oldWeeks) {
+            for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
+                oldSeletedWeeks[i] = true;
+        }
+        newSeletedWeeks = new boolean[weekDetails.size()];
+        for (Pair<Integer, Integer> weekPair : newWeeks) {
+            for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
+                newSeletedWeeks[i] = true;
+        }
+
+        for(int i = 0;i <oldSeletedWeeks.length; i++){
+            if (oldSeletedWeeks[i] ==true && (newSeletedWeeks[i] ==true)){
+                oldSeletedWeeks[i] = false;
+            }
+        }
+
+        oldEntry.set_weeks(oldSeletedWeeks);
+        entry.set_weeks(newSeletedWeeks);
+
+
+//        for(int i =0; i < oldWeeks.size(); i++){
+//            for(int j =0; j < newWeeks.size(); j++){
+//                if (oldWeeks.get(i).first >= (oldWeeks.get(i).first) && (oldWeeks.get(i).first <= (oldWeeks.get(i).second))){
+//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first +1, oldWeeks.get(i).second);
+//                    oldWeeks.set(i,weeksToAdd);
+//                }
+//                else if (oldWeeks.get(i).second.equals(oldWeeks.get(i).first)){
+//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first, oldWeeks.get(i).second - 1);
+//                    oldWeeks.set(i,weeksToAdd);
+//                }
+//                else if (oldWeeks.get(i).first.equals(oldWeeks.get(i).second)){
+//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first + 1, oldWeeks.get(i).second);
+//                    oldWeeks.set(i,weeksToAdd);
+//                }
+//                else if (oldWeeks.get(i).second.equals(oldWeeks.get(i).second)){
+//                    Pair weeksToAdd = new Pair<Integer,Integer>(oldWeeks.get(i).first, oldWeeks.get(i).second - 1);
+//                    oldWeeks.set(i,weeksToAdd);
+//                }
+//            }
+//        }
+        addToStudentTimetable(entry);
+        deleteAllClassWeeksOnUID(oldEntry.get_idTablePointer());
+        for(int i = 0; i < oldEntry.get_weeks().size(); i++){
+            int first = oldEntry.get_weeks().get(i).first;
+            int second = oldEntry.get_weeks().get(i).second;
+           // Log.v("TESTING OLD stud", "" + first + "-" + second +"-"+oldEntry.get_idTablePointer());
+            addToClassWeekTable(first, second, oldEntry.get_idTablePointer());
+        }
+        return true;
+    }
+
+
+
+    //updates all existing studentTable entry
+    public boolean updateAllStudentTimetable(StudentTimetable entry){
+        StudentTimetable oldEntry;
+        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
+        if (oldEntry == null)
+            return false;
 
         SQLiteDatabase db = getWritableDatabase();
         Log.v("Testing notes", "-" +entry.get_notes());
@@ -1289,6 +1356,8 @@ for (int i=0; i< newModule.size(); i++){
         return id == 1;
 
     }
+
+
 
 
     //take studentTimetable object
