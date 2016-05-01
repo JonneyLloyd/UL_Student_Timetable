@@ -67,7 +67,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
             calendar.add(Calendar.HOUR, 1);
             String end = sdf.format(calendar.getTime());
 
-            studentTimetable = new StudentTimetable(0, null, 0, start, day, end, super.getStudentId(), "", "", super.getEventType(), "", "", "", colors[(int) (Math.random()*colors.length)]);
+            studentTimetable = new StudentTimetable(0, "", 0, start, day, end, super.getStudentId(), "", "", super.getEventType(), "", "", "", colors[(int) (Math.random()*colors.length)]);
             boolean defaultWeeks [] = new boolean[super.getWeekNumber()];
             defaultWeeks[super.getWeekNumber()-1] = true;
             studentTimetable.set_weeks(defaultWeeks);
@@ -267,7 +267,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
             mTimePicker = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                    ((TextView) v).setText( selectedHour + ":" + selectedMinute);
+                    ((TextView) v).setText( String.format("%02d", selectedHour) + ":" + String.format("%02d", selectedMinute));
                 }
             }, hour, minute, true);//Yes 24 hour time
             mTimePicker.setTitle("Select Time");

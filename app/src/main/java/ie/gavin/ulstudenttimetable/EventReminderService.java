@@ -8,6 +8,8 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -63,8 +65,8 @@ public class EventReminderService extends Service {
 
                             // build notification
                             Notification n = new Notification.Builder(this)
-                                    .setContentTitle("Booted or reloaded")
-                                    .setContentText("debug")
+                                    .setContentTitle("Notification Service Started")
+                                    .setContentText("processing")
                                     .setSmallIcon(R.drawable.ic_account_circle)
                                     .setContentIntent(pIntent)
                                     .setAutoCancel(true)
@@ -72,7 +74,6 @@ public class EventReminderService extends Service {
                             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                             notificationManager.notify(0, n);
 
-            // TODO get all events todo just this week
             int weekId = 0;
             Calendar weekStart = Calendar.getInstance();
             weekStart.set(Calendar.DAY_OF_WEEK, weekStart.getFirstDayOfWeek());     // Default to start of current week
@@ -90,7 +91,11 @@ public class EventReminderService extends Service {
             }
             Log.v("weekID", ""+weekId);
 
-            ArrayList<StudentTimetable> studentTimetables = MyDBHandler.getInstance(getApplicationContext()).getAllFromStudentTimetable(14161044, weekId);
+
+            SharedPreferences sharedPref = getSharedPreferences("ie.gavin.ulstudenttimetable.SHARED_PREFS_KEY", Context.MODE_PRIVATE);
+            int studentId = sharedPref.getInt("userId", 0);
+
+            ArrayList<StudentTimetable> studentTimetables = MyDBHandler.getInstance(getApplicationContext()).getAllFromStudentTimetable(studentId, weekId);
 
             Log.v("servicetestsize", ""+studentTimetables.size());
 
@@ -147,6 +152,9 @@ public class EventReminderService extends Service {
                         pendingIntent);
             }
 
+            // remove processing notification
+            notificationManager.cancel(0);
+
         } else if (eventId != 0) {
             StudentTimetable studentTimetable = MyDBHandler.getInstance(getApplicationContext()).getStudentTimetableFromID(eventId);
 
@@ -161,6 +169,7 @@ public class EventReminderService extends Service {
                 Notification.Builder builder = new Notification.Builder(this);
                 builder.setContentTitle(studentTimetable.get_start_time() + " - " + studentTimetable.get_endTime() + "   " + studentTimetable.get_type() + " " + studentTimetable.get_groupName())
                         .setContentText(studentTimetable.get_moduleCode() + " " + studentTimetable.get_title())
+                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                         .setSmallIcon(R.drawable.ic_today)
                         .setContentIntent(pIntent)
                         .setAutoCancel(true);
