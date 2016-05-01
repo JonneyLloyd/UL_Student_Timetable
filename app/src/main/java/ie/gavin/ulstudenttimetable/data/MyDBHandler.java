@@ -67,10 +67,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //uid
     public static final String COLUMN_ID = "id";
 
-//    public MyDBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-//        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
-//    }
-
     private static MyDBHandler mInstance = null;
     private Context context;
 
@@ -241,7 +237,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //Add a new row to the Module database
     public void addToModuleTable(Module module){
         SQLiteDatabase db = getWritableDatabase();
-
         long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID_TABLE_POINTER, id);//id taken from UID table
@@ -253,7 +248,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
         values.put(COLUMN_DAY, String.valueOf(module.get_day()));
         values.put(COLUMN_GROUP_NAME, module.get_groupName());
         values.put(COLUMN_TYPE, module.get_type());
-
         db.insert(TABLE_MODULE, null, values);
         db.close();
         ArrayList<Pair<Integer,Integer>> temp = new ArrayList<>();
@@ -265,7 +259,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
             addToClassWeekTable(start, end, id);
         }
     }
-
 
     // addToWeekDetails
     public void addToWeekDetails(int week, String weekLabel, Date weekCommencing){
@@ -284,11 +277,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
     //get all studentTimetable users
     public ArrayList<Week> getWeekDetails(){
         ArrayList<Week> result = new ArrayList<>();
-
         String query = "SELECT * "
                 + " FROM " + TABLE_WEEK
                 + ";";
-
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -299,7 +290,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 Log.v("Datetestout", c.getString(c.getColumnIndex(COLUMN_WEEK_START)));
                 SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date weekStart = inFormat.parse(c.getString(c.getColumnIndex(COLUMN_WEEK_START)));
-
                 result.add(
                         new Week(
                                 c.getInt(c.getColumnIndex(COLUMN_WEEK)),
@@ -307,7 +297,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
                                 weekStart
                         )
                 );
-
             } while (c.moveToNext());
 
         } catch (SQLiteException e) {
@@ -328,7 +317,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
 
-
     public void compareModuleLists(ArrayList<Module> oldModule, ArrayList<Module> newModule){
         boolean removed = false;
         for (int i = oldModule.size() -1; i >= 0; i--){
@@ -342,13 +330,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
                 else
                     x--;
             }
-
         }
-        //Log.d("FINAL diff", ": " + newModule.size() );
-
         boolean added = false;
         boolean success = false;
-
         for (int i = oldModule.size() -1; i >= 0; i--){
             removed = false;
             for(int x = newModule.size()-1; x >=0 && !added; ){
@@ -359,13 +343,11 @@ public class MyDBHandler extends SQLiteOpenHelper{
                     Log.d("CHANGED Module", ": " + newModule.get(i).get_ModuleCode() );
                     oldModule.remove(i);
                     newModule.remove(x);
-
                     added = true;
                 }
                 else
                     x--;
             }
-
         }
 //add remaining newModules to modultab
 for (int i=0; i< newModule.size(); i++){
@@ -374,23 +356,19 @@ for (int i=0; i< newModule.size(); i++){
 
     }
 
-
     // addToClassWeeksTable
     public void addToClassWeekTable(int startWeek, int endWeek, long idPointer){
         SQLiteDatabase db = getWritableDatabase();
-
         ContentValues values = new ContentValues();
         values.put(COLUMN_START_WEEK, startWeek);
         values.put(COLUMN_END_WEEK, endWeek);
         values.put(COLUMN_ID_TABLE_POINTER, String.valueOf(idPointer));
-
         db.insert(TABLE_CLASS_WEEKS, null, values);
         db.close();
     }
 
     //// addToModuleNamesTable
     public void addToModuleNamesTable(String moduleCode, String moduleName){
-
         if (getModuleName(moduleCode) == null) {
             SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -402,6 +380,7 @@ for (int i=0; i< newModule.size(); i++){
             db.close();
         }
     }
+
 
     public String getModuleName(String moduleCode){
         String result = null;
@@ -422,7 +401,6 @@ for (int i=0; i< newModule.size(); i++){
         catch (CursorIndexOutOfBoundsException ce)
         {
             Log.d("ID not found", ce.getMessage());
-
         }
         finally
         {
@@ -430,11 +408,8 @@ for (int i=0; i< newModule.size(); i++){
             if (c != null) c.close();
             db.close();
         }
-
         return result;
     }
-
-
 
 
     //add row to studentTimetable table
@@ -456,7 +431,6 @@ for (int i=0; i< newModule.size(); i++){
         values.put(COLUMN_LECTURER, entry.get_lecturer());
         values.put(COLUMN_ROOM, entry.get_room());
         values.put(COLUMN_COLOR, entry.get_color());
-
         db.insert(TABLE_STUDENT_TIMETABLE, null, values);
         db.close();
         if(entry.get_weeks() !=null){
@@ -518,7 +492,6 @@ for (int i=0; i< newModule.size(); i++){
                         c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
                         c.getString(c.getColumnIndex(COLUMN_TYPE))
                 );
-
                 Pair weeksToAdd = new Pair<Integer, Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))), Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                 weeks.add(weeksToAdd);
             } while (c.moveToNext());
@@ -556,7 +529,6 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
                 + COLUMN_MODULE_NAME + " modTitle "
-
                 + " FROM "
                 +  TABLE_MODULE + " JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
@@ -589,11 +561,9 @@ for (int i=0; i< newModule.size(); i++){
                         c.getString(c.getColumnIndex(COLUMN_ROOM)),
                         c.getInt(c.getColumnIndex(COLUMN_COLOR))
                 );
-
                 Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                 weeks.add(weeksToAdd);
             }
-
             else{
                 result = new StudentTimetable(
                         Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
@@ -611,11 +581,9 @@ for (int i=0; i< newModule.size(); i++){
                         c.getString(c.getColumnIndex("modRoom")),
                         c.getInt(c.getColumnIndex(COLUMN_COLOR))
                 );
-
                 Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                 weeks.add(weeksToAdd);
             }
-
             }
             while (c.moveToNext());
             result.set_weeks(weeks);
@@ -636,15 +604,12 @@ for (int i=0; i< newModule.size(); i++){
             if (c != null) c.close();
             db.close();
         }
-
-
         return result;
     }
 
     //get all from studentTimetable
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(){
         ArrayList<StudentTimetable> result = new ArrayList<>();
-
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
                 + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
                 + COLUMN_MODULE_CODE + " modCode, "
@@ -662,7 +627,6 @@ for (int i=0; i< newModule.size(); i++){
                 + " LEFT JOIN " +TABLE_CLASS_WEEKS
                 + " USING(" + COLUMN_ID_TABLE_POINTER + ")"
                 +";";
-
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -687,7 +651,6 @@ for (int i=0; i< newModule.size(); i++){
                             c.getString(c.getColumnIndex(COLUMN_ROOM)),
                             c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-
                     ArrayList < Pair < Integer, Integer >> weeks = new ArrayList<>();
                     Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
@@ -695,14 +658,12 @@ for (int i=0; i< newModule.size(); i++){
                         weeks.add(weeksToAdd);
                         result.get(result.size()-2).set_weeks(weeks);
                         result.remove(result.size()-1);
-
                     }
                     else {
                         weeks.add(weeksToAdd);
                         result.get(result.size() - 1).set_weeks(weeks);
                     }
                 }
-
                 else{
                     result.add(new StudentTimetable(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
@@ -720,7 +681,6 @@ for (int i=0; i< newModule.size(); i++){
                             c.getString(c.getColumnIndex("modRoom")),
                             c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-
                     ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
                     Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
@@ -728,17 +688,13 @@ for (int i=0; i< newModule.size(); i++){
                         weeks.add(weeksToAdd);
                         result.get(result.size()-2).set_weeks(weeks);
                         result.remove(result.size()-1);
-
                     }
                     else {
                         weeks.add(weeksToAdd);
                         result.get(result.size() - 1).set_weeks(weeks);
                     }
                 }
-
             }
-
-
             while (c.moveToNext());
         }
         catch (SQLiteException e)
@@ -757,8 +713,6 @@ for (int i=0; i< newModule.size(); i++){
             if (c != null) c.close();
             db.close();
         }
-
-
         return result;
     }
 
@@ -778,11 +732,9 @@ for (int i=0; i< newModule.size(); i++){
         return currentUsers.containsKey(studentID);
     }
 
-
     //get all studentTimetable users
     public HashMap<Integer, String> getUsers(){
         HashMap<Integer, String> result = new HashMap<>();
-
         String query = "SELECT * "
                 + " FROM " + TABLE_USERS
                 + ";";
@@ -794,7 +746,6 @@ for (int i=0; i< newModule.size(); i++){
             do
             {
                 result.put(c.getInt(c.getColumnIndex(COLUMN_USER_ID)), c.getString(c.getColumnIndex(COLUMN_USER_NAME)));
-
             } while (c.moveToNext());
 
         } catch (SQLiteException e) {
@@ -811,7 +762,6 @@ for (int i=0; i< newModule.size(); i++){
         }
         return result;
     }
-
 
     //get all timetable results for a particular studentID
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID){
@@ -857,7 +807,6 @@ for (int i=0; i< newModule.size(); i++){
                             c.getString(c.getColumnIndex(COLUMN_ROOM)),
                             c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-
                     ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
                     Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
@@ -865,14 +814,12 @@ for (int i=0; i< newModule.size(); i++){
                         weeks.add(weeksToAdd);
                         result.get(result.size()-2).set_weeks(weeks);
                         result.remove(result.size()-1);
-
                     }
                     else {
                         weeks.add(weeksToAdd);
                         result.get(result.size() - 1).set_weeks(weeks);
                     }
                 }
-
                 else{
                     result.add(new StudentTimetable(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
@@ -897,14 +844,12 @@ for (int i=0; i< newModule.size(); i++){
                         weeks.add(weeksToAdd);
                         result.get(result.size()-2).set_weeks(weeks);
                         result.remove(result.size()-1);
-
                     }
                     else {
                         weeks.add(weeksToAdd);
                         result.get(result.size() - 1).set_weeks(weeks);
                     }
                 }
-
             }
             while (c.moveToNext());
         }
@@ -930,7 +875,6 @@ for (int i=0; i< newModule.size(); i++){
     //get all timetable results for a particular studentID on a particular week
     public ArrayList<StudentTimetable> getAllFromStudentTimetable(int studentID, int week){
         ArrayList<StudentTimetable> result = new ArrayList<>();
-
         String query = "SELECT  * FROM " + TABLE_STUDENT_TIMETABLE
                 + " LEFT JOIN (SELECT " +COLUMN_ID_TABLE_POINTER + " idPoint, "
                 + COLUMN_MODULE_CODE + " modCode, "
@@ -942,7 +886,6 @@ for (int i=0; i< newModule.size(); i++){
                 + COLUMN_GROUP_NAME + " modGroup, "
                 + COLUMN_TYPE + " modType, "
                 + COLUMN_MODULE_NAME + " modTitle "
-
                 + " FROM "
                 +  TABLE_MODULE + " JOIN " +TABLE_MODULE_NAMES
                 + " USING (" +COLUMN_MODULE_CODE+ ") ) as t"
@@ -953,7 +896,6 @@ for (int i=0; i< newModule.size(); i++){
                 + " AND " +  COLUMN_START_WEEK + " <= "+ week
                 + " AND " +  COLUMN_END_WEEK + " >= "+ week
                 +";";
-
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -978,7 +920,6 @@ for (int i=0; i< newModule.size(); i++){
                             c.getString(c.getColumnIndex(COLUMN_ROOM)),
                             c.getInt(c.getColumnIndex(COLUMN_COLOR))
                     ));
-
                     ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
                     Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                     if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
@@ -992,7 +933,6 @@ for (int i=0; i< newModule.size(); i++){
                         result.get(result.size() - 1).set_weeks(weeks);
                     }
                 }
-
                 else if (!c.getString(c.getColumnIndex(COLUMN_MODULE_POINTER)).equals("0")) {
 
                     result.add(new StudentTimetable(
@@ -1025,7 +965,6 @@ for (int i=0; i< newModule.size(); i++){
                         result.get(result.size() - 1).set_weeks(weeks);
                     }
                 }
-
             }
             while (c.moveToNext());
         }
@@ -1046,7 +985,6 @@ for (int i=0; i< newModule.size(); i++){
         }
         return result;
     }
-
 
     //get all from Module Table
     public ArrayList<Module> getAllFromModuleTable(){
@@ -1080,7 +1018,6 @@ for (int i=0; i< newModule.size(); i++){
                     weeks.add(weeksToAdd);
                     result.get(result.size()-2).set_weeks(weeks);
                     result.remove(result.size()-1);
-
                 }
                 else {
                     weeks.add(weeksToAdd);
@@ -1108,7 +1045,6 @@ for (int i=0; i< newModule.size(); i++){
         return result;
     }
 
-
     //get all from Module Table with an ID & week
     public ArrayList<Module> getAllFromModuleTable(String moduleCode, int week){
         ArrayList<Module> result = new ArrayList<>();
@@ -1118,7 +1054,6 @@ for (int i=0; i< newModule.size(); i++){
                 + "' AND " + COLUMN_START_WEEK + " <= " + week
                 + " AND " + COLUMN_END_WEEK + " >= " + week
                 +";";
-
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = null;
         try {
@@ -1137,7 +1072,6 @@ for (int i=0; i< newModule.size(); i++){
                         c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
                         c.getString(c.getColumnIndex(COLUMN_TYPE))
                 ));
-
                 ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
                 Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
                 if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
@@ -1145,13 +1079,11 @@ for (int i=0; i< newModule.size(); i++){
                     weeks.add(weeksToAdd);
                     result.get(result.size()-2).set_weeks(weeks);
                     result.remove(result.size()-1);
-
                 }
                 else {
                     weeks.add(weeksToAdd);
                     result.get(result.size() - 1).set_weeks(weeks);
                 }
-
             }
             while (c.moveToNext());
         }
@@ -1163,7 +1095,6 @@ for (int i=0; i< newModule.size(); i++){
         catch (CursorIndexOutOfBoundsException ce)
         {
             Log.d("ID not found", ce.getMessage());
-
         }
         finally
         {
@@ -1171,12 +1102,8 @@ for (int i=0; i< newModule.size(); i++){
             if (c != null) c.close();
             db.close();
         }
-
-
         return result;
     }
-
-
 
     //get all from Module Table
     public ArrayList<Module> getAllFromModuleTable(String moduleCode){
@@ -1192,7 +1119,6 @@ for (int i=0; i< newModule.size(); i++){
             c = db.rawQuery(query, null);
             c.moveToFirst();
             do {
-
                     result.add(new Module(
                             Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
                             c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
@@ -1206,15 +1132,12 @@ for (int i=0; i< newModule.size(); i++){
                     ));
 
                 ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
-
                 Pair weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))),Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
-
                 if (result.size() > 1 && (result.get(result.size()-1).get_idTablePointer() == result.get(result.size()-2).get_idTablePointer())){
                     weeks.add(result.get(result.size()-2).get_weeks().get(0));
                     weeks.add(weeksToAdd);
                     result.get(result.size()-2).set_weeks(weeks);
                     result.remove(result.size()-1);
-
                 }
                 else {
                     weeks.add(weeksToAdd);
@@ -1231,7 +1154,6 @@ for (int i=0; i< newModule.size(); i++){
         catch (CursorIndexOutOfBoundsException ce)
         {
             Log.d("ID not found", ce.getMessage());
-
         }
         finally
         {
@@ -1239,8 +1161,6 @@ for (int i=0; i< newModule.size(); i++){
             if (c != null) c.close();
             db.close();
         }
-
-
         return result;
     }
 
@@ -1266,9 +1186,6 @@ for (int i=0; i< newModule.size(); i++){
         boolean[] newSeletedWeeks;
         ArrayList<Week> weekDetails = new ArrayList<>();
         weekDetails = getWeekDetails();
-        //weeks = new String[weekDetails.size()];
-        //seletedWeeks = new boolean[weekDetails.size()]
-
         oldSeletedWeeks = new boolean[weekDetails.size()];
         for (Pair<Integer, Integer> weekPair : oldWeeks) {
             for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
@@ -1285,7 +1202,6 @@ for (int i=0; i< newModule.size(); i++){
                 oldSeletedWeeks[i] = false;
             }
         }
-
         oldEntry.set_weeks(oldSeletedWeeks);
         entry.set_weeks(newSeletedWeeks);
 
@@ -1301,14 +1217,11 @@ for (int i=0; i< newModule.size(); i++){
     }
 
 
-
     //updates all existing studentTable entry
     public boolean updateOrAddStudentTimetable(StudentTimetable entry){
         Log.v("add", "start");
         boolean creating = false;
-
         StudentTimetable oldEntry;
-//        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
         if (entry.get_idTablePointer() == 0) {
             // Does not exist
             creating = true;
@@ -1316,9 +1229,7 @@ for (int i=0; i< newModule.size(); i++){
             long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
             entry.set_idTablePointer((int) id);
             Log.v("add uid", "" + id);
-//            return false;
         }
-
         SQLiteDatabase db = getWritableDatabase();
         Log.v("Testing notes", "-" +entry.get_notes());
 
@@ -1337,9 +1248,6 @@ for (int i=0; i< newModule.size(); i++){
         values.put(COLUMN_LECTURER, entry.get_lecturer());
         values.put(COLUMN_ROOM, entry.get_room());
         values.put(COLUMN_COLOR, entry.get_color());
-
-        String query = "";
-
         int id;
         if (creating) {
             values.put(COLUMN_ID_TABLE_POINTER, entry.get_idTablePointer());
@@ -1359,7 +1267,6 @@ for (int i=0; i< newModule.size(); i++){
             }
         }
         return id == 1;
-
     }
 
 
@@ -1376,9 +1283,6 @@ for (int i=0; i< newModule.size(); i++){
         boolean[] newSeletedWeeks;
         ArrayList<Week> weekDetails = new ArrayList<>();
         weekDetails = getWeekDetails();
-        //weeks = new String[weekDetails.size()];
-        //seletedWeeks = new boolean[weekDetails.size()]
-
         oldSeletedWeeks = new boolean[weekDetails.size()];
         for (Pair<Integer, Integer> weekPair : oldWeeks) {
             for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
@@ -1389,13 +1293,11 @@ for (int i=0; i< newModule.size(); i++){
             for (int i = weekPair.first-1; i <= weekPair.second-1; i++)
                 newSeletedWeeks[i] = true;
         }
-
         for(int i = 0;i <oldSeletedWeeks.length; i++){
             if (oldSeletedWeeks[i] ==true && (newSeletedWeeks[i] ==true)){
                 oldSeletedWeeks[i] = false;
             }
         }
-
         oldEntry.set_weeks(oldSeletedWeeks);
         entry.set_weeks(newSeletedWeeks);
 
@@ -1442,7 +1344,6 @@ for (int i=0; i< newModule.size(); i++){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_MODULE + " WHERE " + COLUMN_MODULE_CODE + "=\"" + moduleID + "\";");
         db.close();
-
     }
 
     //delete a row from studentTimetable
@@ -1459,7 +1360,6 @@ for (int i=0; i< newModule.size(); i++){
                 + " AND " + COLUMN_STUDENT_ID + " = \"" + studentID + "\";");
         db.close();
     }
-
 
     public void  deleteAllFromModule(){
         SQLiteDatabase db = getWritableDatabase();
@@ -1547,7 +1447,6 @@ for (int i=0; i< newModule.size(); i++){
         catch (CursorIndexOutOfBoundsException ce)
         {
             Log.d("ID not found", ce.getMessage() + query);
-
         }
         finally
         {
@@ -1556,7 +1455,6 @@ for (int i=0; i< newModule.size(); i++){
             db.close();
             if (c == null) return 0;
         }
-
         return result;
     }
 
