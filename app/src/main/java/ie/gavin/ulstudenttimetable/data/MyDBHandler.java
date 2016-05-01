@@ -8,7 +8,6 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Color;
 import android.util.Log;
 import android.util.Pair;
 
@@ -17,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+
+import ie.gavin.ulstudenttimetable.R;
 
 public class MyDBHandler extends SQLiteOpenHelper{
     public static final int DELETE = 0;
@@ -470,13 +471,13 @@ for (int i=0; i< newModule.size(); i++){
     public void addOrRemoveModuleFromStudentTimetable(ArrayList<Integer> moduleId, int studentID, int flag){
         int UID = 0;
         int modulePointer = 0;
-        int color = Color.parseColor("#FF0000");    // TODO - load same?
+        int color = context.getResources().getColor(R.color.colorPrimary);    // TODO - load same?
         StudentTimetable tempStudent;
         if (flag == ADD) {
             for (int i = 0; i < moduleId.size(); i++) {
                 Module module = getModuleFromID(moduleId.get(i));
                 modulePointer = moduleId.get(i);
-                tempStudent = new StudentTimetable(0, null, modulePointer, null, 0, null, studentID, null, null, null, null, null, null, color);
+                tempStudent = new StudentTimetable(0, null, module.get_idTablePointer(), null, 0, null, studentID, null, null, null, null, null, null, color);
                 tempStudent.set_weeks(module.get_weeks());
 
                 addToStudentTimetable(tempStudent);

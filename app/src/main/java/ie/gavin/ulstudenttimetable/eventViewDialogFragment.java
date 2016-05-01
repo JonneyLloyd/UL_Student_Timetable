@@ -68,10 +68,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
                     // Return to activity
                     closeEventDialogListener activity = (closeEventDialogListener) getActivity();
                     activity.onCloseEventDialog(DELETE_ACTION, studentTimetable);
-//                    dbHandler.deleteStudentTimetableEntry(studentTimetable);
-                    //instead of above pass studentTimetable to deleteSingleStudentTimetable()
-                    // need to set current week as only week on the object
-                    //this will remove current week entry and leave all others
+
                     CharSequence options[] = new CharSequence[]{"Delete for just this week", "Delete for every week"};
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -84,9 +81,11 @@ public class EventViewDialogFragment extends EventDialogFragment {
                             if (which == 0) {
                                 Integer week = getWeekNumber(); // the current week in view
                                 ArrayList<Pair<Integer, Integer>> weeks = new ArrayList<>();
+                                // need to set current week as only week on the object
                                 weeks.add(new Pair<>(week, week));
                                 studentTimetable.set_weeks(weeks);
 
+                                //this will remove current week entry and leave all others
                                 dbHandler.deleteSingleStudentTimetable(studentTimetable);
 
                             } else if (which == 1) {

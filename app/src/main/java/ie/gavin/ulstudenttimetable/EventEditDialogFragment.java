@@ -170,8 +170,8 @@ public class EventEditDialogFragment extends EventDialogFragment {
                     activity.onCloseEventDialog(SAVE_ACTION, studentTimetable);
                     if (!creating)
                         if(!studentTimetable.get_moduleCode().equals(moduleCodeEditTextView.getText().toString()) || !studentTimetable.get_start_time().equals(startTimeTextView.getText().toString())
-                                || !studentTimetable.get_endTime().equals(endTimeTextView.toString()) || studentTimetable.get_day() != daySpinner.getSelectedItemPosition()+1
-                                || !studentTimetable.get_type().equals(typeSpinner.toString()) || !studentTimetable.get_title().equals(titleEditTextView.getText().toString())
+                                || !studentTimetable.get_endTime().equals(endTimeTextView.getText().toString()) || studentTimetable.get_day() != daySpinner.getSelectedItemPosition()+1
+                                || !studentTimetable.get_type().equals(typeSpinner.getSelectedItem()) || !studentTimetable.get_title().equals(titleEditTextView.getText().toString())
                                 || !studentTimetable.get_room().equals(locationEditTextView.getText().toString())) {
 
                             studentTimetable.set_modulePointer(0);
