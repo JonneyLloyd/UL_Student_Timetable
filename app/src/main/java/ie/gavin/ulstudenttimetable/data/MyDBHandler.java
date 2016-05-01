@@ -474,13 +474,11 @@ for (int i=0; i< newModule.size(); i++){
         StudentTimetable tempStudent;
         if (flag == ADD) {
             for (int i = 0; i < moduleId.size(); i++) {
-                UID = moduleId.get(i);
-                tempStudent = new StudentTimetable(0, null, UID, null, 0, null, studentID, null, null, null, null, null, null, color);
+                Module module = getModuleFromID(moduleId.get(i));
+                modulePointer = moduleId.get(i);
+                tempStudent = new StudentTimetable(0, null, modulePointer, null, 0, null, studentID, null, null, null, null, null, null, color);
+                tempStudent.set_weeks(module.get_weeks());
 
-//                Module moduleEvent = getModuleFromID(UID);
-//                tempStudent.set_weeks(moduleEvent.get_weeks()); // needed? should inherit?
-
-//                tempStudent.set_weeks(moduleId.get(i).get_weeks()); // needed? should inherit?
                 addToStudentTimetable(tempStudent);
             }
         }
@@ -496,40 +494,50 @@ for (int i=0; i< newModule.size(); i++){
     //return a module row from id
     public Module getModuleFromID(int id){
         Module result = null;
-        String query = "SELECT * FROM " + TABLE_MODULE + " WHERE " +
-                COLUMN_ID_TABLE_POINTER + " = " + id + ";";
+        String query = "SELECT * FROM " + TABLE_MODULE
+                + " LEFT JOIN " +TABLE_CLASS_WEEKS
+                + " USING(" + COLUMN_ID_TABLE_POINTER + ")"
+                + " WHERE " + COLUMN_ID_TABLE_POINTER + " = " + id
+                +";";
         SQLiteDatabase db = getWritableDatabase();
+        ArrayList<Pair<Integer,Integer>> weeks = new ArrayList<>();
         Cursor c = null;
         try {
             c = db.rawQuery(query, null);
             c.moveToFirst();
-            result = new Module(
-                    Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
-                    c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
-                    c.getString(c.getColumnIndex(COLUMN_START_TIME)),
-                    c.getString(c.getColumnIndex(COLUMN_END_TIME)),
-                    c.getString(c.getColumnIndex(COLUMN_ROOM)),
-                    c.getString(c.getColumnIndex(COLUMN_LECTURER)),
-                    Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
-                    c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
-                    c.getString(c.getColumnIndex(COLUMN_TYPE))
-            );
+            do {
+                result = new Module(
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_ID_TABLE_POINTER))),
+                        c.getString(c.getColumnIndex(COLUMN_MODULE_CODE)),
+                        c.getString(c.getColumnIndex(COLUMN_START_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_END_TIME)),
+                        c.getString(c.getColumnIndex(COLUMN_ROOM)),
+                        c.getString(c.getColumnIndex(COLUMN_LECTURER)),
+                        Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_DAY))),
+                        c.getString(c.getColumnIndex(COLUMN_GROUP_NAME)),
+                        c.getString(c.getColumnIndex(COLUMN_TYPE))
+                );
+
+                Pair weeksToAdd = new Pair<Integer, Integer>(Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_START_WEEK))), Integer.parseInt(c.getString(c.getColumnIndex(COLUMN_END_WEEK))));
+                weeks.add(weeksToAdd);
+            } while (c.moveToNext());
+            result.set_weeks(weeks);
         }
-            catch (SQLiteException e)
-            {
-                Log.d("SQL Error", e.getMessage());
-                return null;
-            }
-            catch (CursorIndexOutOfBoundsException ce)
-            {
-                Log.d("ID not found", ce.getMessage());
-            }
-            finally
-            {
-                //release all resources
-                if (c != null) c.close();
-                db.close();
-            }
+        catch (SQLiteException e)
+        {
+            Log.d("SQL Error", e.getMessage());
+            return null;
+        }
+        catch (CursorIndexOutOfBoundsException ce)
+        {
+            Log.d("ID not found", ce.getMessage());
+        }
+        finally
+        {
+            //release all resources
+            if (c != null) c.close();
+            db.close();
+        }
         return result;
     }
 

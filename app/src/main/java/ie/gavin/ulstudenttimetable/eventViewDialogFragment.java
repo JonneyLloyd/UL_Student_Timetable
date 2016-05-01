@@ -83,7 +83,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
                             MyDBHandler dbHandler = MyDBHandler.getInstance(getActivity());
                             if (which == 0) {
                                 Integer week = getWeekNumber(); // the current week in view
-                                ArrayList<Pair<Integer, Integer>> weeks = new ArrayList<Pair<Integer, Integer>>();
+                                ArrayList<Pair<Integer, Integer>> weeks = new ArrayList<>();
                                 weeks.add(new Pair<>(week, week));
                                 studentTimetable.set_weeks(weeks);
 
