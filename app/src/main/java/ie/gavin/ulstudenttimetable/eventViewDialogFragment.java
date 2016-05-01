@@ -1,7 +1,10 @@
 package ie.gavin.ulstudenttimetable;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.text.DateFormatSymbols;
+import java.util.ArrayList;
 
 import ie.gavin.ulstudenttimetable.data.MyDBHandler;
 import ie.gavin.ulstudenttimetable.data.StudentTimetable;
@@ -43,22 +47,14 @@ public class EventViewDialogFragment extends EventDialogFragment {
         notesTextView = (TextView) view.findViewById(R.id.notesTextView);
 
 
-//        return (cal.get(Calendar.DAY_OF_WEEK) + 7 - 2) % 7;
-        dateTimeTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[studentTimetable.get_day() + 1] + " " + studentTimetable.get_start_time() + " - " + studentTimetable.get_endTime());
+        dateTimeTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[(studentTimetable.get_day() + 1)%7] + " " + studentTimetable.get_start_time() + " - " + studentTimetable.get_endTime());
         moduleCodeTextView.setText(studentTimetable.get_moduleCode());
         titleTextView.setText(studentTimetable.get_title());
         typeTextView.setText(studentTimetable.get_type());
         locationTextView.setText(studentTimetable.get_room());
-
-//        String weeks = "Weeks: ";
-//        for (Pair<Integer, Integer> week : studentTimetable.get_weeks()) weeks += week.first + "-" + week.second + " ";
         weeksTextView.setText("Weeks: " + studentTimetable.get_weeksFormattedList());
-
         notesTextView.setText(studentTimetable.get_notes());
 
-
-//        TextView tv = (TextView) view.findViewById(R.id.text);
-//        tv.setText("This is an instance of ActionBarDialog");
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(studentTimetable.get_color());
@@ -72,13 +68,41 @@ public class EventViewDialogFragment extends EventDialogFragment {
                     // Return to activity
                     closeEventDialogListener activity = (closeEventDialogListener) getActivity();
                     activity.onCloseEventDialog(DELETE_ACTION, studentTimetable);
-                    MyDBHandler dbHandler;
-                    dbHandler = MyDBHandler.getInstance(getActivity());
-                    dbHandler.deleteStudentTimetableEntry(studentTimetable);
+//                    dbHandler.deleteStudentTimetableEntry(studentTimetable);
                     //instead of above pass studentTimetable to deleteSingleStudentTimetable()
                     // need to set current week as only week on the object
                     //this will remove current week entry and leave all others
-                    dismiss();
+                    CharSequence options[] = new CharSequence[]{"Delete for just this week", "Delete for every week"};
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Delete " + studentTimetable.get_moduleCode() + " " + studentTimetable.get_title());
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // the user clicked on options[which]
+                            MyDBHandler dbHandler = MyDBHandler.getInstance(getActivity());
+                            if (which == 0) {
+                                Integer week = getWeekNumber(); // the current week in view
+                                ArrayList<Pair<Integer, Integer>> weeks = new ArrayList<Pair<Integer, Integer>>();
+                                weeks.add(new Pair<>(week, week));
+                                studentTimetable.set_weeks(weeks);
+
+                                dbHandler.deleteSingleStudentTimetable(studentTimetable);
+
+                            } else if (which == 1) {
+                                dbHandler.deleteStudentTimetableEntry(studentTimetable);
+                            }
+                            dismiss();
+                        }
+                    });
+                    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                            return;
+                        }
+                    });
+                    builder.show();
+
                     return true;
                 } else if (id == R.id.action_edit) {
                     // Return to activity
@@ -92,7 +116,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
             }
         });
         toolbar.inflateMenu(R.menu.edit_delete);
-        toolbar.setTitle(studentTimetable.get_moduleCode());
+        toolbar.setTitle(studentTimetable.get_moduleCode() + " " + studentTimetable.get_title());
 
         return view;
 
