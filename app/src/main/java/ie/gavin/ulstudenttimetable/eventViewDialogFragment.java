@@ -80,7 +80,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
             }
         });
         toolbar.inflateMenu(R.menu.edit_delete);
-        toolbar.setTitle(studentTimetable.get_moduleCode());
+        toolbar.setTitle(studentTimetable.get_moduleCode() + " " + studentTimetable.get_title());
 
         return view;
 

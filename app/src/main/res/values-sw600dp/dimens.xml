@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Any screen with both a width and height greater than 600dp will have a large layout mode -->
+    <bool name="large_layout">true</bool>
+
+</resources>

@@ -204,7 +204,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
             }
         });
         toolbar.inflateMenu(R.menu.save_cancel);
-        toolbar.setTitle(studentTimetable.get_moduleCode());
+        toolbar.setTitle(studentTimetable.get_moduleCode() + " " + studentTimetable.get_title());
 
         return view;
 
