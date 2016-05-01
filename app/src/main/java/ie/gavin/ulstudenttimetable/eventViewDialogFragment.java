@@ -48,7 +48,7 @@ public class EventViewDialogFragment extends EventDialogFragment {
         titleTextView.setText(studentTimetable.get_title());
         typeTextView.setText(studentTimetable.get_type());
         locationTextView.setText(studentTimetable.get_room());
-        weeksTextView.setText(" Weeks: " + studentTimetable.get_weeksFormattedList());
+        weeksTextView.setText("Weeks: " + studentTimetable.get_weeksFormattedList());
         notesTextView.setText(studentTimetable.get_notes());
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);

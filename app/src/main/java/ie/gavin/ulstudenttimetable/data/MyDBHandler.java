@@ -1313,27 +1313,23 @@ for (int i=0; i< newModule.size(); i++){
     }
 
 
-//    public boolean updateOrAddStudentTimetable(StudentTimetable entry){
-//        Log.v("add", "start");
-//        boolean creating = false;
-//
-//        StudentTimetable oldEntry;
-////        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
-//        if (entry.get_idTablePointer() == 0) {
-//            // Does not exist
-//            creating = true;
-//            SQLiteDatabase db = getWritableDatabase();
-//            long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
-//            entry.set_idTablePointer((int) id);
-//            Log.v("add uid", "" + id);
-////            return false;
-//        }
+
     //updates all existing studentTable entry
-    public boolean updateAllStudentTimetable(StudentTimetable entry){
+    public boolean updateOrAddStudentTimetable(StudentTimetable entry){
+        Log.v("add", "start");
+        boolean creating = false;
+
         StudentTimetable oldEntry;
-        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
-        if (oldEntry == null)
-            return false;
+//        oldEntry = getStudentTimetableFromID(entry.get_idTablePointer());
+        if (entry.get_idTablePointer() == 0) {
+            // Does not exist
+            creating = true;
+            SQLiteDatabase db = getWritableDatabase();
+            long id = db.insert(TABLE_UID, COLUMN_ID, null); //get return value and pass to idTablePointer
+            entry.set_idTablePointer((int) id);
+            Log.v("add uid", "" + id);
+//            return false;
+        }
 
         SQLiteDatabase db = getWritableDatabase();
         Log.v("Testing notes", "-" +entry.get_notes());
