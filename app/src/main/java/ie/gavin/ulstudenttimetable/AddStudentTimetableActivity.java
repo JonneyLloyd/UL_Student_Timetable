@@ -46,7 +46,7 @@ public class AddStudentTimetableActivity extends AppCompatActivity {
                 mProgress.setIndeterminate(false);
                 String message = intent.getStringExtra(Constants.EXTENDED_DATA_STATUS);
                 snackbar = Snackbar.make(findViewById(R.id.addStudentContainer), message, Snackbar.LENGTH_LONG);
-                snackbar.setAction("Retry", new View.OnClickListener() {
+                snackbar.setAction("Close", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 snackbar.dismiss();

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -435,6 +436,14 @@ public class TimetableActivity extends AppCompatActivity
         Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
 
         ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode);
+
+        if (moduleTimetables.size() == 0) {
+            cv.setEditMode(false);
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.calendar_view), "No other entries exist for this module", Snackbar.LENGTH_LONG);
+            snackbar.show();
+            return;
+        }
+
         // TODO
 //        ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode, weekId);
 //        Log.v("match", ""+moduleTimetables.size());
