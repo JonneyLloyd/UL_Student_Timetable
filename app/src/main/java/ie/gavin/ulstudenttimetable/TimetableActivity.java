@@ -195,9 +195,7 @@ public class TimetableActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_now) {
+        if (id == R.id.action_now) {
             weekSpinner.setSelection(currentWeekId - 1);    // returns to the current week if on a different week
             cv.focusCalendar();
             return true;
@@ -255,12 +253,6 @@ public class TimetableActivity extends AppCompatActivity
             daysVisible = 5;
             cv.setVisibleDays(daysVisible);
             cv.updateCalendar();
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

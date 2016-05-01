@@ -41,8 +41,28 @@
                     style="@style/AppTheme.EventDialogFieldIcon" />
 
                 <TextView
-                    android:id="@+id/dateTimeTextView"
-                    style="@style/AppTheme.EventDialogFieldContent" />
+                    android:id="@+id/dayTextView"
+                    style="@style/AppTheme.EventDialogFieldContent.Large"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
+
+                <TextView
+                    android:id="@+id/startTimeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent.Large"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="10dp" />
+
+                <ImageView
+                    android:id="@+id/timeSeparatorIcon"
+                    android:background="@drawable/ic_arrow_forward"
+                    style="@style/AppTheme.EventDialogFieldIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="10dp"/>
+
+                <TextView
+                    android:id="@+id/endTimeTextView"
+                    style="@style/AppTheme.EventDialogFieldContent.Large"
+                    android:layout_width="wrap_content"/>
 
             </LinearLayout>
 

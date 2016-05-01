@@ -21,7 +21,9 @@ public class EventViewDialogFragment extends EventDialogFragment {
 
     private StudentTimetable studentTimetable;
 
-    private TextView dateTimeTextView;
+    private TextView dayTextView;
+    private TextView startTimeTextView;
+    private TextView endTimeTextView;
     private TextView moduleCodeTextView;
     private TextView titleTextView;
     private TextView typeTextView;
@@ -38,7 +40,9 @@ public class EventViewDialogFragment extends EventDialogFragment {
 
         View view = inflater.inflate(R.layout.fragment_view_event, container, false);
 
-        dateTimeTextView = (TextView) view.findViewById(R.id.dateTimeTextView);
+        dayTextView = (TextView) view.findViewById(R.id.dayTextView);
+        startTimeTextView = (TextView) view.findViewById(R.id.startTimeTextView);
+        endTimeTextView = (TextView) view.findViewById(R.id.endTimeTextView);
         moduleCodeTextView = (TextView) view.findViewById(R.id.moduleCodeTextView);
         titleTextView = (TextView) view.findViewById(R.id.titleTextView);
         typeTextView = (TextView) view.findViewById(R.id.typeTextView);
@@ -47,7 +51,9 @@ public class EventViewDialogFragment extends EventDialogFragment {
         notesTextView = (TextView) view.findViewById(R.id.notesTextView);
 
 
-        dateTimeTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[(studentTimetable.get_day() + 1)%7] + " " + studentTimetable.get_start_time() + " - " + studentTimetable.get_endTime());
+        dayTextView.setText(DateFormatSymbols.getInstance().getWeekdays()[(studentTimetable.get_day() + 1) % 7]);
+        startTimeTextView.setText(studentTimetable.get_start_time());
+        endTimeTextView.setText(studentTimetable.get_endTime());
         moduleCodeTextView.setText(studentTimetable.get_moduleCode());
         titleTextView.setText(studentTimetable.get_title());
         typeTextView.setText(studentTimetable.get_type());

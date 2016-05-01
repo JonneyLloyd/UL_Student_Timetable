@@ -274,7 +274,6 @@ public class EventEditDialogFragment extends EventDialogFragment {
                     ((TextView) v).setText( String.format("%02d", selectedHour) + ":" + String.format("%02d", selectedMinute));
                 }
             }, hour, minute, true);//Yes 24 hour time
-            mTimePicker.setTitle("Select Time");
             mTimePicker.show();
 
         }

@@ -8,7 +8,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="80dp">
+        android:layout_height="@dimen/header_height">
 
         <LinearLayout
             android:orientation="vertical"

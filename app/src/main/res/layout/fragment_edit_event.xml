@@ -48,13 +48,13 @@
 
                 <Spinner
                     android:id="@+id/daySpinner"
-                    style="@style/AppTheme.EventDialogFieldContent"
+                    style="@style/AppTheme.EventDialogFieldContent.Large"
                     android:layout_weight="1"
                     android:layout_width="0dp" />
 
                 <TextView
                     android:id="@+id/startTimeTextView"
-                    style="@style/AppTheme.EventDialogFieldContent"
+                    style="@style/AppTheme.EventDialogFieldContent.Large"
                     android:layout_width="wrap_content"
                     android:layout_marginRight="10dp" />
 
@@ -67,7 +67,7 @@
 
                 <TextView
                     android:id="@+id/endTimeTextView"
-                    style="@style/AppTheme.EventDialogFieldContent"
+                    style="@style/AppTheme.EventDialogFieldContent.Large"
                     android:layout_width="wrap_content"/>
 
             </LinearLayout>

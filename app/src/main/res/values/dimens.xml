@@ -12,6 +12,8 @@
 
     <dimen name="time_indicator_height">12dp</dimen>
 
+    <dimen name="header_height">50dp</dimen>
+    <dimen name="header_date_size">20sp</dimen>
 
     <bool name="large_layout">false</bool>
 </resources>
