@@ -75,6 +75,9 @@ public class EventViewDialogFragment extends EventDialogFragment {
                     MyDBHandler dbHandler;
                     dbHandler = MyDBHandler.getInstance(getActivity());
                     dbHandler.deleteStudentTimetableEntry(studentTimetable);
+                    //instead of above pass studentTimetable to deleteSingleStudentTimetable()
+                    // need to set current week as only week on the object
+                    //this will remove current week entry and leave all others
                     dismiss();
                     return true;
                 } else if (id == R.id.action_edit) {
