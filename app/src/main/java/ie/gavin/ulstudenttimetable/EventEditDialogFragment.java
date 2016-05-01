@@ -194,7 +194,7 @@ public class EventEditDialogFragment extends EventDialogFragment {
 //                    Log.v("Testing edit: ", "" + typeSpinner.toString());
                     MyDBHandler dbHandler;
                     dbHandler = MyDBHandler.getInstance(getActivity());
-                    dbHandler.updateOrAddStudentTimetable(studentTimetable);
+                    dbHandler.updateStudentTimetable(studentTimetable);
 
                     dismiss();
                     return true;
