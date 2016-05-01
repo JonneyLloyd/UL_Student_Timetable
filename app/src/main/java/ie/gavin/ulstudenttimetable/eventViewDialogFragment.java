@@ -65,9 +65,6 @@ public class EventViewDialogFragment extends EventDialogFragment {
                 int id = item.getItemId();
 
                 if (id == R.id.action_delete) {
-                    // Return to activity
-                    closeEventDialogListener activity = (closeEventDialogListener) getActivity();
-                    activity.onCloseEventDialog(DELETE_ACTION, studentTimetable);
 
                     CharSequence options[] = new CharSequence[]{"Delete for just this week", "Delete for every week"};
 
@@ -91,6 +88,13 @@ public class EventViewDialogFragment extends EventDialogFragment {
                             } else if (which == 1) {
                                 dbHandler.deleteStudentTimetableEntry(studentTimetable);
                             }
+
+                            if (which == 1 || which == 0) {
+                                // Return to activity
+                                closeEventDialogListener activity = (closeEventDialogListener) getActivity();
+                                activity.onCloseEventDialog(DELETE_ACTION, studentTimetable);
+                            }
+
                             dismiss();
                         }
                     });

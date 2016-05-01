@@ -165,9 +165,6 @@ public class EventEditDialogFragment extends EventDialogFragment {
                     dismiss();
                     return true;
                 } else if (id == R.id.action_save) {
-                    // Return to activity
-                    closeEventDialogListener activity = (closeEventDialogListener) getActivity();
-                    activity.onCloseEventDialog(SAVE_ACTION, studentTimetable);
                     if (!creating)
                         if(!studentTimetable.get_moduleCode().equals(moduleCodeEditTextView.getText().toString()) || !studentTimetable.get_start_time().equals(startTimeTextView.getText().toString())
                                 || !studentTimetable.get_endTime().equals(endTimeTextView.getText().toString()) || studentTimetable.get_day() != daySpinner.getSelectedItemPosition()+1
@@ -198,6 +195,10 @@ public class EventEditDialogFragment extends EventDialogFragment {
                         dbHandler.updateOrAddStudentTimetable(studentTimetable);
                     else
                         dbHandler.updateStudentTimetable(studentTimetable);
+
+                    // Return to activity
+                    closeEventDialogListener activity = (closeEventDialogListener) getActivity();
+                    activity.onCloseEventDialog(SAVE_ACTION, studentTimetable);
 
                     dismiss();
                     return true;
