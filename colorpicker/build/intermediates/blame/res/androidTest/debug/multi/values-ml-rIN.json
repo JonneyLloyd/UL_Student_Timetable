@@ -1,5 +1,67 @@
 [
     {
+        "outputFile": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\res\\merged\\androidTest\\debug\\values-ml-rIN\\values-ml-rIN.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 105,
+                    "endColumn": 110,
+                    "endOffset": 211
+                },
+                "from": {
+                    "file": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\values-ml-rIN\\values-ml-rIN.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 4,
+                        "startOffset": 105,
+                        "endColumn": 110,
+                        "endOffset": 211
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 3,
+                    "startColumn": 4,
+                    "startOffset": 216,
+                    "endColumn": 126,
+                    "endOffset": 338
+                },
+                "from": {
+                    "file": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\values-ml-rIN\\values-ml-rIN.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 4,
+                        "startOffset": 216,
+                        "endColumn": 126,
+                        "endOffset": 338
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 4,
+                    "startColumn": 4,
+                    "startOffset": 343,
+                    "endColumn": 149,
+                    "endOffset": 488
+                },
+                "from": {
+                    "file": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\values-ml-rIN\\values-ml-rIN.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 4,
+                        "startOffset": 343,
+                        "endColumn": 149,
+                        "endOffset": 488
+                    }
+                }
+            }
+        ]
+    },
+    {
         "outputFile": "C:\\Users\\Oliver\\AndroidStudioProjects\\CS4084\\ULStudentTimetable\\colorpicker\\build\\intermediates\\res\\merged\\androidTest\\debug\\values-ml-rIN\\values-ml-rIN.xml",
         "map": [
             {

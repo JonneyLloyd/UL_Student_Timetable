@@ -4,6 +4,14 @@
         "source": "C:\\Users\\Oliver\\AndroidStudioProjects\\CS4084\\ULStudentTimetable\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\layout\\color_picker_swatch.xml"
     },
     {
+        "merged": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\res\\merged\\androidTest\\debug\\layout\\color_picker_swatch.xml",
+        "source": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\layout\\color_picker_swatch.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\res\\merged\\androidTest\\debug\\layout\\color_picker_dialog.xml",
+        "source": "C:\\Users\\Admin\\AndroidStudioProjects\\UL_Student_Timetable2\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\layout\\color_picker_dialog.xml"
+    },
+    {
         "merged": "C:\\Users\\Oliver\\AndroidStudioProjects\\CS4084\\ULStudentTimetable\\colorpicker\\build\\intermediates\\res\\merged\\androidTest\\debug\\layout\\color_picker_dialog.xml",
         "source": "C:\\Users\\Oliver\\AndroidStudioProjects\\CS4084\\ULStudentTimetable\\colorpicker\\build\\intermediates\\bundles\\debug\\res\\layout\\color_picker_dialog.xml"
     }
