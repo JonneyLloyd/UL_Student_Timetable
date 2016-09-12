@@ -276,7 +276,11 @@ public class GetStudentData {
                     else {
                         String[] splitArray = weeks.split("-");
                         Pair weeksToAdd;
-                        weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
+                        if (splitArray.length == 2) {
+                            weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
+                        } else {
+                            weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[0]));
+                        }
                         weeksList.add(weeksToAdd);
                     }
                     tempModule.set_weeks(weeksList);
@@ -367,7 +371,11 @@ public class GetStudentData {
                     else {
                         String[] splitArray = weeks.split("-");
                         Pair weeksToAdd;
-                        weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
+                        if (splitArray.length == 2) {
+                            weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[1]));
+                        } else {
+                            weeksToAdd = new Pair<Integer,Integer>(Integer.parseInt(splitArray[0]),Integer.parseInt(splitArray[0]));
+                        }
                         weeksList.add(weeksToAdd);
 //                        String[] splitArray = weeks.split("-");
 //                        temp.add(splitArray[0] + "-" + splitArray[1]);

@@ -24,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 
@@ -237,7 +236,7 @@ public class TimetableActivity extends AppCompatActivity
             setNavigationViewUser(id, name);
             loadTimetable();
         } else if (id == R.id.users_add) {
-            Toast.makeText(TimetableActivity.this, "Add user", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(TimetableActivity.this, "Add user", Toast.LENGTH_SHORT).show();
             addUser();  // TODO add to list after
         } else if (id == R.id.nav_one_day) {
             daysVisible = 1;
@@ -380,7 +379,7 @@ public class TimetableActivity extends AppCompatActivity
         weekStartDate = item.get_weekStart();
 
         // Showing selected spinner item
-        Toast.makeText(parent.getContext(), "Selected: " + item + ": " + item.get_weekStart() + " -> " + weekId, Toast.LENGTH_LONG).show();
+//        Toast.makeText(parent.getContext(), "Selected: " + item + ": " + item.get_weekStart() + " -> " + weekId, Toast.LENGTH_LONG).show();
 
         loadTimetable();
     }
@@ -423,7 +422,7 @@ public class TimetableActivity extends AppCompatActivity
         invalidateOptionsMenu();    // changing contents
         StudentTimetable studentTimetable = dbHandler.getStudentTimetableFromID(eventId);
         String moduleCode = studentTimetable.get_moduleCode();
-        Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(TimetableActivity.this, "edit mode "+moduleCode, Toast.LENGTH_SHORT).show();
 
         ArrayList<Module> moduleTimetables = dbHandler.getAllFromModuleTable(moduleCode);
 
@@ -503,7 +502,7 @@ public class TimetableActivity extends AppCompatActivity
     public void loadTimetable() {   // TODO fix double load
         cv.setEditMode(false);
         invalidateOptionsMenu();
-        Toast.makeText(TimetableActivity.this, "loading: "+userId, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(TimetableActivity.this, "loading: "+userId, Toast.LENGTH_SHORT).show();
         ArrayList<StudentTimetable> studentTimetables = dbHandler.getAllFromStudentTimetable(userId, weekId);
 
         events.clear();
@@ -637,7 +636,7 @@ public class TimetableActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         savePreferences();
-        Toast.makeText(TimetableActivity.this, "saving data", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(TimetableActivity.this, "saving data", Toast.LENGTH_SHORT).show();
     }
 
     public void loadPreferences() {
